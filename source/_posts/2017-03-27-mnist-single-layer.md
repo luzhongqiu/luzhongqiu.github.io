@@ -1,6 +1,8 @@
 ---
 title: mnist单隐层的神经网络
 date: 2017-03-27 22:17:48
+categories:
+    - Machine Learning
 tags:
     - tensorflow
     - mnist

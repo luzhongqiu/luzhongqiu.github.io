@@ -1,8 +1,10 @@
 ---
 title: tensorflow-autoencoder
 date: 2017-03-26 19:08:57
+categories:
+    - Machine Learning
 tags:
-    - tensorflow
+    - tensorflo
     - unsupervised
 ---
 # 加性高斯噪声自编码器

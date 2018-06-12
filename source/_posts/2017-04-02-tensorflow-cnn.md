@@ -1,6 +1,8 @@
 ---
 title: tensorflow-cnn
 date: 2017-04-02 11:04:27
+categories:
+    - Machine Learning
 tags:
     - tensorflow
     - cnn

@@ -3,10 +3,10 @@
 ## Source: https://github.com/hexojs/hexo/
 
 # Site
-title: Nic的鱼塘，一条小小的咸鱼
-subtitle: 一个灵活的咸
-description: 一个灵活的咸鱼，中宇云网欢迎您
-author: Nic
+title: 老九门, LJM
+subtitle: 寻龙分金看缠山 一重缠是一重关
+description: 
+author: LJM
 language: zh-CN
 timezone: asia/shanghai
 
@@ -15,7 +15,7 @@ timezone: asia/shanghai
 url: http://yunwangst.com
 root: /
 permalink: :year/:month/:day/:title/
-permalink_defaults:
+permalink_defaults: :year/:month/:day/:title/
 
 # Directory
 source_dir: source
@@ -28,7 +28,7 @@ i18n_dir: :lang
 skip_render:
 
 # Writing
-new_post_name: :title.md # File name of new posts
+new_post_name: :year-:month-:day-:title.md # File name of new posts
 default_layout: post
 titlecase: false # Transform title into titlecase
 external_link: true # Open external links in new tab
@@ -44,7 +44,7 @@ highlight:
   tab_replace:
 
 # Category & Tag
-default_category: uncategorized
+default_category:
 category_map:
 tag_map:
 

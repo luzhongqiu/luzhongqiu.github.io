@@ -1,6 +1,8 @@
 ---
 title: tensorflow mnist 初体验
 date: 2017-03-26 09:31:42
+categories:
+    - Machine Learning
 tags:
     - tensorflow
     - mnist
