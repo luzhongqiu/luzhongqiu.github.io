@@ -69,3 +69,11 @@ theme: maupassant
 ## Docs: https://hexo.io/docs/deployment.html
 deploy:
   type:
+
+plugin:
+- hexo-generator-feed
+#Feed Atom
+feed:
+type: atom
+path: atom.xml
+limit: 20
