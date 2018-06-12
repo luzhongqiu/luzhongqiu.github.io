@@ -18,6 +18,7 @@ tags:
   - 切换到`blog`分支
   - hexo new xxxxxx(文章标题，英文)，会产生source/_posts/year-month-day-xxxxxx.md
 - 若不用hexo的兄弟，clone了整个项目后
+  - 切换到`blog`分支 
   - 创建`source/_posts/year-month-day-xxxxxx.md`文件(虽然文件名不强求，但是最好按照这个规则，好管理)
 - 编辑产生的文件,添加`categories`, 例子如下:
     ```
