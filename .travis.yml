@@ -28,4 +28,4 @@ branches:
     - blog
 env:
  global:
-   - GH_REF: github.com/luzhongqiu/luzhongqiu.github.io.git
+   - GH_REF: github.com/laojiumen/laojiumen.github.io.git
