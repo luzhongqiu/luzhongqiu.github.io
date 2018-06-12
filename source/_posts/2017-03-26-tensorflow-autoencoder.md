@@ -4,7 +4,7 @@ date: 2017-03-26 19:08:57
 categories:
     - Machine Learning
 tags:
-    - tensorflo
+    - tensorflow
     - unsupervised
 ---
 # 加性高斯噪声自编码器
