@@ -2,9 +2,9 @@
 title: adobe camera raw 安装
 date: 2018-08-31 20:07:37
 categories:
-        - 安装教程
-    tags:
-        - adobe
+  - 安装教程
+tags:
+  - adobe
 ---
 
 adobe camera raw 是配合相机的调图插件，安装页面: https://helpx.adobe.com/cn/camera-raw/kb/camera-raw-plug-in-installer.html
