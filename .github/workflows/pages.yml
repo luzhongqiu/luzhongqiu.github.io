@@ -3,10 +3,8 @@ name: Pages
 on:
   push:
     branches:
-      - master  # 默认分支
-  pull_request:
-    branches:
-      - master
+      - blog
+  workflow_dispatch:
 
 jobs:
   build:
@@ -31,7 +29,8 @@ jobs:
 
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
-        if: github.ref == 'refs/heads/master'
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./public
+          publish_branch: master
+          force_orphan: true
