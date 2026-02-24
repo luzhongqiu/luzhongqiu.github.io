@@ -1,122 +1,96 @@
-# 🏠 老九门 - LJM 的个人博客
+# Lu Zhongqiu's Blog
 
-[![Hexo](https://img.shields.io/badge/Hexo-6.0+-blue?logo=hexo)](https://hexo.io/)
+[![Hexo](https://img.shields.io/badge/Hexo-8.0+-blue?logo=hexo)](https://hexo.io/)
 [![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-Deployed-success?logo=github)](https://luzhongqiu.github.io/)
-[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-> **寻龙分金看缠山，一重缠是一重关**
-
-这是我的个人技术博客，使用 [Hexo](https://hexo.io/) 构建，托管在 [GitHub Pages](https://pages.github.com/) 上。
-
-## 🌐 在线访问
+个人博客，使用 Hexo + Icarus 主题构建，托管在 GitHub Pages。
 
 **博客地址**: [https://luzhongqiu.github.io](https://luzhongqiu.github.io)
 
-## 📝 博客内容
+---
 
-- 🤖 机器学习与深度学习
-- 💻 编程技术与最佳实践
-- 📷 摄影与后期处理
-- 🎯 个人成长与思考
+## ✍️ 如何添加文章
 
-## 🚀 技术栈
+### 第一步：新建文章文件
 
-- **静态站点生成器**: [Hexo](https://hexo.io/)
-- **主题**: [Maupassant](https://github.com/tufu9441/maupassant-hexo)
-- **部署**: GitHub Pages
-- **评论系统**: Gitalk
+在 `source/_posts/` 目录下创建一个 Markdown 文件，命名格式为：
 
-## 🛠️ 本地开发
-
-### 环境要求
-
-- [Node.js](https://nodejs.org/) (>= 14.0.0)
-- [Git](https://git-scm.com/)
-
-### 安装依赖
-
-```bash
-# 克隆仓库
-git clone git@github.com:luzhongqiu/luzhongqiu.github.io.git
-cd luzhongqiu.github.io
-
-# 安装依赖
-npm install
-
-# 安装 Hexo CLI（如果尚未安装）
-npm install -g hexo-cli
+```
+YYYY-MM-DD-文章英文标识.md
 ```
 
-### 本地预览
+例如：`2026-03-01-my-new-post.md`
+
+### 第二步：填写文章头信息
+
+文件开头必须包含以下 Front Matter：
+
+```markdown
+---
+title: 文章标题
+date: 2026-03-01 10:00:00
+categories:
+  - 分类名
+tags:
+  - 标签1
+  - 标签2
+---
+
+正文从这里开始...
+```
+
+**常用字段说明：**
+
+| 字段 | 说明 | 示例 |
+|------|------|------|
+| `title` | 文章标题（必填） | `我的新文章` |
+| `date` | 发布时间（必填） | `2026-03-01 10:00:00` |
+| `categories` | 分类，只选一个 | `AI` / `技术` / `随笔` |
+| `tags` | 标签，可多个 | `机器学习`、`Python` |
+
+### 第三步：本地预览（可选）
 
 ```bash
-# 启动本地服务器
-hexo server
+# 安装依赖（首次）
+npm install
+npm install --prefix themes/icarus
 
-# 或者
+# 启动本地服务器
 npm run server
 ```
 
-访问 `http://localhost:4000` 查看效果。
+打开 http://localhost:4000 预览效果。
 
-### 新建文章
-
-```bash
-hexo new post "文章标题"
-```
-
-### 构建站点
+### 第四步：发布
 
 ```bash
-hexo generate
-# 或者
-hexo g
+git add source/_posts/你的文章.md
+git commit -m "新增文章：文章标题"
+git push origin blog
 ```
 
-### 部署到 GitHub Pages
+push 后 GitHub Actions 会自动构建并部署，约 1 分钟后在 https://luzhongqiu.github.io 生效。
 
-```bash
-hexo deploy
-# 或者
-hexo d
-```
+---
 
 ## 📂 目录结构
 
 ```
 .
-├── _config.yml          # 站点配置文件
-├── package.json         # 依赖配置
-├── scaffolds/           # 文章模板
-├── source/              # 源代码
-│   ├── _posts/          # 博客文章
-│   └── about/           # 关于页面
-└── themes/              # 主题目录
-    └── maupassant/      # Maupassant 主题
+├── _config.yml           # Hexo 站点配置
+├── _config.icarus.yml    # Icarus 主题配置（侧边栏、头像、链接等）
+├── source/
+│   ├── _posts/           # 📝 文章目录（在这里添加文章）
+│   └── img/              # 图片资源
+├── themes/
+│   └── icarus/           # Icarus 主题（含自定义修改）
+└── .github/workflows/
+    └── pages.yml         # CI/CD 自动部署配置
 ```
 
-## 🎨 装修记录
+## 🛠️ 技术栈
 
-### 2025-02 装修更新
-
-- ✅ 更新 Hexo 配置，优化 SEO
-- ✅ 启用本地搜索功能
-- ✅ 添加字数统计和阅读时间
-- ✅ 启用不蒜子访问统计
-- ✅ 添加动态背景效果
-- ✅ 优化关于页面
-- ✅ 配置 Gitalk 评论系统
-- ✅ 添加文章版权信息
-
-## 📜 许可证
-
-本站内容采用 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 许可协议。
-
-## 🙏 致谢
-
-- [Hexo](https://hexo.io/) - 快速、简洁且高效的博客框架
-- [Maupassant](https://github.com/tufu9441/maupassant-hexo) - 简洁优雅的 Hexo 主题
-
----
-
-Made with ❤️ by [LJM](https://github.com/luzhongqiu)
+- **框架**: [Hexo](https://hexo.io/) 8.x
+- **主题**: [Icarus](https://github.com/ppoffice/hexo-theme-icarus)
+- **部署**: GitHub Pages（`master` 分支）
+- **CI/CD**: GitHub Actions（push `blog` 分支自动触发）
