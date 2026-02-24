@@ -16,7 +16,6 @@ jobs:
       - uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          submodules: recursive  # 获取子模块（主题）
 
       - name: Use Node.js
         uses: actions/setup-node@v4
@@ -25,7 +24,10 @@ jobs:
           cache: 'npm'
 
       - name: Install Dependencies
-        run: npm install
+        run: npm install --ignore-scripts
+
+      - name: Install Icarus Theme Dependencies
+        run: npm install --prefix themes/icarus --ignore-scripts
 
       - name: Build
         run: npm run build

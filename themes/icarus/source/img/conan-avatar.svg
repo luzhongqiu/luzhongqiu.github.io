@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <!-- Background circle -->
+  <circle cx="60" cy="60" r="58" fill="#1a1a2e" stroke="#4a90d9" stroke-width="2"/>
+
+  <!-- Hair - top black mass -->
+  <ellipse cx="60" cy="36" rx="28" ry="18" fill="#1a1a1a"/>
+  <!-- Hair sides -->
+  <ellipse cx="34" cy="46" rx="10" ry="14" fill="#1a1a1a"/>
+  <ellipse cx="86" cy="46" rx="10" ry="14" fill="#1a1a1a"/>
+  <!-- Hair top spikes -->
+  <path d="M36 32 Q44 14 52 28" fill="#1a1a1a"/>
+  <path d="M84 32 Q76 14 68 28" fill="#1a1a1a"/>
+  <path d="M52 26 Q60 10 68 26" fill="#1a1a1a"/>
+
+  <!-- Face -->
+  <ellipse cx="60" cy="58" rx="24" ry="22" fill="#fde8c8"/>
+
+  <!-- Ears -->
+  <ellipse cx="36" cy="58" rx="5" ry="7" fill="#fde8c8"/>
+  <ellipse cx="84" cy="58" rx="5" ry="7" fill="#fde8c8"/>
+
+  <!-- Glasses frame - thick round glasses -->
+  <circle cx="49" cy="56" r="10" fill="none" stroke="#1a1a1a" stroke-width="2.5"/>
+  <circle cx="71" cy="56" r="10" fill="none" stroke="#1a1a1a" stroke-width="2.5"/>
+  <!-- Glasses bridge -->
+  <line x1="59" y1="56" x2="61" y2="56" stroke="#1a1a1a" stroke-width="2.5"/>
+  <!-- Glasses temples -->
+  <line x1="39" y1="54" x2="34" y2="52" stroke="#1a1a1a" stroke-width="2"/>
+  <line x1="81" y1="54" x2="86" y2="52" stroke="#1a1a1a" stroke-width="2"/>
+
+  <!-- Eyes (behind glasses, big and cute) -->
+  <circle cx="49" cy="56" r="7" fill="white"/>
+  <circle cx="71" cy="56" r="7" fill="white"/>
+  <circle cx="50" cy="57" r="4" fill="#1a3a6b"/>
+  <circle cx="72" cy="57" r="4" fill="#1a3a6b"/>
+  <circle cx="51" cy="55.5" r="1.5" fill="white"/>
+  <circle cx="73" cy="55.5" r="1.5" fill="white"/>
+
+  <!-- Nose -->
+  <ellipse cx="60" cy="64" rx="2" ry="1.5" fill="#e8c4a0"/>
+
+  <!-- Mouth - slight smile -->
+  <path d="M53 70 Q60 76 67 70" fill="none" stroke="#c0825a" stroke-width="1.8" stroke-linecap="round"/>
+
+  <!-- Bow tie -->
+  <path d="M48 82 L56 86 L48 90 Z" fill="#cc2222"/>
+  <path d="M72 82 L64 86 L72 90 Z" fill="#cc2222"/>
+  <circle cx="60" cy="86" r="4" fill="#ee3333"/>
+
+  <!-- Collar / shirt top -->
+  <path d="M42 88 Q60 96 78 88 L78 100 Q60 108 42 100 Z" fill="white"/>
+  <path d="M55 88 L60 98 L65 88" fill="none" stroke="#aaa" stroke-width="1"/>
+</svg>
