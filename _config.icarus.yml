@@ -162,10 +162,9 @@ widgets:
         type: profile
         # Author name
         author: Lu Zhongqiu
-        # Author title
         author_title: Builder · Thinker · Writer
         # Author's current location
-        location: China
+        location: 分享已知的是无趣的，我只研究我当前不知道的，顺便分享
         # URL or path to the avatar image
         avatar: /img/conan-avatar.svg
         # Whether show the rounded avatar image
