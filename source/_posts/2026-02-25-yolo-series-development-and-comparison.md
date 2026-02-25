@@ -21,8 +21,11 @@ tags:
 
 2016年，Joseph Redmon的一篇论文《You Only Look Once: Unified, Real-Time Object Detection》彻底改变了目标检测的格局。在此之前，两阶段算法（如Faster R-CNN）虽然精度较高，但推理速度较慢，难以满足实时需求。
 
-![YOLOv1 架构：24层卷积网络将图像划分为 S×S 网格，每格直接回归边界框与类别概率](https://raw.githubusercontent.com/iscyy/yoloair/main/docs/image/yolov3_model.jpg)
-> *图示为 YOLO 单阶段检测范式示意（参考：[YOLOv1论文 2016](https://arxiv.org/abs/1506.02640)）。YOLOv1 将检测统一为单次前向传播的回归问题，开创了单阶段检测的先河。*
+![YOLOv1 模型：将图像划分为 S×S 网格，每格预测 B 个边界框和类别概率](https://ar5iv.labs.arxiv.org/html/1506.02640/assets/x2.png)
+> *Figure 2 from [YOLOv1 (Redmon et al., 2016)](https://arxiv.org/abs/1506.02640)：检测编码为 S×S×(B·5+C) 张量，每个格子负责预测中心点落入其中的目标。*
+
+![YOLOv1 网络架构：24 层卷积 + 2 层全连接](https://ar5iv.labs.arxiv.org/html/1506.02640/assets/x3.png)
+> *Figure 3 from [YOLOv1](https://arxiv.org/abs/1506.02640)：网络由 24 层卷积层后接 2 层全连接层组成，交替使用 1×1 卷积降维。*
 
 **核心突破**：
 - 首次将目标检测视为**回归问题**，直接从图像像素回归出边界框坐标和类别概率
@@ -36,8 +39,8 @@ YOLOv1的设计哲学极具颠覆性——"看一次就够了"。这种简洁性
 
 Redmon很快意识到v1的不足，并在次年推出了YOLOv2，同时还发布了一个野心勃勃的版本——YOLO9000，能检测超过9000类物体。
 
-![YOLOv2 引入 Anchor Box 与 Darknet-19 骨干，多尺度训练提升鲁棒性](https://raw.githubusercontent.com/iscyy/yoloair/main/docs/image/yolov3_model.jpg)
-> *YOLOv2 在 v1 基础上引入 Anchor Box 机制，大幅提升了密集目标的检测能力。论文：[YOLO9000 (2017)](https://arxiv.org/abs/1612.08242)*
+![YOLOv2 Anchor 设计：通过 k-means 聚类先验框尺寸，中心坐标用 sigmoid 约束在格子内](https://ar5iv.labs.arxiv.org/html/1612.08242/assets/x2.png)
+> *Figure 3 from [YOLOv2/YOLO9000 (Redmon & Farhadi, 2017)](https://arxiv.org/abs/1612.08242)：预测宽高相对于聚类中心的偏移，用 sigmoid 将中心坐标限制在当前格子范围内。*
 
 **核心改进**：
 - 引入**Anchor Box**（借鉴Faster R-CNN），大幅提升边界框召回率
@@ -53,9 +56,6 @@ YOLOv2是一次非常务实的改进。Anchor Box的引入是关键——它解�
 
 YOLOv3是Redmon的最后一个主要版本，也是整个系列中最经典、最具生命力的版本之一。即使在今天，仍有大量项目基于v3进行开发。
 
-![YOLOv3 架构：Darknet-53 骨干 + 3尺度 FPN 多尺度预测](https://raw.githubusercontent.com/iscyy/yoloair/main/docs/image/yolov3_model.jpg)
-> *YOLOv3 在大、中、小 3 个尺度的特征图上各输出预测，有效解决了小目标漏检问题。论文：[YOLOv3 (2018)](https://arxiv.org/abs/1804.02767)*
-
 **核心改进**：
 - 提出**Darknet-53**骨干网络，更深的网络结构带来更强的特征提取能力
 - 实现**多尺度预测**（FPN的雏形），在3个不同尺度的特征图上进行检测，有效解决了小目标检测问题
@@ -69,8 +69,8 @@ YOLOv3的设计体现了"实用主义"的巅峰。Darknet-53借鉴了ResNet的�
 
 Redmon离开后，YOLO系列的火炬传到了Alexey Bochkovskiy手中。2020年，他发布了YOLOv4，这是YOLO系列发展史上的一个重要转折点。
 
-![YOLOv4 架构：CSPDarknet53 + SPP + PANet，整合众多最佳实践](https://raw.githubusercontent.com/iscyy/yoloair/main/docs/image/yolov4_model.jpg)
-> *YOLOv4 将 CSP 结构、Mosaic 数据增强、PANet、CIoU Loss 等技巧整合为一体，是"Bag of Freebies + Bag of Specials"的集大成者。论文：[YOLOv4 (2020)](https://arxiv.org/abs/2004.10934)*
+![YOLOv4 检测器架构：CSPDarknet53 骨干 + SPP + PANet Neck + YOLOv3 Head](https://ar5iv.labs.arxiv.org/html/2004.10934/assets/fig/detector.png)
+> *Figure 2 from [YOLOv4 (Bochkovskiy et al., 2020)](https://arxiv.org/abs/2004.10934)：完整检测器由 Input、Backbone、Neck、Prediction Head 四部分组成。*
 
 **核心改进**：
 - 引入**CSP（Cross Stage Partial）结构**，优化梯度流动，减少计算量
@@ -86,9 +86,6 @@ YOLOv4标志着YOLO系列从"个人作品"向"社区协作"的转变。AlexeyAB�
 
 就在YOLOv4发布后不久，Ultralytics公司推出了YOLOv5。这个版本在学术界引发了一些争议（因为没有对应的论文），但在工程界却获得了巨大的成功。
 
-![YOLOv5 架构：Focus 模块 + CSP Bottleneck + PANet，完整的 PyTorch 工程化实现](https://raw.githubusercontent.com/iscyy/yoloair/main/docs/image/yolov5_model.jpg)
-> *YOLOv5 完全基于 PyTorch，提供 N/S/M/L/X 五种规格，配套完善的训练、验证、部署工具链。*
-
 **核心改进**：
 - 完全迁移至**PyTorch**框架，告别了Darknet的晦涩代码
 - 提出**Focus模块**，对特征图进行切片再拼接，减少下采样的信息损失
@@ -102,9 +99,6 @@ YOLOv5的最大贡献不在于算法创新，而在于**工程化**。Ultralytic
 
 2022年，美团视觉智能部发布了YOLOv6，这是国内工业界对YOLO系列的重要贡献。v6的设计目标非常明确——面向端侧部署。
 
-![YOLOv6 架构：RepVGG 重参数化骨干 + BiC-PAN，专为端侧推理优化（美团开源）](https://raw.githubusercontent.com/iscyy/yoloair/main/docs/image/yolov6_model.jpg)
-> *YOLOv6 采用 RepVGG 重参数化技术，训练时多分支结构提升精度，推理时自动合并为单分支提升速度。论文：[YOLOv6 (2022)](https://arxiv.org/abs/2209.02976)*
-
 **核心改进**：
 - 引入**RepVGG重参数化**技术，训练时使用多分支结构提升精度，推理时合并为单分支提升速度
 - 专为端侧优化的骨干网络设计
@@ -117,8 +111,8 @@ YOLOv6代表了YOLO系列在**工业化落地**方向上的深入探索。重参
 
 同样是2022年，Chien-Yao Wang等人发布了YOLOv7。这个版本在学术界获得了很高的评价，被认为是"学术派"YOLO的代表。
 
-![YOLOv7 架构：E-ELAN 高效层聚合 + 辅助训练头，精细控制梯度路径](https://raw.githubusercontent.com/iscyy/yoloair/main/docs/image/yolov7_model.jpg)
-> *YOLOv7 提出 E-ELAN 通过控制最短/最长梯度路径增强学习效率，同时引入辅助训练头提升精度。论文：[YOLOv7 (2022)](https://arxiv.org/abs/2207.02696)*
+![YOLOv7 E-ELAN：通过分组卷积增加特征基数，以 shuffle+merge 方式提升不同特征图的学习多样性](https://ar5iv.labs.arxiv.org/html/2207.02696/assets/figures/elan.png)
+> *Figure 2 from [YOLOv7 (Wang et al., 2022)](https://arxiv.org/abs/2207.02696)：E-ELAN 不改变原有梯度传输路径，用 group conv + cardinality shuffle 增强特征表达能力。*
 
 **核心改进**：
 - 提出**E-ELAN（Extended Efficient Layer Aggregation Network）**，通过控制最短最长梯度路径来增强梯度流动
@@ -131,9 +125,6 @@ YOLOv7是一次扎实的架构创新。E-ELAN的设计体现了对梯度流动�
 ### Anchor-Free：YOLOv8（2023）
 
 2023年，Ultralytics带着YOLOv8强势回归。这是Ultralytics继v5之后的又一力作，也是YOLO系列的一次架构跃迁。
-
-![YOLOv8 各规格精度-速度对比（Ultralytics 官方 COCO benchmark）](https://raw.githubusercontent.com/ultralytics/assets/main/yolov8/yolo-comparison-plots.png)
-> *YOLOv8 采用解耦头 + Anchor-Free 设计，在同一框架下统一支持检测、分割、姿态估计等多种任务。*
 
 **核心改进**：
 - **解耦头**：将分类和检测头分开，让两个任务各自优化
@@ -148,8 +139,11 @@ YOLOv8是一次勇敢的架构升级。解耦头的设计非常直观——分�
 
 2024年2月，WongKinYiu（v4、v7的作者之一）发布了YOLOv9。这个版本的核心思想是"可编程梯度信息"。
 
-![YOLOv9 在 COCO 上的精度-参数量对比（PGI + GELAN 架构）](https://raw.githubusercontent.com/WongKinYiu/yolov9/main/figure/performance.png)
-> *YOLOv9 通过 PGI（可编程梯度信息）解决深层网络信息丢失，配合 GELAN 架构，以更少参数取得更高精度。论文：[YOLOv9 (2024)](https://arxiv.org/abs/2402.13616)*
+![YOLOv9 PGI：主分支 + 辅助可逆分支 + 多级辅助信息，解决深层网络梯度信息丢失问题](https://ar5iv.labs.arxiv.org/html/2402.13616/assets/figs/pgi.png)
+> *Figure 3 from [YOLOv9 (Wang et al., 2024)](https://arxiv.org/abs/2402.13616)：PGI 由主分支（推理用）、辅助可逆分支（提供可靠梯度）、多级辅助信息三部分构成。*
+
+![YOLOv9 GELAN：对比 CSPNet 和 ELAN，GELAN 支持插入任意计算块的泛化高效层聚合网络](https://ar5iv.labs.arxiv.org/html/2402.13616/assets/figs/gelan.png)
+> *Figure 4 from [YOLOv9](https://arxiv.org/abs/2402.13616)：GELAN 将 CSPNet 与 ELAN 结合，可插入任意计算块，在轻量化的同时保持高精度。*
 
 **核心改进**：
 - 提出**PGI（Programmable Gradient Information）**，解决深层网络训练时的信息丢失问题
@@ -163,8 +157,8 @@ YOLOv9的设计哲学很有深度——它关注的是"信息如何在网络中�
 
 2024年5月，清华大学的团队发布了YOLOv10。这个版本的目标很明确：实现真正的"端到端"检测，去掉NMS后处理。
 
-![YOLOv10 端到端延迟与精度对比（NMS-Free 双标签分配，清华大学）](https://raw.githubusercontent.com/THU-MIG/yolov10/main/figures/latency.svg)
-> *YOLOv10 通过双标签分配策略实现 NMS-Free，在相同延迟下精度领先所有竞品。论文：[YOLOv10 (2024)](https://arxiv.org/abs/2405.14458)*
+![YOLOv10 一致性双标签分配：一对多分支提供丰富训练信号，一对一分支实现 NMS-Free 推理](https://ar5iv.labs.arxiv.org/html/2405.14458/assets/x2.png)
+> *Figure 2 from [YOLOv10 (Wang et al., 2024)](https://arxiv.org/abs/2405.14458)：训练时同时优化两条分支，推理时只用一对一分支，天然无重复预测，无需 NMS。*
 
 **核心改进**：
 - **NMS-Free**：通过双标签分配策略，让模型直接输出无冗余的检测结果，无需NMS后处理
@@ -177,9 +171,6 @@ NMS是目标检测流程中一个"令人讨厌"的步骤——它会带来额外
 ### 全能王：YOLOv11（2024.09）
 
 2024年9月，Ultralytics发布了YOLOv11。这个版本将"多任务统一"推向了新的高度。
-
-![YOLO 系列跨版本精度-速度对比（含 v11，Ultralytics 官方）](https://raw.githubusercontent.com/ultralytics/assets/main/yolov8/yolo-comparison-plots.png)
-> *YOLOv11 在 v8 基础上引入 C3k2/C2PSA 架构，以约 20% 更少的参数量取得约 2% 更高的 mAP，并统一支持检测、分割、姿态、OBB 四大任务。*
 
 **核心改进**：
 - 提出**C3k2/C2PSA**架构，进一步优化特征提取和融合
@@ -194,8 +185,11 @@ YOLOv11代表了"大一统"的趋势。在一个框架下支持多种任务，�
 
 2025年2月，Ultralytics发布了最新的YOLOv12。这个版本标志着YOLO系列正式进入"注意力时代"。
 
-![YOLOv12 精度-速度权衡对比（Area Attention + R-ELAN，官方 tradeoff 图）](https://raw.githubusercontent.com/sunsmarterjie/yolov12/main/assets/tradeoff.svg)
-> *YOLOv12 引入 Area Attention 将 Transformer 注意力机制融入实时检测，在相同 GFLOPs 下精度优于所有前代。论文：[YOLOv12 (2025)](https://arxiv.org/abs/2502.12524)*
+![YOLOv12 Area Attention：与 Window/Axial 等局部注意力的对比，将特征图等分为纵向或横向区域](https://ar5iv.labs.arxiv.org/html/2502.12524/assets/x2.png)
+> *Figure 2 from [YOLOv12 (Tian et al., 2025)](https://arxiv.org/abs/2502.12524)：Area Attention 将特征图等分为 l 个区域（默认4），在区域内做自注意力，兼顾大感受野与线性复杂度。*
+
+![YOLOv12 R-ELAN 架构：对比 CSPNet、ELAN、C3K2，R-ELAN 加入残差连接改善深层网络梯度流](https://ar5iv.labs.arxiv.org/html/2502.12524/assets/x3.png)
+> *Figure 3 from [YOLOv12](https://arxiv.org/abs/2502.12524)：R-ELAN（Residual ELAN）通过残差连接解决深层网络梯度衰减，确保训练稳定性。*
 
 **核心改进**：
 - 引入**Area Attention**，将自注意力复杂度从O(n²)降至线性，通过划分水平/垂直区域来实现高效的全局建模
