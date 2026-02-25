@@ -2,7 +2,7 @@
   "name": "luzhongqiu-blog",
   "version": "1.0.0",
   "private": true,
-  "description": "老九门 - LJM 的个人博客",
+  "description": "luzhongqiu 的个人博客",
   "scripts": {
     "build": "hexo generate",
     "clean": "hexo clean",
@@ -17,6 +17,7 @@
     "hexo": "^8.1.1",
     "hexo-component-inferno": "^3.1.2",
     "hexo-deployer-git": "^3.0.0",
+    "hexo-excerpt": "^1.3.1",
     "hexo-generator-archive": "^2.0.0",
     "hexo-generator-category": "^2.0.0",
     "hexo-generator-index": "^4.0.0",
@@ -39,6 +40,6 @@
     "maupassant",
     "github-pages"
   ],
-  "author": "LJM",
+  "author": "luzhongqiu",
   "license": "MIT"
 }

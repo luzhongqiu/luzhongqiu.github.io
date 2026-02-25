@@ -5,7 +5,7 @@
 # Site
 title: Lu Zhongqiu
 subtitle: Builder · Thinker · Writer
-description: LJM 的个人技术博客，分享机器学习、深度学习、编程技术和生活感悟
+description: luzhongqiu 的个人技术博客，分享机器学习、深度学习、编程技术和生活感悟
 author: Lu Zhongqiu
 language: zh-CN
 timezone: Asia/Shanghai
@@ -43,6 +43,9 @@ render_drafts: false
 post_asset_folder: false
 relative_link: false
 future: true
+excerpt:
+  depth: 2
+  excerpt_excludes: []
 highlight:
   enable: true
   line_number: true
