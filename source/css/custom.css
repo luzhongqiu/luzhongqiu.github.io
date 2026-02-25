@@ -1,0 +1,24 @@
+/* =====================================================
+   Custom overrides — wider content area
+   ===================================================== */
+
+/* Widescreen (≥1216px): unlock the fixed 960px container */
+@media screen and (min-width: 1216px) {
+  .is-2-column .container,
+  .is-1-column .container {
+    max-width: calc(100% - 80px) !important;
+    width: calc(100% - 80px) !important;
+  }
+}
+
+/* FullHD (≥1408px): allow up to 1600px before capping */
+@media screen and (min-width: 1408px) {
+  .is-2-column .container {
+    max-width: 1520px !important;
+    width: auto !important;
+  }
+  .is-1-column .container {
+    max-width: 960px !important;
+    width: auto !important;
+  }
+}
