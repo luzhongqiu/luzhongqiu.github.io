@@ -1,0 +1,108 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="520" viewBox="0 0 720 520" font-family="'PingFang SC','Helvetica Neue',Arial,sans-serif">
+  <defs>
+    <marker id="arr-blue" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L8,3 z" fill="#3b82f6"/>
+    </marker>
+    <marker id="arr-purple" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L8,3 z" fill="#a855f7"/>
+    </marker>
+    <marker id="arr-green" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L8,3 z" fill="#22c55e"/>
+    </marker>
+    <marker id="arr-orange" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L8,3 z" fill="#f97316"/>
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="720" height="520" fill="#0f172a" rx="12"/>
+
+  <!-- Title -->
+  <text x="360" y="30" text-anchor="middle" fill="#94a3b8" font-size="14" font-weight="700">ACP 交互时序图</text>
+
+  <!-- Column headers -->
+  <rect x="60" y="45" width="140" height="34" fill="#1d4ed8" rx="7"/>
+  <text x="130" y="67" text-anchor="middle" fill="#e2e8f0" font-size="13" font-weight="600">Client（编辑器）</text>
+
+  <rect x="520" y="45" width="150" height="34" fill="#7c3aed" rx="7"/>
+  <text x="595" y="67" text-anchor="middle" fill="#e2e8f0" font-size="13" font-weight="600">Agent（Kimi Code）</text>
+
+  <!-- Lifelines -->
+  <line x1="130" y1="79" x2="130" y2="500" stroke="#1d4ed8" stroke-width="1.5" stroke-dasharray="6 3" opacity="0.5"/>
+  <line x1="595" y1="79" x2="595" y2="500" stroke="#7c3aed" stroke-width="1.5" stroke-dasharray="6 3" opacity="0.5"/>
+
+  <!-- Phase 1: Init -->
+  <rect x="20" y="90" width="680" height="20" fill="#1e293b" rx="0"/>
+  <text x="360" y="104" text-anchor="middle" fill="#64748b" font-size="11" font-weight="600">── 初始化阶段 ──</text>
+
+  <!-- initialize → -->
+  <line x1="130" y1="122" x2="588" y2="122" stroke="#3b82f6" stroke-width="1.5" marker-end="url(#arr-blue)"/>
+  <text x="360" y="118" text-anchor="middle" fill="#60a5fa" font-size="11">initialize</text>
+  <text x="595" y="134" text-anchor="start" fill="#64748b" font-size="10">版本 / 能力协商</text>
+
+  <!-- ← initialize response -->
+  <line x1="588" y1="148" x2="137" y2="148" stroke="#a855f7" stroke-width="1.5" stroke-dasharray="5 3" marker-end="url(#arr-purple)"/>
+  <text x="360" y="144" text-anchor="middle" fill="#c084fc" font-size="11">initialize response</text>
+
+  <!-- Phase 2: Session -->
+  <rect x="20" y="162" width="680" height="20" fill="#1e293b" rx="0"/>
+  <text x="360" y="176" text-anchor="middle" fill="#64748b" font-size="11" font-weight="600">── 会话建立 ──</text>
+
+  <!-- session/new → -->
+  <line x1="130" y1="196" x2="588" y2="196" stroke="#3b82f6" stroke-width="1.5" marker-end="url(#arr-blue)"/>
+  <text x="360" y="192" text-anchor="middle" fill="#60a5fa" font-size="11">session/new  { cwd, mcpServers }</text>
+
+  <!-- ← sessionId -->
+  <line x1="588" y1="216" x2="137" y2="216" stroke="#a855f7" stroke-width="1.5" stroke-dasharray="5 3" marker-end="url(#arr-purple)"/>
+  <text x="360" y="212" text-anchor="middle" fill="#c084fc" font-size="11">{ sessionId }</text>
+
+  <!-- Phase 3: Prompt Turn -->
+  <rect x="20" y="230" width="680" height="20" fill="#1e293b" rx="0"/>
+  <text x="360" y="244" text-anchor="middle" fill="#64748b" font-size="11" font-weight="600">── Prompt Turn ──</text>
+
+  <!-- session/prompt → -->
+  <line x1="130" y1="264" x2="588" y2="264" stroke="#3b82f6" stroke-width="1.5" marker-end="url(#arr-blue)"/>
+  <text x="360" y="260" text-anchor="middle" fill="#60a5fa" font-size="11">session/prompt（用户消息）</text>
+
+  <!-- ← session/update plan -->
+  <line x1="588" y1="286" x2="137" y2="286" stroke="#22c55e" stroke-width="1.5" marker-end="url(#arr-green)"/>
+  <text x="360" y="282" text-anchor="middle" fill="#4ade80" font-size="11">session/update  →  执行计划（plan）</text>
+
+  <!-- ← session/update text chunk -->
+  <line x1="588" y1="308" x2="137" y2="308" stroke="#22c55e" stroke-width="1.5" marker-end="url(#arr-green)"/>
+  <text x="360" y="304" text-anchor="middle" fill="#4ade80" font-size="11">session/update  →  文本流（agent_message_chunk）</text>
+
+  <!-- ← session/update tool_call -->
+  <line x1="588" y1="330" x2="137" y2="330" stroke="#22c55e" stroke-width="1.5" marker-end="url(#arr-green)"/>
+  <text x="360" y="326" text-anchor="middle" fill="#4ade80" font-size="11">session/update  →  工具调用（tool_call: pending）</text>
+
+  <!-- → request_permission -->
+  <line x1="588" y1="352" x2="137" y2="352" stroke="#f97316" stroke-width="1.5" marker-end="url(#arr-orange)"/>
+  <text x="360" y="348" text-anchor="middle" fill="#fb923c" font-size="11">session/request_permission  →  请求用户授权</text>
+
+  <!-- ← permission response -->
+  <line x1="130" y1="374" x2="588" y2="374" stroke="#3b82f6" stroke-width="1.5" stroke-dasharray="5 3" marker-end="url(#arr-blue)"/>
+  <text x="360" y="370" text-anchor="middle" fill="#60a5fa" font-size="11">用户授权响应（allow / reject）</text>
+
+  <!-- ← session/update in_progress -->
+  <line x1="588" y1="396" x2="137" y2="396" stroke="#22c55e" stroke-width="1.5" marker-end="url(#arr-green)"/>
+  <text x="360" y="392" text-anchor="middle" fill="#4ade80" font-size="11">session/update  →  工具执行中（in_progress）</text>
+
+  <!-- ← session/update completed -->
+  <line x1="588" y1="418" x2="137" y2="418" stroke="#22c55e" stroke-width="1.5" marker-end="url(#arr-green)"/>
+  <text x="360" y="414" text-anchor="middle" fill="#4ade80" font-size="11">session/update  →  工具完成（completed + diff）</text>
+
+  <!-- ← session/prompt response -->
+  <line x1="588" y1="448" x2="137" y2="448" stroke="#a855f7" stroke-width="1.5" stroke-dasharray="5 3" marker-end="url(#arr-purple)"/>
+  <text x="360" y="444" text-anchor="middle" fill="#c084fc" font-size="11">session/prompt response  →  结束（stopReason: end_turn）</text>
+
+  <!-- Legend -->
+  <line x1="30" y1="480" x2="60" y2="480" stroke="#3b82f6" stroke-width="1.5" marker-end="url(#arr-blue)"/>
+  <text x="65" y="484" fill="#60a5fa" font-size="10">Client → Agent 请求</text>
+  <line x1="190" y1="480" x2="220" y2="480" stroke="#a855f7" stroke-width="1.5" stroke-dasharray="5 3" marker-end="url(#arr-purple)"/>
+  <text x="225" y="484" fill="#c084fc" font-size="10">Agent → Client 响应</text>
+  <line x1="360" y1="480" x2="390" y2="480" stroke="#22c55e" stroke-width="1.5" marker-end="url(#arr-green)"/>
+  <text x="395" y="484" fill="#4ade80" font-size="10">Agent 流式通知</text>
+  <line x1="510" y1="480" x2="540" y2="480" stroke="#f97316" stroke-width="1.5" marker-end="url(#arr-orange)"/>
+  <text x="545" y="484" fill="#fb923c" font-size="10">权限请求</text>
+</svg>

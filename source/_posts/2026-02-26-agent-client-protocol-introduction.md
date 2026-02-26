@@ -33,17 +33,8 @@ LSP 出现之前，每个编辑器都要为每种编程语言单独实现代码�
 
 ACP 要解决的是同样的 N×M 问题：
 
-```
-没有 ACP：
-  Zed    × Claude    → 定制集成
-  Zed    × Copilot   → 定制集成
-  VSCode × Claude    → 定制集成
-  VSCode × Copilot   → 定制集成
-  ... （N个编辑器 × M个Agent = N×M 份工作）
+![ACP 解决 N×M 问题](/img/acp/nm-problem.svg)
 
-有了 ACP：
-  任意 ACP 编辑器 × 任意 ACP Agent = 开箱即用
-```
 
 ---
 
@@ -80,12 +71,8 @@ ACP 定义了两个核心角色：
 
 一个连接可以承载多个并发 **Session**，每个 Session 有自己独立的对话上下文。用户可以同时开多条"思路线"而互不干扰。
 
-```
-一个 ACP 连接（一个 Agent 进程）
-├── Session A：帮我重构这个函数
-├── Session B：解释这段代码
-└── Session C：写一个单元测试
-```
+![ACP Session 模型](/img/acp/session-model.svg)
+
 
 ---
 
@@ -93,24 +80,8 @@ ACP 定义了两个核心角色：
 
 下面用时序图描述一次典型的 prompt 交互：
 
-```
-Client                          Agent（Kimi Code 等）
+![ACP 交互时序图](/img/acp/sequence-diagram.svg)
 
-  ── initialize ───────────────>  版本/能力协商
-  <─ initialize response ───────
-  
-  ── session/new ──────────────>  创建会话（指定 cwd、MCP servers）
-  <─ { sessionId } ─────────────
-  
-  ── session/prompt ───────────>  用户发消息
-  <─ session/update（流式）───── 返回执行计划
-  <─ session/update（流式）───── 返回文本块
-  <─ session/update（流式）───── 工具调用（读文件、运行命令）
-  ── session/request_permission   工具执行前请求用户授权
-  <─ 授权响应 ──────────────────
-  <─ session/update（流式）───── 工具执行结果
-  <─ session/prompt response ─── 结束（含 stopReason）
-```
 
 整个流程用 **JSON-RPC 2.0** 编码，双向通信：
 
@@ -201,11 +172,8 @@ ACP 和 MCP（Model Context Protocol）是互补的：
 
 编辑器在创建 Session 时，可以把用户配置的 MCP Server 信息传给 Agent，Agent 直接连接这些 MCP Server 获取工具能力：
 
-```
-编辑器 ──ACP──> Agent ──MCP──> 文件系统 MCP Server
-                      ──MCP──> 数据库 MCP Server
-                      ──MCP──> 自定义工具 MCP Server
-```
+![ACP 与 MCP 集成架构](/img/acp/mcp-integration.svg)
+
 
 ---
 

@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="560" height="240" viewBox="0 0 560 240" font-family="'PingFang SC','Helvetica Neue',Arial,sans-serif">
+  <defs>
+    <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L8,3 z" fill="#64748b"/>
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="560" height="240" fill="#0f172a" rx="12"/>
+
+  <!-- Title -->
+  <text x="280" y="32" text-anchor="middle" fill="#94a3b8" font-size="13" font-weight="600">一个 ACP 连接（一个 Agent 进程）</text>
+
+  <!-- Root node -->
+  <rect x="180" y="50" width="200" height="38" fill="#1e3a5f" stroke="#3b82f6" stroke-width="1.5" rx="7"/>
+  <text x="280" y="74" text-anchor="middle" fill="#93c5fd" font-size="13" font-weight="600">ACP Connection</text>
+
+  <!-- Vertical line down from root -->
+  <line x1="280" y1="88" x2="280" y2="110" stroke="#475569" stroke-width="1.5"/>
+
+  <!-- Horizontal line spanning sessions -->
+  <line x1="100" y1="110" x2="460" y2="110" stroke="#475569" stroke-width="1.5"/>
+
+  <!-- Session A vertical -->
+  <line x1="100" y1="110" x2="100" y2="130" stroke="#475569" stroke-width="1.5"/>
+  <!-- Session B vertical -->
+  <line x1="280" y1="110" x2="280" y2="130" stroke="#475569" stroke-width="1.5"/>
+  <!-- Session C vertical -->
+  <line x1="460" y1="110" x2="460" y2="130" stroke="#475569" stroke-width="1.5"/>
+
+  <!-- Session A -->
+  <rect x="30" y="130" width="140" height="38" fill="#1a2e1a" stroke="#22c55e" stroke-width="1.5" rx="7"/>
+  <text x="100" y="150" text-anchor="middle" fill="#86efac" font-size="12" font-weight="600">Session A</text>
+  <text x="100" y="164" text-anchor="middle" fill="#4ade80" font-size="10">帮我重构这个函数</text>
+
+  <!-- Session B -->
+  <rect x="210" y="130" width="140" height="38" fill="#1e2a3a" stroke="#3b82f6" stroke-width="1.5" rx="7"/>
+  <text x="280" y="150" text-anchor="middle" fill="#93c5fd" font-size="12" font-weight="600">Session B</text>
+  <text x="280" y="164" text-anchor="middle" fill="#60a5fa" font-size="10">解释这段代码</text>
+
+  <!-- Session C -->
+  <rect x="390" y="130" width="140" height="38" fill="#2a1a3a" stroke="#a855f7" stroke-width="1.5" rx="7"/>
+  <text x="460" y="150" text-anchor="middle" fill="#d8b4fe" font-size="12" font-weight="600">Session C</text>
+  <text x="460" y="164" text-anchor="middle" fill="#c084fc" font-size="10">写一个单元测试</text>
+
+  <!-- Desc line -->
+  <text x="280" y="210" text-anchor="middle" fill="#475569" font-size="11">各 Session 独立上下文，互不干扰，可并发执行</text>
+
+  <!-- Independent badge -->
+  <rect x="116" y="185" width="68" height="18" fill="#14532d" rx="4"/>
+  <text x="150" y="197" text-anchor="middle" fill="#4ade80" font-size="10">独立上下文</text>
+  <rect x="247" y="185" width="68" height="18" fill="#1e3a5f" rx="4"/>
+  <text x="281" y="197" text-anchor="middle" fill="#60a5fa" font-size="10">独立上下文</text>
+  <rect x="426" y="185" width="68" height="18" fill="#3b0764" rx="4"/>
+  <text x="460" y="197" text-anchor="middle" fill="#c084fc" font-size="10">独立上下文</text>
+</svg>
