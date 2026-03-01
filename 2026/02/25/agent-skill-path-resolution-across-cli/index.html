@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>Agent Skill 脚本路径问题：四大 CLI 实现对比与最佳实践 - Lu Zhongqiu</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="Lu Zhongqiu"><meta name="msapplication-TileImage" content="/img/favicon.svg"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Lu Zhongqiu"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="写在前面在写 Agent Skill 时，有一个问题几乎每个人都会踩到："><meta property="og:type" content="blog"><meta property="og:title" content="Agent Skill 脚本路径问题：四大 CLI 实现对比与最佳实践"><meta property="og:url" content="https://luzhongqiu.github.io/2026/02/25/agent-skill-path-resolution-across-cli/"><meta property="og:site_name" content="Lu Zhongqiu"><meta property="og:description" content="写在前面在写 Agent Skill 时，有一个问题几乎每个人都会踩到："><meta property="og:locale" content="zh_CN"><meta property="og:image" content="https://luzhongqiu.github.io/img/og_image.png"><meta property="article:published_time" content="2026-02-25T10:00:00.000Z"><meta property="article:modified_time" content="2026-03-01T06:09:42.035Z"><meta property="article:author" content="Lu Zhongqiu"><meta property="article:tag" content="Agent"><meta property="article:tag" content="Skill"><meta property="article:tag" content="Claude Code"><meta property="article:tag" content="Codex"><meta property="article:tag" content="oh-my-opencode"><meta property="article:tag" content="openclaw"><meta property="article:tag" content="AgentSkills"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="https://luzhongqiu.github.io/img/og_image.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"https://luzhongqiu.github.io/2026/02/25/agent-skill-path-resolution-across-cli/"},"headline":"Agent Skill 脚本路径问题：四大 CLI 实现对比与最佳实践","image":["https://luzhongqiu.github.io/img/og_image.png"],"datePublished":"2026-02-25T10:00:00.000Z","dateModified":"2026-03-01T06:09:42.035Z","author":{"@type":"Person","name":"Lu Zhongqiu"},"publisher":{"@type":"Organization","name":"Lu Zhongqiu","logo":{"@type":"ImageObject","url":"https://luzhongqiu.github.io/img/logo.svg"}},"description":"写在前面在写 Agent Skill 时，有一个问题几乎每个人都会踩到："}</script><link rel="canonical" href="https://luzhongqiu.github.io/2026/02/25/agent-skill-path-resolution-across-cli/"><link rel="icon" href="/img/favicon.svg"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.0.0/css/all.css"><link data-pjax rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/atom-one-light.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;600&amp;family=Source+Code+Pro"><link data-pjax rel="stylesheet" href="/css/default.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"><!--!--><!--!--><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><!--!--><!--!--><!-- hexo injector head_end start --><script>
+  (function () {
+      function switchTab() {
+          if (!location.hash) {
+            return;
+          }
+
+          const id = '#' + CSS.escape(location.hash.substring(1));
+          const $tabMenu = document.querySelector(`.tabs a[href="${id}"]`);
+          if (!$tabMenu) {
+            return;
+          }
+
+          const $tabMenuContainer = $tabMenu.parentElement.parentElement;
+          Array.from($tabMenuContainer.children).forEach($menu => $menu.classList.remove('is-active'));
+          Array.from($tabMenuContainer.querySelectorAll('a'))
+              .map($menu => document.getElementById($menu.getAttribute("href").substring(1)))
+              .forEach($content => $content.classList.add('is-hidden'));
+
+          if ($tabMenu) {
+              $tabMenu.parentElement.classList.add('is-active');
+          }
+          const $activeTab = document.querySelector(id);
+          if ($activeTab) {
+              $activeTab.classList.remove('is-hidden');
+          }
+      }
+      switchTab();
+      window.addEventListener('hashchange', switchTab, false);
+  })();
+  </script><link rel="stylesheet" href="/css/custom.css"><!-- hexo injector head_end end --><meta name="generator" content="Hexo 8.1.1"></head><body class="is-2-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/">Lu Zhongqiu</a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a><a class="navbar-item" href="/about">About</a></div><div class="navbar-end"><a class="navbar-item search" title="搜索" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-8-widescreen"><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item"><time dateTime="2026-02-25T10:00:00.000Z" title="2/25/2026, 10:00:00 AM">2026-02-25</time>发表</span><span class="level-item"><time dateTime="2026-03-01T06:09:42.035Z" title="3/1/2026, 6:09:42 AM">2026-03-01</time>更新</span><span class="level-item"><a class="link-muted" href="/categories/AI/">AI</a></span><span class="level-item">13 分钟读完 (大约1993个字)</span></div></div><h1 class="title is-3 is-size-4-mobile">Agent Skill 脚本路径问题：四大 CLI 实现对比与最佳实践</h1><div class="content"><h1 id="写在前面"><a href="#写在前面" class="headerlink" title="写在前面"></a>写在前面</h1><p>在写 Agent Skill 时，有一个问题几乎每个人都会踩到：</p>
+<blockquote>
+<p><strong>脚本路径怎么写？是绝对路径还是相对路径？相对谁？如果 skill 既可以用户级安装，也可以项目级安装，怎么保证两种情况都能跑？</strong></p>
+</blockquote>
+<p>这篇文章不是基于猜测，而是直接读了四个主流 CLI 的源码：</p>
+<ul>
+<li><strong>Claude Code</strong>（<code>@anthropic-ai/claude-code</code> v2.1.39）—— Anthropic 官方</li>
+<li><strong>Codex</strong>（<code>@openai/codex</code> v0.104.0）—— OpenAI 官方，Rust 编译的原生二进制</li>
+<li><strong>oh-my-opencode</strong>（npx 版本）—— 社区最流行的 opencode 增强层</li>
+<li><strong>openclaw</strong>（v2026.2.6-3）—— 另一个社区 CLI，内嵌 <code>pi-coding-agent</code></li>
+</ul>
+<hr>
+<h1 id="一、什么是-Agent-Skill？"><a href="#一、什么是-Agent-Skill？" class="headerlink" title="一、什么是 Agent Skill？"></a>一、什么是 Agent Skill？</h1><p>Skill 是以目录为单位的”能力包”，最少只需要一个 <code>SKILL.md</code> 文件：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">my-skill/</span><br><span class="line">├── SKILL.md          ← 必须，包含 name/description 和指令</span><br><span class="line">├── scripts/          ← 可选，执行脚本</span><br><span class="line">├── references/       ← 可选，参考文档</span><br><span class="line">└── assets/           ← 可选，模板/资源</span><br></pre></td></tr></table></figure>
+
+<p><code>SKILL.md</code> 格式固定：</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">---</span><br><span class="line">name: my-skill</span><br><span class="line"><span class="section">description: 这个 skill 做什么、什么时候用。</span></span><br><span class="line"><span class="section">---</span></span><br><span class="line"></span><br><span class="line"><span class="section">## 指令</span></span><br><span class="line"></span><br><span class="line">执行脚本：</span><br><span class="line">scripts/run.py</span><br></pre></td></tr></table></figure>
+
+<p>四家 CLI 都遵循 <a target="_blank" rel="noopener" href="https://agentskills.io/">agentskills.io</a> 这个开放规范，结构是通用的。</p>
+<hr>
+<h1 id="二、各-CLI-的安装路径"><a href="#二、各-CLI-的安装路径" class="headerlink" title="二、各 CLI 的安装路径"></a>二、各 CLI 的安装路径</h1><p>Skill 可以安装在不同层级，优先级通常是<strong>项目级 &gt; 用户级 &gt; 内置</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>Scope</th>
+<th>Claude Code</th>
+<th>Codex</th>
+<th>oh-my-opencode</th>
+<th>openclaw</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>项目级</td>
+<td><code>.claude/skills/</code></td>
+<td><code>.agents/skills/</code>（向上遍历到 git root）</td>
+<td><code>.opencode/skills/</code></td>
+<td><code>&lt;workspace&gt;/skills/</code></td>
+</tr>
+<tr>
+<td>用户级</td>
+<td><code>~/.claude/skills/</code></td>
+<td><code>~/.agents/skills/</code></td>
+<td><code>~/.config/opencode/skills/</code></td>
+<td><code>~/.openclaw/skills/</code></td>
+</tr>
+<tr>
+<td>系统级</td>
+<td>—</td>
+<td><code>/etc/codex/skills/</code></td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td>内置</td>
+<td>随包发布</td>
+<td>随包发布</td>
+<td>随包发布</td>
+<td>随包发布</td>
+</tr>
+</tbody></table>
+<p>关键点：<strong>同名 skill，项目级优先</strong>。这意味着团队可以在 repo 里覆盖全局 skill。</p>
+<hr>
+<h1 id="三、各-CLI-的路径注入机制（源码层面）"><a href="#三、各-CLI-的路径注入机制（源码层面）" class="headerlink" title="三、各 CLI 的路径注入机制（源码层面）"></a>三、各 CLI 的路径注入机制（源码层面）</h1><p>这是这篇文章的核心。</p>
+<h2 id="3-1-Claude-Code：注入-baseDir-字符串"><a href="#3-1-Claude-Code：注入-baseDir-字符串" class="headerlink" title="3.1 Claude Code：注入 baseDir 字符串"></a>3.1 Claude Code：注入 <code>baseDir</code> 字符串</h2><p>Claude Code 在每次调用 skill 时，会把 skill 的绝对路径注入到 LLM 上下文：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// claude-code/cli.js（v2.1.39）</span></span><br><span class="line"><span class="keyword">const</span> skillBlock = <span class="string">`&lt;skill name=&quot;<span class="subst">$&#123;skill.name&#125;</span>&quot; location=&quot;<span class="subst">$&#123;skill.filePath&#125;</span>&quot;&gt;</span></span><br><span class="line"><span class="string">References are relative to <span class="subst">$&#123;skill.baseDir&#125;</span>.</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string"><span class="subst">$&#123;body&#125;</span></span></span><br><span class="line"><span class="string">&lt;/skill&gt;`</span>;</span><br></pre></td></tr></table></figure>
+
+<p>LLM 收到的上下文形如：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">skill</span> <span class="attr">name</span>=<span class="string">&quot;my-skill&quot;</span> <span class="attr">location</span>=<span class="string">&quot;/Users/nic/.claude/skills/my-skill/SKILL.md&quot;</span>&gt;</span></span><br><span class="line">References are relative to /Users/nic/.claude/skills/my-skill.</span><br><span class="line"></span><br><span class="line">（SKILL.md 正文）</span><br><span class="line"><span class="tag">&lt;/<span class="name">skill</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>结论</strong>：不需要写任何路径变量。SKILL.md 里直接写 <code>scripts/run.py</code>，LLM 会根据注入的 <code>baseDir</code> 自行补全成绝对路径。</p>
+<h2 id="3-2-Codex：注入-file-path，模型自己读文件"><a href="#3-2-Codex：注入-file-path，模型自己读文件" class="headerlink" title="3.2 Codex：注入 file path，模型自己读文件"></a>3.2 Codex：注入 file path，模型自己读文件</h2><p>Codex 是 Rust 写的原生二进制，system prompt 里注入的是这段话：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">## Skills</span><br><span class="line">A skill is a set of local instructions to follow that is stored in a `SKILL.md` file.</span><br><span class="line">Below is the list of skills that can be used. Each entry includes a name, description,</span><br><span class="line">and file path so you can open the source for full instructions when using a specific skill.</span><br><span class="line"></span><br><span class="line">### How to use skills</span><br><span class="line">- Discovery: The list above is the skills available in this session</span><br><span class="line">  (name + description + file path). Skill bodies live on disk at the listed paths.</span><br></pre></td></tr></table></figure>
+
+<p>每个 skill 都附带绝对 file path，模型需要时会用 read 工具去读完整的 <code>SKILL.md</code>。这是<strong>渐进式加载</strong>（progressive disclosure）：</p>
+<ol>
+<li>启动时只加载 <code>name</code> + <code>description</code> + 路径（约 100 tokens）</li>
+<li>决定使用某个 skill 时，才读完整 <code>SKILL.md</code>（&lt; 5000 tokens）</li>
+<li>需要时才读 <code>scripts/</code>、<code>references/</code> 里的文件</li>
+</ol>
+<p><strong>结论</strong>：SKILL.md 里写相对路径即可，Codex 会把 skill 的绝对路径告诉模型，模型能算出 <code>scripts/</code> 的完整路径。</p>
+<h2 id="3-3-oh-my-opencode：-path-语法，代码层面替换"><a href="#3-3-oh-my-opencode：-path-语法，代码层面替换" class="headerlink" title="3.3 oh-my-opencode：@path 语法，代码层面替换"></a>3.3 oh-my-opencode：<code>@path</code> 语法，代码层面替换</h2><p>oh-my-opencode 是唯一做<strong>代码级字符串替换</strong>的实现：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// src/shared/skill-path-resolver.ts</span></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">resolveSkillPathReferences</span>(<span class="params">content, basePath</span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> content.<span class="title function_">replace</span>(</span><br><span class="line">    <span class="regexp">/@([a-zA-Z0-9_-]+\/[a-zA-Z0-9_.\-\/]*)/g</span>,</span><br><span class="line">    <span class="function">(<span class="params">_, relativePath</span>) =&gt;</span> <span class="title function_">join</span>(basePath, relativePath)</span><br><span class="line">  );</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>同时在 system prompt 里注入说明：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Base directory for this skill: /absolute/path/to/skill/</span><br><span class="line">File references (@path) in this skill are relative to this directory.</span><br></pre></td></tr></table></figure>
+
+<p><strong>结论</strong>：如果你写的 skill 专门面向 oh-my-opencode，可以用 <code>@scripts/run.py</code> 语法，会被<strong>硬替换</strong>成绝对路径，100% 可靠，不依赖模型推理。</p>
+<h2 id="3-4-openclaw：-baseDir-变量-模型推理"><a href="#3-4-openclaw：-baseDir-变量-模型推理" class="headerlink" title="3.4 openclaw：{baseDir} 变量 + 模型推理"></a>3.4 openclaw：<code>{baseDir}</code> 变量 + 模型推理</h2><p>openclaw 的文档里写了”Use <code>{baseDir}</code> in instructions to reference the skill folder path”，但源码（<code>pi-coding-agent</code>）的实际实现是：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// pi-coding-agent/dist/core/skills.js</span></span><br><span class="line"><span class="comment">// formatSkillsForPrompt 输出</span></span><br><span class="line"><span class="string">`&lt;available_skills&gt;</span></span><br><span class="line"><span class="string">  &lt;skill&gt;</span></span><br><span class="line"><span class="string">    &lt;name&gt;my-skill&lt;/name&gt;</span></span><br><span class="line"><span class="string">    &lt;description&gt;...&lt;/description&gt;</span></span><br><span class="line"><span class="string">    &lt;location&gt;/absolute/path/to/SKILL.md&lt;/location&gt;</span></span><br><span class="line"><span class="string">  &lt;/skill&gt;</span></span><br><span class="line"><span class="string">&lt;/available_skills&gt;`</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 附带提示语：</span></span><br><span class="line"><span class="string">&quot;When a skill file references a relative path, resolve it against the skill directory</span></span><br><span class="line"><span class="string"> (parent of SKILL.md / dirname of the path) and use that absolute path in tool commands.&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>没有代码替换 <code>{baseDir}</code></strong>。<code>{baseDir}</code> 的实际效果依赖模型从 <code>&lt;location&gt;</code> 字段推算出父目录，然后自行理解。</p>
+<p><strong>结论</strong>：<code>{baseDir}</code> 可以写，模型一般能理解，但这是”prompt 约定”不是”代码保证”。</p>
+<hr>
+<h1 id="四、四家对比总结"><a href="#四、四家对比总结" class="headerlink" title="四、四家对比总结"></a>四、四家对比总结</h1><table>
+<thead>
+<tr>
+<th>CLI</th>
+<th>路径机制</th>
+<th><code>{baseDir}</code> 变量</th>
+<th>相对路径写法</th>
+<th>可靠性</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Claude Code</strong></td>
+<td>注入 <code>References are relative to &lt;绝对路径&gt;</code></td>
+<td>❌ 无此变量</td>
+<td>直接写 <code>scripts/foo.py</code></td>
+<td>✅ 模型理解稳定</td>
+</tr>
+<tr>
+<td><strong>Codex</strong></td>
+<td>注入每个 skill 的绝对 file path</td>
+<td>❌ 无此变量</td>
+<td>直接写 <code>scripts/foo.py</code></td>
+<td>✅ 模型理解稳定</td>
+</tr>
+<tr>
+<td><strong>oh-my-opencode</strong></td>
+<td>代码级替换 <code>@path</code> → 绝对路径</td>
+<td>❌（用 <code>@path</code>）</td>
+<td>写 <code>@scripts/foo.py</code></td>
+<td>✅ 确定性替换</td>
+</tr>
+<tr>
+<td><strong>openclaw</strong></td>
+<td>注入 <code>&lt;location&gt;</code> + 提示语</td>
+<td>⚠️ 文档写了但靠模型</td>
+<td>写 <code>{baseDir}/scripts/foo.py</code> 或相对路径</td>
+<td>⚠️ 依赖模型推理</td>
+</tr>
+</tbody></table>
+<hr>
+<h1 id="五、最佳实践"><a href="#五、最佳实践" class="headerlink" title="五、最佳实践"></a>五、最佳实践</h1><h2 id="5-1-agentskills-io-官方规范的建议"><a href="#5-1-agentskills-io-官方规范的建议" class="headerlink" title="5.1 agentskills.io 官方规范的建议"></a>5.1 agentskills.io 官方规范的建议</h2><p><a target="_blank" rel="noopener" href="https://agentskills.io/specification">agentskills.io 规范</a> 明确写道：</p>
+<blockquote>
+<p><strong>When referencing other files in your skill, use relative paths from the skill root</strong></p>
+</blockquote>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Run the extraction script:</span><br><span class="line">scripts/extract.py</span><br></pre></td></tr></table></figure>
+
+<p><strong>不写任何变量，直接写相对路径</strong>。所有 CLI 都会把 SKILL.md 的绝对路径告知模型，模型有能力补全出 <code>scripts/</code> 的完整路径。</p>
+<h2 id="5-2-脚本内部：用语言原生方式定位自身"><a href="#5-2-脚本内部：用语言原生方式定位自身" class="headerlink" title="5.2 脚本内部：用语言原生方式定位自身"></a>5.2 脚本内部：用语言原生方式定位自身</h2><p>无论哪个 CLI，脚本被执行时的 working directory 是不固定的（通常是用户的项目目录，不是 skill 目录）。所以脚本内部<strong>不能</strong>用相对路径读同目录下的文件，要用语言原生方式：</p>
+<p><strong>Python：</strong></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> os</span><br><span class="line"><span class="keyword">from</span> pathlib <span class="keyword">import</span> Path</span><br><span class="line"></span><br><span class="line"><span class="comment"># 定位脚本所在目录（即 skill 的 scripts/ 目录）</span></span><br><span class="line">SCRIPT_DIR = Path(__file__).resolve().parent</span><br><span class="line">SKILL_DIR = SCRIPT_DIR.parent  <span class="comment"># scripts/ 的上一级就是 skill 根目录</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 安全读取同目录下的配置文件</span></span><br><span class="line">config_path = SKILL_DIR / <span class="string">&quot;assets&quot;</span> / <span class="string">&quot;config.json&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>Shell：</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#!/bin/bash</span></span><br><span class="line"><span class="comment"># 定位脚本所在目录</span></span><br><span class="line">SCRIPT_DIR=<span class="string">&quot;<span class="subst">$(cd <span class="string">&quot;<span class="subst">$(dirname <span class="string">&quot;<span class="variable">$0</span>&quot;</span>)</span>&quot;</span> &amp;&amp; pwd)</span>&quot;</span></span><br><span class="line">SKILL_DIR=<span class="string">&quot;<span class="subst">$(dirname <span class="string">&quot;<span class="variable">$SCRIPT_DIR</span>&quot;</span>)</span>&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 安全读取同目录下的资源</span></span><br><span class="line"><span class="built_in">source</span> <span class="string">&quot;<span class="variable">$SKILL_DIR</span>/references/helpers.sh&quot;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="5-3-兼容三家的写法"><a href="#5-3-兼容三家的写法" class="headerlink" title="5.3 兼容三家的写法"></a>5.3 兼容三家的写法</h2><p>如果你的 skill 要同时兼容 Claude Code、Codex、openclaw：</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">---</span><br><span class="line">name: my-skill</span><br><span class="line"><span class="section">description: 做某件事。</span></span><br><span class="line"><span class="section">---</span></span><br><span class="line"></span><br><span class="line"><span class="section">## 执行步骤</span></span><br><span class="line"></span><br><span class="line">运行主脚本：</span><br><span class="line"></span><br><span class="line"><span class="code">```bash</span></span><br><span class="line"><span class="code">python scripts/main.py</span></span><br></pre></td></tr></table></figure>
+
+<p>脚本路径是相对于本 skill 目录（即 SKILL.md 所在目录）的相对路径。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">如果你的 skill 专属于 oh-my-opencode，可以用 `@` 语法获得更强的保证：</span><br><span class="line"></span><br><span class="line">```markdown</span><br><span class="line">运行主脚本：</span><br><span class="line"></span><br><span class="line">```bash</span><br><span class="line">uv run @scripts/main.py</span><br></pre></td></tr></table></figure>
+
+<h2 id="5-4-目录结构建议"><a href="#5-4-目录结构建议" class="headerlink" title="5.4 目录结构建议"></a>5.4 目录结构建议</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">my-skill/</span><br><span class="line">├── SKILL.md                ← 用相对路径引用，写清楚 `scripts/` 前缀</span><br><span class="line">├── scripts/</span><br><span class="line">│   └── main.py             ← 内部用 __file__ 定位，不假设 cwd</span><br><span class="line">├── references/</span><br><span class="line">│   └── api-reference.md    ← 按需加载的大型参考文档</span><br><span class="line">└── assets/</span><br><span class="line">    └── template.json       ← 静态资源</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h1 id="六、一句话总结"><a href="#六、一句话总结" class="headerlink" title="六、一句话总结"></a>六、一句话总结</h1><blockquote>
+<p><strong>在 SKILL.md 里写 <code>scripts/foo.py</code>（相对路径，无变量），在脚本内部用 <code>__file__</code> &#x2F; <code>$(dirname &quot;$0&quot;)</code> 定位自己。这套写法在 Claude Code、Codex、openclaw 三家都能跑，在 oh-my-opencode 里也能跑（或者改用 <code>@scripts/foo.py</code> 获得代码级保证）。</strong></p>
+</blockquote>
+<p><code>{baseDir}</code> 这个写法仅在 openclaw 的文档里出现，且底层是靠模型推理，不是代码保证。其他三家不认这个变量。</p>
+<hr>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ul>
+<li><a target="_blank" rel="noopener" href="https://agentskills.io/specification">agentskills.io 规范</a></li>
+<li><a target="_blank" rel="noopener" href="https://developers.openai.com/codex/skills/">Codex Skills 官方文档</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/openai/skills">openai&#x2F;skills 示例仓库</a></li>
+<li><code>@anthropic-ai/claude-code</code> v2.1.39 源码（<code>cli.js</code>）</li>
+<li><code>@openai/codex</code> v0.104.0 源码（Rust 二进制字符串）</li>
+<li><code>oh-my-opencode</code> 源码（<code>src/shared/skill-path-resolver.ts</code>）</li>
+<li><code>openclaw</code> + <code>@mariozechner/pi-coding-agent</code> 源码（<code>dist/core/skills.js</code>）</li>
+</ul>
+</div><div class="article-tags is-size-7 mb-4"><span class="mr-2">#</span><a class="link-muted mr-2" rel="tag" href="/tags/Agent/">Agent</a><a class="link-muted mr-2" rel="tag" href="/tags/Skill/">Skill</a><a class="link-muted mr-2" rel="tag" href="/tags/Claude-Code/">Claude Code</a><a class="link-muted mr-2" rel="tag" href="/tags/Codex/">Codex</a><a class="link-muted mr-2" rel="tag" href="/tags/oh-my-opencode/">oh-my-opencode</a><a class="link-muted mr-2" rel="tag" href="/tags/openclaw/">openclaw</a><a class="link-muted mr-2" rel="tag" href="/tags/AgentSkills/">AgentSkills</a></div><!--!--></article></div><!--!--><nav class="post-navigation mt-4 level is-mobile"><div class="level-start"><a class="article-nav-prev level level-item link-muted" href="/2026/02/25/yolo-series-development-and-comparison/"><i class="level-item fas fa-chevron-left"></i><span class="level-item">YOLO 目标检测系列算法的发展历程与版本对比</span></a></div><div class="level-end"><a class="article-nav-next level level-item link-muted" href="/2026/02/24/taalas-hc1-ai-chip-deep-dive/"><span class="level-item">把模型烧进晶体管：Taalas HC1 如何用一个&quot;异端&quot;架构击穿 AI 推理成本</span><i class="level-item fas fa-chevron-right"></i></a></div></nav><!--!--></div><div class="column column-left is-4-tablet is-4-desktop is-4-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar is-rounded" src="/img/conan-avatar.svg" alt="Lu Zhongqiu"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">Lu Zhongqiu</p><p class="is-size-6 is-block">Builder · Thinker · Writer</p><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>分享已知的是无趣的，我只研究我当前不知道的，顺便分享</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">文章</p><a href="/archives/"><p class="title">8</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">分类</p><a href="/categories/"><p class="title">3</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">标签</p><a href="/tags/"><p class="title">35</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/luzhongqiu" target="_blank" rel="me noopener">关注我</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="me noopener" title="Github" href="https://github.com/luzhongqiu"><i class="fab fa-github"></i></a></div></div></div><!--!--><div class="card widget" data-type="categories"><div class="card-content"><div class="menu"><h3 class="menu-label">分类</h3><ul class="menu-list"><li><a class="level is-mobile" href="/categories/AI/"><span class="level-start"><span class="level-item">AI</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/categories/%E5%B7%A5%E4%BD%9C/"><span class="level-start"><span class="level-item">工作</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/"><span class="level-start"><span class="level-item">深度学习</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></div></div></div><div class="card widget" data-type="recent-posts"><div class="card-content"><h3 class="menu-label">最新文章</h3><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-03-01T05:00:00.000Z">2026-03-01</time></p><p class="title"><a href="/2026/03/01/vibe-coding-perspectives/">强者 Vibe，弱者 Wipe</a></p><p class="categories"><a href="/categories/AI/">AI</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-02-26T02:00:00.000Z">2026-02-26</time></p><p class="title"><a href="/2026/02/26/agent-client-protocol-introduction/">Agent Client Protocol（ACP）：AI 编码世界的 LSP</a></p><p class="categories"><a href="/categories/AI/">AI</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-02-25T14:00:00.000Z">2026-02-25</time></p><p class="title"><a href="/2026/02/25/yolo-series-development-and-comparison/">YOLO 目标检测系列算法的发展历程与版本对比</a></p><p class="categories"><a href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/">深度学习</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-02-25T10:00:00.000Z">2026-02-25</time></p><p class="title"><a href="/2026/02/25/agent-skill-path-resolution-across-cli/">Agent Skill 脚本路径问题：四大 CLI 实现对比与最佳实践</a></p><p class="categories"><a href="/categories/AI/">AI</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-02-24T14:00:00.000Z">2026-02-24</time></p><p class="title"><a href="/2026/02/24/taalas-hc1-ai-chip-deep-dive/">把模型烧进晶体管：Taalas HC1 如何用一个&quot;异端&quot;架构击穿 AI 推理成本</a></p><p class="categories"><a href="/categories/AI/">AI</a></p></div></article></div></div><div class="card widget" data-type="archives"><div class="card-content"><div class="menu"><h3 class="menu-label">归档</h3><ul class="menu-list"><li><a class="level is-mobile" href="/archives/2026/03/"><span class="level-start"><span class="level-item">三月 2026</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/02/"><span class="level-start"><span class="level-item">二月 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li></ul></div></div></div><div class="card widget" data-type="tags"><div class="card-content"><div class="menu"><h3 class="menu-label">标签</h3><div class="field is-grouped is-grouped-multiline"><div class="control"><a class="tags has-addons" href="/tags/ACP/"><span class="tag">ACP</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI%E7%BC%96%E7%A8%8B/"><span class="tag">AI编程</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI%E8%8A%AF%E7%89%87/"><span class="tag">AI芯片</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Agent/"><span class="tag">Agent</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AgentSkills/"><span class="tag">AgentSkills</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Claude-Code/"><span class="tag">Claude Code</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Codex/"><span class="tag">Codex</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/DeepSeek/"><span class="tag">DeepSeek</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/IDE/"><span class="tag">IDE</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/LLM/"><span class="tag">LLM</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/MCP/"><span class="tag">MCP</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/NVIDIA/"><span class="tag">NVIDIA</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/OpenClaw/"><span class="tag">OpenClaw</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Protocol/"><span class="tag">Protocol</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Skill/"><span class="tag">Skill</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Taalas/"><span class="tag">Taalas</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Vibe-Coding/"><span class="tag">Vibe Coding</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/WeCom/"><span class="tag">WeCom</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/YOLO/"><span class="tag">YOLO</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/oh-my-opencode/"><span class="tag">oh-my-opencode</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/openclaw/"><span class="tag">openclaw</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E4%BC%81%E4%B8%9A%E5%BE%AE%E4%BF%A1/"><span class="tag">企业微信</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E5%A4%A7%E6%A8%A1%E5%9E%8B/"><span class="tag">大模型</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E5%B7%A5%E4%BD%9C/"><span class="tag">工作</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E5%BE%AE%E4%BF%A1%E5%85%AC%E4%BC%97%E5%8F%B7/"><span class="tag">微信公众号</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E6%80%9D%E8%80%83/"><span class="tag">思考</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E6%8E%A8%E7%90%86/"><span class="tag">推理</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E6%8F%92%E4%BB%B6/"><span class="tag">插件</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E6%95%99%E7%A8%8B/"><span class="tag">教程</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E6%98%A5%E8%8A%82/"><span class="tag">春节</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E7%9B%AE%E6%A0%87%E6%A3%80%E6%B5%8B/"><span class="tag">目标检测</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E7%A1%AC%E4%BB%B6/"><span class="tag">硬件</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E8%85%BE%E8%AE%AF/"><span class="tag">腾讯</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E8%A7%86%E8%A7%89/"><span class="tag">计算机视觉</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E9%98%BF%E9%87%8C/"><span class="tag">阿里</span><span class="tag">1</span></a></div></div></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">订阅更新</h3><form action="https://feedburner.google.com/fb/a/mailverify" method="post" target="popupwindow" onsubmit="window.open(&#039;https://feedburner.google.com/fb/a/mailverify?uri=&#039;,&#039;popupwindow&#039;,&#039;scrollbars=yes,width=550,height=520&#039;);return true"><input type="hidden" value="" name="uri"><input type="hidden" name="loc" value="en_US"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="订阅"></div></div></form></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">follow.it</h3><form action="" method="post" target="_blank"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="订阅"></div></div></form></div></div></div></div><!--!--></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><p class="is-size-7"><span>&copy; 2026 Lu Zhongqiu</span></p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="GitHub" href="https://github.com/luzhongqiu"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("zh-cn");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script data-pjax src="/js/column.js"></script><script src="/js/animation.js"></script><a id="back-to-top" title="回到顶端" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script data-pjax src="/js/back_to_top.js" defer></script><!--!--><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.js" defer></script><script>window.addEventListener("load", () => {
+      window.cookieconsent.initialise({
+        type: "info",
+        theme: "edgeless",
+        static: false,
+        position: "bottom-left",
+        content: {
+          message: "此网站使用Cookie来改善您的体验。",
+          dismiss: "知道了！",
+          allow: "允许使用Cookie",
+          deny: "拒绝",
+          link: "了解更多",
+          policy: "Cookie政策",
+          href: "https://www.cookiesandyou.com/",
+        },
+        palette: {
+          popup: {
+            background: "#edeff5",
+            text: "#838391"
+          },
+          button: {
+            background: "#4b81e8"
+          },
+        },
+      });
+    });</script><script src="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/js/lightgallery.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/js/jquery.justifiedGallery.min.js" defer></script><script>window.addEventListener("load", () => {
+            if (typeof $.fn.lightGallery === 'function') {
+                $('.article').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof $.fn.justifiedGallery === 'function') {
+                if ($('.justified-gallery > p > .gallery-item').length) {
+                    $('.justified-gallery > p > .gallery-item').unwrap();
+                }
+                $('.justified-gallery').justifiedGallery();
+            }
+        });</script><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/pjax@0.2.8/pjax.min.js"></script><script src="/js/pjax.js"></script><!--!--><!--!--><!--!--><script data-pjax src="/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="想要查找什么..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script data-pjax src="/js/insight.js" defer></script><script data-pjax>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/content.json"}, {"hint":"想要查找什么...","untitled":"(无标题)","posts":"文章","pages":"页面","categories":"分类","tags":"标签"});
+        });</script></body></html>

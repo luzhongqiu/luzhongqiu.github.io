@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>把模型烧进晶体管：Taalas HC1 如何用一个&quot;异端&quot;架构击穿 AI 推理成本 - Lu Zhongqiu</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="Lu Zhongqiu"><meta name="msapplication-TileImage" content="/img/favicon.svg"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Lu Zhongqiu"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="最近傅盛写了一篇文章，标题叫《一个疯子，造出便宜 100 倍的 AI 芯片》。 我第一眼看到这个标题，以为是标题党。点进去才发现——这个”疯子”是真实的，这件事也是真实发生的。"><meta property="og:type" content="blog"><meta property="og:title" content="把模型烧进晶体管：Taalas HC1 如何用一个&quot;异端&quot;架构击穿 AI 推理成本"><meta property="og:url" content="https://luzhongqiu.github.io/2026/02/24/taalas-hc1-ai-chip-deep-dive/"><meta property="og:site_name" content="Lu Zhongqiu"><meta property="og:description" content="最近傅盛写了一篇文章，标题叫《一个疯子，造出便宜 100 倍的 AI 芯片》。 我第一眼看到这个标题，以为是标题党。点进去才发现——这个”疯子”是真实的，这件事也是真实发生的。"><meta property="og:locale" content="zh_CN"><meta property="og:image" content="https://luzhongqiu.github.io/img/og_image.png"><meta property="article:published_time" content="2026-02-24T14:00:00.000Z"><meta property="article:modified_time" content="2026-03-01T06:09:42.035Z"><meta property="article:author" content="Lu Zhongqiu"><meta property="article:tag" content="AI芯片"><meta property="article:tag" content="推理"><meta property="article:tag" content="硬件"><meta property="article:tag" content="Taalas"><meta property="article:tag" content="NVIDIA"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="https://luzhongqiu.github.io/img/og_image.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"https://luzhongqiu.github.io/2026/02/24/taalas-hc1-ai-chip-deep-dive/"},"headline":"把模型烧进晶体管：Taalas HC1 如何用一个\"异端\"架构击穿 AI 推理成本","image":["https://luzhongqiu.github.io/img/og_image.png"],"datePublished":"2026-02-24T14:00:00.000Z","dateModified":"2026-03-01T06:09:42.035Z","author":{"@type":"Person","name":"Lu Zhongqiu"},"publisher":{"@type":"Organization","name":"Lu Zhongqiu","logo":{"@type":"ImageObject","url":"https://luzhongqiu.github.io/img/logo.svg"}},"description":"最近傅盛写了一篇文章，标题叫《一个疯子，造出便宜 100 倍的 AI 芯片》。 我第一眼看到这个标题，以为是标题党。点进去才发现——这个”疯子”是真实的，这件事也是真实发生的。"}</script><link rel="canonical" href="https://luzhongqiu.github.io/2026/02/24/taalas-hc1-ai-chip-deep-dive/"><link rel="icon" href="/img/favicon.svg"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.0.0/css/all.css"><link data-pjax rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/atom-one-light.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;600&amp;family=Source+Code+Pro"><link data-pjax rel="stylesheet" href="/css/default.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"><!--!--><!--!--><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><!--!--><!--!--><!-- hexo injector head_end start --><script>
+  (function () {
+      function switchTab() {
+          if (!location.hash) {
+            return;
+          }
+
+          const id = '#' + CSS.escape(location.hash.substring(1));
+          const $tabMenu = document.querySelector(`.tabs a[href="${id}"]`);
+          if (!$tabMenu) {
+            return;
+          }
+
+          const $tabMenuContainer = $tabMenu.parentElement.parentElement;
+          Array.from($tabMenuContainer.children).forEach($menu => $menu.classList.remove('is-active'));
+          Array.from($tabMenuContainer.querySelectorAll('a'))
+              .map($menu => document.getElementById($menu.getAttribute("href").substring(1)))
+              .forEach($content => $content.classList.add('is-hidden'));
+
+          if ($tabMenu) {
+              $tabMenu.parentElement.classList.add('is-active');
+          }
+          const $activeTab = document.querySelector(id);
+          if ($activeTab) {
+              $activeTab.classList.remove('is-hidden');
+          }
+      }
+      switchTab();
+      window.addEventListener('hashchange', switchTab, false);
+  })();
+  </script><link rel="stylesheet" href="/css/custom.css"><!-- hexo injector head_end end --><meta name="generator" content="Hexo 8.1.1"></head><body class="is-2-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/">Lu Zhongqiu</a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a><a class="navbar-item" href="/about">About</a></div><div class="navbar-end"><a class="navbar-item search" title="搜索" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-8-widescreen"><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item"><time dateTime="2026-02-24T14:00:00.000Z" title="2/24/2026, 2:00:00 PM">2026-02-24</time>发表</span><span class="level-item"><time dateTime="2026-03-01T06:09:42.035Z" title="3/1/2026, 6:09:42 AM">2026-03-01</time>更新</span><span class="level-item"><a class="link-muted" href="/categories/AI/">AI</a></span><span class="level-item">22 分钟读完 (大约3257个字)</span></div></div><h1 class="title is-3 is-size-4-mobile">把模型烧进晶体管：Taalas HC1 如何用一个&quot;异端&quot;架构击穿 AI 推理成本</h1><div class="content"><p>最近傅盛写了一篇文章，标题叫《一个疯子，造出便宜 100 倍的 AI 芯片》。</p>
+<p>我第一眼看到这个标题，以为是标题党。点进去才发现——这个”疯子”是真实的，这件事也是真实发生的。</p>
+<p>这家公司叫 <strong>Taalas</strong>，来自加拿大多伦多。2026 年 2 月 20 日，他们悄悄从隐身模式退出，发布了第一款产品 HC1。发布前没有发布会，没有 PPT，只有一个可以当场访问的 API 和一个演示用的聊天机器人，叫 <a target="_blank" rel="noopener" href="https://chatjimmy.ai/">ChatJimmy</a>。</p>
+<p>速度：<strong>17,000 tokens&#x2F;秒</strong>。NVIDIA 最新的 B200：约 350 tokens&#x2F;秒。</p>
+<p>快了将近 <strong>50 倍</strong>。</p>
+<p>这篇文章想做的，不是重复那些性能数字，而是回答一个更本质的问题：<strong>他们是怎么做到的？这条路为什么别人没走过？</strong></p>
+<hr>
+<h2 id="一、先理解问题：AI-推理为什么这么贵、这么慢？"><a href="#一、先理解问题：AI-推理为什么这么贵、这么慢？" class="headerlink" title="一、先理解问题：AI 推理为什么这么贵、这么慢？"></a>一、先理解问题：AI 推理为什么这么贵、这么慢？</h2><p>要理解 Taalas 的创新，必须先理解他们在解决什么问题。</p>
+<p>你用 ChatGPT 发一条消息，背后发生了什么？</p>
+<p>模型收到你的问题，开始一个字一个字地生成回答。每生成一个 token（大概 0.75 个英文单词），GPU 都要执行一次完整的矩阵运算。这没什么特别。特别的是<strong>数据从哪里来</strong>。</p>
+<p>一个 8B 参数的模型，权重文件大约 16GB（FP16 精度）。这 16GB 的数据，不是提前放在计算核心旁边等着——它们住在 HBM（高带宽内存）里，跟 GPU 计算单元是两个独立的硬件模块，中间靠总线连接。</p>
+<p>每生成一个 token，GPU 就要<strong>把整个 16GB 的权重从 HBM 搬运到计算单元，算完结果，再搬回去</strong>。下一个 token，再搬一次。</p>
+<p>这就是芯片设计里臭名昭著的 <strong>Memory Wall（内存墙）</strong>：计算速度越来越快，但内存带宽的提升远跟不上，数据搬运成了瓶颈。</p>
+<p>根据业界估算，在传统 GPU 推理中，<strong>80%–90% 的能量消耗在数据搬运上，真正用于计算的不到 20%</strong>。你花了几百万买的 GPU 集群，大部分时间在搬数据，不在算数据。</p>
+<p>这不是 NVIDIA 的设计缺陷。这是冯·诺依曼架构的原罪——<strong>存储和计算天生分离</strong>，1945 年这个架构被提出，80 年来从未有人真正打破过。</p>
+<p>大家想了很多办法缓解这个问题：</p>
+<ul>
+<li>NVIDIA：用 HBM3E，带宽更大，墙更薄</li>
+<li>Cerebras：把整张晶圆变成一块芯片，SRAM 离计算核心更近</li>
+<li>Groq：堆大量高速 SRAM，减少搬运距离</li>
+<li>SambaNova：类似思路</li>
+</ul>
+<p>这些都是在<strong>优化墙的厚度</strong>，但墙还在那里。</p>
+<p>Taalas 的做法是：<strong>把墙炸掉</strong>。</p>
+<hr>
+<h2 id="二、核心技术：Mask-ROM-Recall-Fabric"><a href="#二、核心技术：Mask-ROM-Recall-Fabric" class="headerlink" title="二、核心技术：Mask ROM Recall Fabric"></a>二、核心技术：Mask ROM Recall Fabric</h2><p>Taalas 的 CEO Ljubisa Bajic 用了一个很直白的比喻：</p>
+<blockquote>
+<p>传统芯片是每次做饭，都要把整个菜市场搬进厨房，用完再搬走。我们的做法是：<strong>把菜直接种在厨房里</strong>。</p>
+</blockquote>
+<p>具体怎么实现？</p>
+<p>他们发明了一种叫 <strong>Mask ROM Recall Fabric</strong> 的架构。</p>
+<h3 id="什么是-Mask-ROM？"><a href="#什么是-Mask-ROM？" class="headerlink" title="什么是 Mask ROM？"></a>什么是 Mask ROM？</h3><p>ROM（Read-Only Memory，只读存储器）是一种古老的存储技术——数据在芯片制造时就刻进去，之后永久不变。Mask ROM 是其中最彻底的形式：通过光刻掩模（Mask）直接把”1”和”0”的逻辑编码在金属层的连接方式里，不需要电来保持存储，掉电数据也在。</p>
+<p>这技术本身不新，老计算器、游戏机卡带里都有。Taalas 的创新在于：<strong>把 AI 模型的权重，当成 Mask ROM 的内容烧进去</strong>。</p>
+<h3 id="一个晶体管-存储-计算"><a href="#一个晶体管-存储-计算" class="headerlink" title="一个晶体管 &#x3D; 存储 + 计算"></a>一个晶体管 &#x3D; 存储 + 计算</h3><p>Bajic 透露的核心技巧是：</p>
+<blockquote>
+<p>“我们有一套方案，可以在单个晶体管里，既存储 4 bit 的权重，又完成和这个权重相关的乘法运算。一个晶体管全包了。”</p>
+</blockquote>
+<p>这才是真正的突破点。在传统架构里，乘法器（Multiplier）和存储单元是两个分离的电路，数据要”走路”从存储到乘法器。在 HC1 里，<strong>数据不走路，因为数据就在乘法器里</strong>——或者说，存储本身就是乘法器。</p>
+<p>Bajic 形容这是一个”一旦走上这条路，才发现比想象中更好”的方案。他们最初只是想消除内存墙，后来发现密度也远超预期。</p>
+<h3 id="HC1-的双层结构"><a href="#HC1-的双层结构" class="headerlink" title="HC1 的双层结构"></a>HC1 的双层结构</h3><p>HC1 芯片内部不是铁板一块，而是两个层次：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">┌────────────────────────────────────────┐</span><br><span class="line">│  Mask ROM Recall Fabric                │</span><br><span class="line">│  ——模型权重永久固化，不可修改          │</span><br><span class="line">│  ——8B 参数（3bit 量化）               │</span><br><span class="line">│  ——存储即计算，无数据移动              │</span><br><span class="line">├────────────────────────────────────────┤</span><br><span class="line">│  SRAM Recall Fabric（可编程部分）      │</span><br><span class="line">│  ——KV Cache（上下文记忆）             │</span><br><span class="line">│  ——LoRA 微调权重（可替换）            │</span><br><span class="line">│  ——适配器和个性化配置                 │</span><br><span class="line">└────────────────────────────────────────┘</span><br></pre></td></tr></table></figure>
+
+<p>这意味着 HC1 不是完全死板的。你不能换模型的主体，但你可以：</p>
+<ul>
+<li>通过 LoRA 给它注入专业知识（比如医疗、法律领域微调）</li>
+<li>调整上下文窗口大小</li>
+<li>更换 SRAM 层的适配参数</li>
+</ul>
+<p>基础模型固化，个性化能力保留——这是一个很务实的设计权衡。</p>
+<h3 id="1970-年代的手工工艺"><a href="#1970-年代的手工工艺" class="headerlink" title="1970 年代的手工工艺"></a>1970 年代的手工工艺</h3><p>Bajic 提到一个细节让人印象深刻：他们用的是”<strong>1970 年代手工晶体管级别的设计方法</strong>“——一行一行地手工布局，像雕刻一样。</p>
+<p>这不是保守，而是精准。当你知道模型权重是固定的，你就不需要设计通用的可编程逻辑，可以为这一套固定数据做极致的定制化物理排布，让信号流的路径最短、密度最高。现代 EDA 工具的通用性反而是一种浪费。</p>
+<p>这种”回到基础”的工程哲学，申请了 14 项专利。</p>
+<hr>
+<h2 id="三、数字说话：HC1-和现有方案的差距"><a href="#三、数字说话：HC1-和现有方案的差距" class="headerlink" title="三、数字说话：HC1 和现有方案的差距"></a>三、数字说话：HC1 和现有方案的差距</h2><table>
+<thead>
+<tr>
+<th>系统</th>
+<th>推理速度（tokens&#x2F;s）</th>
+<th>每百万 token 成本</th>
+<th>功耗</th>
+<th>冷却方式</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>NVIDIA H200</td>
+<td>~230</td>
+<td>$0.20–$0.49</td>
+<td>~700W</td>
+<td>液冷</td>
+</tr>
+<tr>
+<td>NVIDIA B200</td>
+<td>~350</td>
+<td>$0.20–$0.49</td>
+<td>~1000W</td>
+<td>液冷</td>
+</tr>
+<tr>
+<td>Cerebras</td>
+<td>~2,000</td>
+<td>~$0.05–$0.10</td>
+<td>高</td>
+<td>特殊</td>
+</tr>
+<tr>
+<td>Groq</td>
+<td>~600</td>
+<td>—</td>
+<td>高</td>
+<td>—</td>
+</tr>
+<tr>
+<td><strong>Taalas HC1</strong></td>
+<td><strong>~17,000</strong></td>
+<td><strong>~$0.0075</strong></td>
+<td><strong>200W&#x2F;卡</strong></td>
+<td><strong>普通风冷</strong></td>
+</tr>
+</tbody></table>
+<p>几个值得关注的细节：</p>
+<p><strong>不需要 HBM</strong>。HBM（高带宽内存）是当前 AI 芯片供应链最紧张的环节，三星和 SK Hynix 的 HBM 产能决定了全球 AI 芯片的产量上限。HC1 完全不依赖 HBM，直接绕开了这个卡脖子问题，交货周期可以更短，成本结构也完全不同。</p>
+<p><strong>普通风冷</strong>。NVIDIA B200 需要液冷机柜，一套下来成本高昂，还对机房基础设施有严格要求。HC1 200W 的功耗，10 张卡的服务器总功耗 2.5kW，普通空气冷却机架就够了。这对中小企业部署是重大利好。</p>
+<p><strong>无需批处理</strong>。传统 GPU 推理为了提高效率，需要把多个用户的请求打包在一起批量处理，这会引入等待延迟。HC1 速度太快，<strong>每个用户的请求可以实时独立响应</strong>，低延迟和低成本第一次同时实现了——这在 AI 推理领域是罕见的。</p>
+<hr>
+<h2 id="四、最大的限制：一颗芯片，一生只干一件事"><a href="#四、最大的限制：一颗芯片，一生只干一件事" class="headerlink" title="四、最大的限制：一颗芯片，一生只干一件事"></a>四、最大的限制：一颗芯片，一生只干一件事</h2><p>这里必须说清楚 Taalas 的代价，否则这篇文章就是广告。</p>
+<p><strong>HC1 只能运行 Llama 3.1 8B。</strong> 换别的模型，这块芯片就废了。</p>
+<p>这是架构决定的——权重烧进晶体管，就是物理结构，没有”更新固件”这回事。</p>
+<p>对很多场景来说，这是真实的制约。</p>
+<p>但 Taalas 有一套缓解方案：<strong>结构化 ASIC + 两层金属快速更新</strong>。</p>
+<p>HC1 的底层逻辑电路是固定的，但模型权重存在芯片最上面的金属互连层（Metal Layers）里。想换一个模型，只需要修改这两层金属的光刻版图，其他层完全复用。</p>
+<p>这将”换模型出新芯片”的周期从传统 ASIC 的 6–12 个月，压缩到了 <strong>2 个月</strong>。定制一款专属推理芯片的成本，大约是训练该模型成本的 <strong>1&#x2F;100</strong>。</p>
+<p>当然，2 个月依然远比软件更新慢。这条路的可行性，很大程度上取决于一个假设：<strong>用户会在一个模型上稳定停留足够长的时间</strong>。</p>
+<p>从目前的趋势看，这个假设有一定支撑——不少企业用户在工作流跑通之后，并不急着追最新版本。但 AI 模型迭代的速度依然是这个商业模式最大的不确定性。</p>
+<hr>
+<h2 id="五、这件事的更大意义"><a href="#五、这件事的更大意义" class="headerlink" title="五、这件事的更大意义"></a>五、这件事的更大意义</h2><p>Taalas 让我想到的不只是”又一家挑战英伟达的公司”。</p>
+<p>这件事本身有两个层次值得关注：</p>
+<p><strong>第一层：推理成本正在被打穿，从两个方向同时进行。</strong></p>
+<p>DeepSeek 从训练端下手——用更聪明的算法，让模型用更少的算力训练出来，把推理的计算量降下来。Taalas 从硬件端下手——让同样的模型，在专用硬件上跑得极其便宜。两条路，同一个方向：让每一个 AI token 的成本趋近于零。</p>
+<p><strong>第二层：25 个人，3000 万美元，打穿了一个几百亿美元的市场的护城河。</strong></p>
+<p>Tenstorrent 做通用 AI 芯片，融了 7 亿美元，估值 32 亿。Taalas 放弃通用性，只做一件事做到极致，3000 万美元出了一个跑赢旗舰 GPU 10 倍的产品。资源和效率之间的关系，在这个案例里看得特别清楚。</p>
+<p>Bajic 自己说：<strong>越聚越窄，越聚越深，越聚越快。</strong> 这句话不只是芯片设计的原则，也像是一种工程哲学。</p>
+<hr>
+<h2 id="六、现在能用吗？"><a href="#六、现在能用吗？" class="headerlink" title="六、现在能用吗？"></a>六、现在能用吗？</h2><p>可以。</p>
+<p>Taalas 已经开放了两个入口：</p>
+<ul>
+<li><strong>演示体验</strong>：<a target="_blank" rel="noopener" href="https://chatjimmy.ai/">chatjimmy.ai</a>，直接感受 17,000 tokens&#x2F;秒是什么速度</li>
+<li><strong>API 申请</strong>：<a target="_blank" rel="noopener" href="https://taalas.com/api-request-form/">taalas.com&#x2F;api-request-form</a>，开发者可以申请接入测试</li>
+</ul>
+<p>产品路线图：</p>
+<table>
+<thead>
+<tr>
+<th>时间</th>
+<th>里程碑</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>现在</td>
+<td>HC1：Llama 3.1 8B，API 已开放</td>
+</tr>
+<tr>
+<td>2026 夏</td>
+<td>HC1 扩展版：支持 20B 参数模型</td>
+</tr>
+<tr>
+<td>2026 年底</td>
+<td>HC2：前沿模型（Llama 4 &#x2F; DeepSeek），多卡流水线，FP4 精度</td>
+</tr>
+<tr>
+<td>12 个月内</td>
+<td>千亿参数级前沿 LLM 支持</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="尾声"><a href="#尾声" class="headerlink" title="尾声"></a>尾声</h2><p>我习惯对”颠覆 NVIDIA”的新闻保持怀疑。每隔几个月就有一家。</p>
+<p>但 Taalas 的这件事让我停下来认真想了一下。不是因为 17,000 这个数字，而是因为那个技术决策的逻辑链条——放弃通用性，否定冯·诺依曼，把模型变成硬件本身——这个思路是自洽的，数字是可以被独立验证的，芯片是真实量产的。</p>
+<p>它不会取代 GPU，因为训练永远需要通用算力。但在”大规模稳定推理”这个场景里，它可能真的找到了一条完全不同的路。</p>
+<p>结局还没写完。但开头确实很精彩。</p>
+<hr>
+<p><strong>参考资料</strong></p>
+<ul>
+<li>Taalas 官方博客：<a target="_blank" rel="noopener" href="https://taalas.com/the-path-to-ubiquitous-ai/">The Path to Ubiquitous AI</a></li>
+<li>NextPlatform 深度报道：<a target="_blank" rel="noopener" href="https://www.nextplatform.com/2026/02/19/taalas-etches-ai-models-onto-transistors-to-rocket-boost-inference/">Taalas Etches AI Models Onto Transistors</a></li>
+<li>钛媒体：<a target="_blank" rel="noopener" href="https://www.tmtpost.com/7887595.html">“邪修”AI芯片的Taalas，成色如何？</a></li>
+<li>傅盛：<a target="_blank" rel="noopener" href="https://www.163.com/dy/article/KMFA798N055685JJ.html">一个疯子，造出便宜100倍的AI芯片</a></li>
+<li>Hacker News 讨论：<a target="_blank" rel="noopener" href="https://news.ycombinator.com/item?id=47086181">The path to ubiquitous AI (17k tokens&#x2F;sec)</a></li>
+</ul>
+</div><div class="article-tags is-size-7 mb-4"><span class="mr-2">#</span><a class="link-muted mr-2" rel="tag" href="/tags/AI%E8%8A%AF%E7%89%87/">AI芯片</a><a class="link-muted mr-2" rel="tag" href="/tags/%E6%8E%A8%E7%90%86/">推理</a><a class="link-muted mr-2" rel="tag" href="/tags/%E7%A1%AC%E4%BB%B6/">硬件</a><a class="link-muted mr-2" rel="tag" href="/tags/Taalas/">Taalas</a><a class="link-muted mr-2" rel="tag" href="/tags/NVIDIA/">NVIDIA</a></div><!--!--></article></div><!--!--><nav class="post-navigation mt-4 level is-mobile"><div class="level-start"><a class="article-nav-prev level level-item link-muted" href="/2026/02/25/agent-skill-path-resolution-across-cli/"><i class="level-item fas fa-chevron-left"></i><span class="level-item">Agent Skill 脚本路径问题：四大 CLI 实现对比与最佳实践</span></a></div><div class="level-end"><a class="article-nav-next level level-item link-muted" href="/2026/02/24/openclaw-wecom-integration-guide/"><span class="level-item">如何在 OpenClaw 中接入企业微信：插件选择、配置与避坑</span><i class="level-item fas fa-chevron-right"></i></a></div></nav><!--!--></div><div class="column column-left is-4-tablet is-4-desktop is-4-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar is-rounded" src="/img/conan-avatar.svg" alt="Lu Zhongqiu"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">Lu Zhongqiu</p><p class="is-size-6 is-block">Builder · Thinker · Writer</p><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>分享已知的是无趣的，我只研究我当前不知道的，顺便分享</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">文章</p><a href="/archives/"><p class="title">8</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">分类</p><a href="/categories/"><p class="title">3</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">标签</p><a href="/tags/"><p class="title">35</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/luzhongqiu" target="_blank" rel="me noopener">关注我</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="me noopener" title="Github" href="https://github.com/luzhongqiu"><i class="fab fa-github"></i></a></div></div></div><!--!--><div class="card widget" data-type="categories"><div class="card-content"><div class="menu"><h3 class="menu-label">分类</h3><ul class="menu-list"><li><a class="level is-mobile" href="/categories/AI/"><span class="level-start"><span class="level-item">AI</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/categories/%E5%B7%A5%E4%BD%9C/"><span class="level-start"><span class="level-item">工作</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/"><span class="level-start"><span class="level-item">深度学习</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></div></div></div><div class="card widget" data-type="recent-posts"><div class="card-content"><h3 class="menu-label">最新文章</h3><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-03-01T05:00:00.000Z">2026-03-01</time></p><p class="title"><a href="/2026/03/01/vibe-coding-perspectives/">强者 Vibe，弱者 Wipe</a></p><p class="categories"><a href="/categories/AI/">AI</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-02-26T02:00:00.000Z">2026-02-26</time></p><p class="title"><a href="/2026/02/26/agent-client-protocol-introduction/">Agent Client Protocol（ACP）：AI 编码世界的 LSP</a></p><p class="categories"><a href="/categories/AI/">AI</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-02-25T14:00:00.000Z">2026-02-25</time></p><p class="title"><a href="/2026/02/25/yolo-series-development-and-comparison/">YOLO 目标检测系列算法的发展历程与版本对比</a></p><p class="categories"><a href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/">深度学习</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-02-25T10:00:00.000Z">2026-02-25</time></p><p class="title"><a href="/2026/02/25/agent-skill-path-resolution-across-cli/">Agent Skill 脚本路径问题：四大 CLI 实现对比与最佳实践</a></p><p class="categories"><a href="/categories/AI/">AI</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-02-24T14:00:00.000Z">2026-02-24</time></p><p class="title"><a href="/2026/02/24/taalas-hc1-ai-chip-deep-dive/">把模型烧进晶体管：Taalas HC1 如何用一个&quot;异端&quot;架构击穿 AI 推理成本</a></p><p class="categories"><a href="/categories/AI/">AI</a></p></div></article></div></div><div class="card widget" data-type="archives"><div class="card-content"><div class="menu"><h3 class="menu-label">归档</h3><ul class="menu-list"><li><a class="level is-mobile" href="/archives/2026/03/"><span class="level-start"><span class="level-item">三月 2026</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/02/"><span class="level-start"><span class="level-item">二月 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li></ul></div></div></div><div class="card widget" data-type="tags"><div class="card-content"><div class="menu"><h3 class="menu-label">标签</h3><div class="field is-grouped is-grouped-multiline"><div class="control"><a class="tags has-addons" href="/tags/ACP/"><span class="tag">ACP</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI%E7%BC%96%E7%A8%8B/"><span class="tag">AI编程</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI%E8%8A%AF%E7%89%87/"><span class="tag">AI芯片</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Agent/"><span class="tag">Agent</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AgentSkills/"><span class="tag">AgentSkills</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Claude-Code/"><span class="tag">Claude Code</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Codex/"><span class="tag">Codex</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/DeepSeek/"><span class="tag">DeepSeek</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/IDE/"><span class="tag">IDE</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/LLM/"><span class="tag">LLM</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/MCP/"><span class="tag">MCP</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/NVIDIA/"><span class="tag">NVIDIA</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/OpenClaw/"><span class="tag">OpenClaw</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Protocol/"><span class="tag">Protocol</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Skill/"><span class="tag">Skill</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Taalas/"><span class="tag">Taalas</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Vibe-Coding/"><span class="tag">Vibe Coding</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/WeCom/"><span class="tag">WeCom</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/YOLO/"><span class="tag">YOLO</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/oh-my-opencode/"><span class="tag">oh-my-opencode</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/openclaw/"><span class="tag">openclaw</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E4%BC%81%E4%B8%9A%E5%BE%AE%E4%BF%A1/"><span class="tag">企业微信</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E5%A4%A7%E6%A8%A1%E5%9E%8B/"><span class="tag">大模型</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E5%B7%A5%E4%BD%9C/"><span class="tag">工作</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E5%BE%AE%E4%BF%A1%E5%85%AC%E4%BC%97%E5%8F%B7/"><span class="tag">微信公众号</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E6%80%9D%E8%80%83/"><span class="tag">思考</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E6%8E%A8%E7%90%86/"><span class="tag">推理</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E6%8F%92%E4%BB%B6/"><span class="tag">插件</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E6%95%99%E7%A8%8B/"><span class="tag">教程</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E6%98%A5%E8%8A%82/"><span class="tag">春节</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E7%9B%AE%E6%A0%87%E6%A3%80%E6%B5%8B/"><span class="tag">目标检测</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E7%A1%AC%E4%BB%B6/"><span class="tag">硬件</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E8%85%BE%E8%AE%AF/"><span class="tag">腾讯</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E8%A7%86%E8%A7%89/"><span class="tag">计算机视觉</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E9%98%BF%E9%87%8C/"><span class="tag">阿里</span><span class="tag">1</span></a></div></div></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">订阅更新</h3><form action="https://feedburner.google.com/fb/a/mailverify" method="post" target="popupwindow" onsubmit="window.open(&#039;https://feedburner.google.com/fb/a/mailverify?uri=&#039;,&#039;popupwindow&#039;,&#039;scrollbars=yes,width=550,height=520&#039;);return true"><input type="hidden" value="" name="uri"><input type="hidden" name="loc" value="en_US"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="订阅"></div></div></form></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">follow.it</h3><form action="" method="post" target="_blank"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="订阅"></div></div></form></div></div></div></div><!--!--></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><p class="is-size-7"><span>&copy; 2026 Lu Zhongqiu</span></p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="GitHub" href="https://github.com/luzhongqiu"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("zh-cn");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script data-pjax src="/js/column.js"></script><script src="/js/animation.js"></script><a id="back-to-top" title="回到顶端" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script data-pjax src="/js/back_to_top.js" defer></script><!--!--><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.js" defer></script><script>window.addEventListener("load", () => {
+      window.cookieconsent.initialise({
+        type: "info",
+        theme: "edgeless",
+        static: false,
+        position: "bottom-left",
+        content: {
+          message: "此网站使用Cookie来改善您的体验。",
+          dismiss: "知道了！",
+          allow: "允许使用Cookie",
+          deny: "拒绝",
+          link: "了解更多",
+          policy: "Cookie政策",
+          href: "https://www.cookiesandyou.com/",
+        },
+        palette: {
+          popup: {
+            background: "#edeff5",
+            text: "#838391"
+          },
+          button: {
+            background: "#4b81e8"
+          },
+        },
+      });
+    });</script><script src="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/js/lightgallery.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/js/jquery.justifiedGallery.min.js" defer></script><script>window.addEventListener("load", () => {
+            if (typeof $.fn.lightGallery === 'function') {
+                $('.article').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof $.fn.justifiedGallery === 'function') {
+                if ($('.justified-gallery > p > .gallery-item').length) {
+                    $('.justified-gallery > p > .gallery-item').unwrap();
+                }
+                $('.justified-gallery').justifiedGallery();
+            }
+        });</script><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/pjax@0.2.8/pjax.min.js"></script><script src="/js/pjax.js"></script><!--!--><!--!--><!--!--><script data-pjax src="/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="想要查找什么..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script data-pjax src="/js/insight.js" defer></script><script data-pjax>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/content.json"}, {"hint":"想要查找什么...","untitled":"(无标题)","posts":"文章","pages":"页面","categories":"分类","tags":"标签"});
+        });</script></body></html>

@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>如何在 OpenClaw 中接入企业微信：插件选择、配置与避坑 - Lu Zhongqiu</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="Lu Zhongqiu"><meta name="msapplication-TileImage" content="/img/favicon.svg"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Lu Zhongqiu"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="写在前面这篇文章不走“拍脑袋教程”路线，而是基于我对真实项目与代码仓库的检索来写："><meta property="og:type" content="blog"><meta property="og:title" content="如何在 OpenClaw 中接入企业微信：插件选择、配置与避坑"><meta property="og:url" content="https://luzhongqiu.github.io/2026/02/24/openclaw-wecom-integration-guide/"><meta property="og:site_name" content="Lu Zhongqiu"><meta property="og:description" content="写在前面这篇文章不走“拍脑袋教程”路线，而是基于我对真实项目与代码仓库的检索来写："><meta property="og:locale" content="zh_CN"><meta property="og:image" content="https://luzhongqiu.github.io/img/og_image.png"><meta property="article:published_time" content="2026-02-24T08:05:00.000Z"><meta property="article:modified_time" content="2026-03-01T06:09:42.035Z"><meta property="article:author" content="Lu Zhongqiu"><meta property="article:tag" content="OpenClaw"><meta property="article:tag" content="企业微信"><meta property="article:tag" content="WeCom"><meta property="article:tag" content="插件"><meta property="article:tag" content="教程"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="https://luzhongqiu.github.io/img/og_image.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"https://luzhongqiu.github.io/2026/02/24/openclaw-wecom-integration-guide/"},"headline":"如何在 OpenClaw 中接入企业微信：插件选择、配置与避坑","image":["https://luzhongqiu.github.io/img/og_image.png"],"datePublished":"2026-02-24T08:05:00.000Z","dateModified":"2026-03-01T06:09:42.035Z","author":{"@type":"Person","name":"Lu Zhongqiu"},"publisher":{"@type":"Organization","name":"Lu Zhongqiu","logo":{"@type":"ImageObject","url":"https://luzhongqiu.github.io/img/logo.svg"}},"description":"写在前面这篇文章不走“拍脑袋教程”路线，而是基于我对真实项目与代码仓库的检索来写："}</script><link rel="canonical" href="https://luzhongqiu.github.io/2026/02/24/openclaw-wecom-integration-guide/"><link rel="icon" href="/img/favicon.svg"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.0.0/css/all.css"><link data-pjax rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/atom-one-light.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;600&amp;family=Source+Code+Pro"><link data-pjax rel="stylesheet" href="/css/default.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"><!--!--><!--!--><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><!--!--><!--!--><!-- hexo injector head_end start --><script>
+  (function () {
+      function switchTab() {
+          if (!location.hash) {
+            return;
+          }
+
+          const id = '#' + CSS.escape(location.hash.substring(1));
+          const $tabMenu = document.querySelector(`.tabs a[href="${id}"]`);
+          if (!$tabMenu) {
+            return;
+          }
+
+          const $tabMenuContainer = $tabMenu.parentElement.parentElement;
+          Array.from($tabMenuContainer.children).forEach($menu => $menu.classList.remove('is-active'));
+          Array.from($tabMenuContainer.querySelectorAll('a'))
+              .map($menu => document.getElementById($menu.getAttribute("href").substring(1)))
+              .forEach($content => $content.classList.add('is-hidden'));
+
+          if ($tabMenu) {
+              $tabMenu.parentElement.classList.add('is-active');
+          }
+          const $activeTab = document.querySelector(id);
+          if ($activeTab) {
+              $activeTab.classList.remove('is-hidden');
+          }
+      }
+      switchTab();
+      window.addEventListener('hashchange', switchTab, false);
+  })();
+  </script><link rel="stylesheet" href="/css/custom.css"><!-- hexo injector head_end end --><meta name="generator" content="Hexo 8.1.1"></head><body class="is-2-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/">Lu Zhongqiu</a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a><a class="navbar-item" href="/about">About</a></div><div class="navbar-end"><a class="navbar-item search" title="搜索" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-8-widescreen"><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item"><time dateTime="2026-02-24T08:05:00.000Z" title="2/24/2026, 8:05:00 AM">2026-02-24</time>发表</span><span class="level-item"><time dateTime="2026-03-01T06:09:42.035Z" title="3/1/2026, 6:09:42 AM">2026-03-01</time>更新</span><span class="level-item"><a class="link-muted" href="/categories/AI/">AI</a></span><span class="level-item">10 分钟读完 (大约1490个字)</span></div></div><h1 class="title is-3 is-size-4-mobile">如何在 OpenClaw 中接入企业微信：插件选择、配置与避坑</h1><div class="content"><h1 id="写在前面"><a href="#写在前面" class="headerlink" title="写在前面"></a>写在前面</h1><p>这篇文章不走“拍脑袋教程”路线，而是基于我对真实项目与代码仓库的检索来写：</p>
+<ul>
+<li>先确认 <strong>OpenClaw 官方主仓</strong> 的 WeCom 能力现状；</li>
+<li>再对比 <strong>社区插件</strong> 的安装方式、配置字段和适用场景；</li>
+<li>最后给出一套“今天就能落地”的接入方案。</li>
+</ul>
+<p>如果你想的是“OpenClaw + 企业微信到底该装哪个插件、怎么配才稳”，这篇就够用。</p>
+<hr>
+<h1 id="一、我检索了哪些实际项目"><a href="#一、我检索了哪些实际项目" class="headerlink" title="一、我检索了哪些实际项目"></a>一、我检索了哪些实际项目</h1><p>为了避免信息失真，我主要查了这几类来源：</p>
+<ol>
+<li><strong>OpenClaw 官方仓库</strong>（<code>openclaw/openclaw</code>）</li>
+<li><strong>中国生态插件仓库</strong>（<code>BytePioneer-AI/openclaw-china</code>）</li>
+<li><strong>独立社区插件仓库</strong>（<code>sunnoy/openclaw-plugin-wecom</code>）</li>
+</ol>
+<p>检索到的关键事实（可复核）：</p>
+<ul>
+<li><code>BytePioneer-AI/openclaw-china</code> 的 README 明确给出了安装命令：<ul>
+<li><code>openclaw plugins install @openclaw-china/wecom-app</code></li>
+<li><code>openclaw plugins install @openclaw-china/wecom</code></li>
+</ul>
+</li>
+<li>同仓库的 <code>doc/guides/wecom-app/configuration.md</code> 给出了 <code>channels.wecom-app.*</code> 的完整配置项（如 <code>corpId</code>、<code>corpSecret</code>、<code>agentId</code>、<code>token</code>、<code>encodingAESKey</code>）。</li>
+<li>同仓库 <code>extensions/wecom-app/openclaw.plugin.json</code> 显示该插件 channel id 为 <code>wecom-app</code>，定位是“企业微信自建应用消息渠道（支持主动推送）”。</li>
+<li><code>sunnoy/openclaw-plugin-wecom</code> 的 <code>package.json</code> 显示 npm 包名是 <code>@sunnoy/wecom</code>，channel id 为 <code>wecom</code>。</li>
+<li>OpenClaw 主仓存在 WeCom 接入 PR（<code>openclaw/openclaw#13228</code>），但 PR 页面显示仍在讨论&#x2F;未并入主线（写文时状态）。</li>
+</ul>
+<p>一句话总结：<strong>当前最稳妥的是用社区成熟插件，官方主线能力可持续关注但不建议当作唯一依赖。</strong></p>
+<hr>
+<h1 id="二、先选插件：不是“哪个好”，而是“哪个适合你”"><a href="#二、先选插件：不是“哪个好”，而是“哪个适合你”" class="headerlink" title="二、先选插件：不是“哪个好”，而是“哪个适合你”"></a>二、先选插件：不是“哪个好”，而是“哪个适合你”</h1><h2 id="1）-openclaw-china-wecom-app（推荐默认）"><a href="#1）-openclaw-china-wecom-app（推荐默认）" class="headerlink" title="1）@openclaw-china/wecom-app（推荐默认）"></a>1）<code>@openclaw-china/wecom-app</code>（推荐默认）</h2><p>适合：</p>
+<ul>
+<li>你要走 <strong>企业微信自建应用</strong> 模式；</li>
+<li>你需要 <strong>主动发送消息</strong>（不是只被动回消息）；</li>
+<li>主要是 1v1 或内部应用消息链路。</li>
+</ul>
+<p>优点：</p>
+<ul>
+<li>配置文档完整；</li>
+<li>字段语义清晰，和企业微信后台参数一一对应；</li>
+<li>在中文社区里案例最多，排障资料也更容易找。</li>
+</ul>
+<h2 id="2）-openclaw-china-wecom"><a href="#2）-openclaw-china-wecom" class="headerlink" title="2）@openclaw-china/wecom"></a>2）<code>@openclaw-china/wecom</code></h2><p>适合：</p>
+<ul>
+<li>你更偏向“机器人”形态；</li>
+<li>需要群聊触达能力（具体以插件当前版本说明为准）。</li>
+</ul>
+<h2 id="3）-sunnoy-wecom"><a href="#3）-sunnoy-wecom" class="headerlink" title="3）@sunnoy/wecom"></a>3）<code>@sunnoy/wecom</code></h2><p>适合：</p>
+<ul>
+<li>你希望用独立社区维护的 WeCom channel；</li>
+<li>你能接受插件生态差异，并自己做版本回归验证。</li>
+</ul>
+<p>我建议：</p>
+<ul>
+<li><strong>企业内部落地优先</strong>：先上 <code>wecom-app</code>；</li>
+<li>后续再根据业务扩展到其他 channel，不要一开始就“全渠道一起上”。</li>
+</ul>
+<hr>
+<h1 id="三、最小可用接入方案（按-wecom-app）"><a href="#三、最小可用接入方案（按-wecom-app）" class="headerlink" title="三、最小可用接入方案（按 wecom-app）"></a>三、最小可用接入方案（按 wecom-app）</h1><p>下面这套是我认为最适合大多数团队的“先跑通再优化”路径。</p>
+<h2 id="Step-1：安装插件"><a href="#Step-1：安装插件" class="headerlink" title="Step 1：安装插件"></a>Step 1：安装插件</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">openclaw plugins install @openclaw-china/wecom-app</span><br></pre></td></tr></table></figure>
+
+<h2 id="Step-2：在企业微信后台准备参数"><a href="#Step-2：在企业微信后台准备参数" class="headerlink" title="Step 2：在企业微信后台准备参数"></a>Step 2：在企业微信后台准备参数</h2><p>进入企业微信管理后台，创建自建应用，拿到这些值：</p>
+<ul>
+<li><code>CorpId</code></li>
+<li><code>AgentId</code></li>
+<li><code>Secret</code></li>
+<li>API 回调的 <code>Token</code></li>
+<li>API 回调的 <code>EncodingAESKey</code></li>
+</ul>
+<h2 id="Step-3：写入-OpenClaw-配置"><a href="#Step-3：写入-OpenClaw-配置" class="headerlink" title="Step 3：写入 OpenClaw 配置"></a>Step 3：写入 OpenClaw 配置</h2><p>官方社区文档给出的 CLI 配置方式如下（核心字段）：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">openclaw config <span class="built_in">set</span> channels.wecom-app.enabled <span class="literal">true</span></span><br><span class="line">openclaw config <span class="built_in">set</span> channels.wecom-app.webhookPath /wecom-app</span><br><span class="line">openclaw config <span class="built_in">set</span> channels.wecom-app.token your-token</span><br><span class="line">openclaw config <span class="built_in">set</span> channels.wecom-app.encodingAESKey your-43-char-encoding-aes-key</span><br><span class="line">openclaw config <span class="built_in">set</span> channels.wecom-app.corpId your-corp-id</span><br><span class="line">openclaw config <span class="built_in">set</span> channels.wecom-app.corpSecret your-app-secret</span><br><span class="line">openclaw config <span class="built_in">set</span> channels.wecom-app.agentId 1000002</span><br></pre></td></tr></table></figure>
+
+<p>如果你习惯直接改 <code>openclaw.json</code>，可以按这个最小模板：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;channels&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;wecom-app&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">      <span class="attr">&quot;enabled&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">true</span></span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;webhookPath&quot;</span><span class="punctuation">:</span> <span class="string">&quot;/wecom-app&quot;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;token&quot;</span><span class="punctuation">:</span> <span class="string">&quot;your-token&quot;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;encodingAESKey&quot;</span><span class="punctuation">:</span> <span class="string">&quot;your-43-char-encoding-aes-key&quot;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;corpId&quot;</span><span class="punctuation">:</span> <span class="string">&quot;your-corp-id&quot;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;corpSecret&quot;</span><span class="punctuation">:</span> <span class="string">&quot;your-app-secret&quot;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;agentId&quot;</span><span class="punctuation">:</span> <span class="number">1000002</span></span><br><span class="line">    <span class="punctuation">&#125;</span></span><br><span class="line">  <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="Step-4：配置回调-URL-并联调"><a href="#Step-4：配置回调-URL-并联调" class="headerlink" title="Step 4：配置回调 URL 并联调"></a>Step 4：配置回调 URL 并联调</h2><p>企业微信“接收消息”里 URL 要和 <code>webhookPath</code> 对应，例如：</p>
+<ul>
+<li><code>https://your-domain.com/wecom-app</code></li>
+</ul>
+<p>联调建议按这个顺序：</p>
+<ol>
+<li>先验证 URL 可达（公网 &#x2F; 反向代理 &#x2F; 证书）</li>
+<li>再验证 Token 与 AESKey 是否一致</li>
+<li>最后才测消息收发（避免把网络问题误判成插件问题）</li>
+</ol>
+<hr>
+<h1 id="四、这几个坑最容易卡住"><a href="#四、这几个坑最容易卡住" class="headerlink" title="四、这几个坑最容易卡住"></a>四、这几个坑最容易卡住</h1><h2 id="1）公网可达性没打通"><a href="#1）公网可达性没打通" class="headerlink" title="1）公网可达性没打通"></a>1）公网可达性没打通</h2><p>企业微信回调是平台主动调用你，内网地址肯定不行。最常见问题是：</p>
+<ul>
+<li>没有公网入口；</li>
+<li>网关端口没放行；</li>
+<li>Nginx&#x2F;Traefik 反代路径没对齐 <code>webhookPath</code>。</li>
+</ul>
+<h2 id="2）把插件名和-channel-id-搞混"><a href="#2）把插件名和-channel-id-搞混" class="headerlink" title="2）把插件名和 channel id 搞混"></a>2）把插件名和 channel id 搞混</h2><ul>
+<li>插件包名是安装维度（如 <code>@openclaw-china/wecom-app</code>）；</li>
+<li><code>channels.wecom-app</code> 是配置维度。</li>
+</ul>
+<p>两者不一致就会出现“安装成功但渠道不生效”的假象。</p>
+<h2 id="3）直接押注“官方-PR-能力”"><a href="#3）直接押注“官方-PR-能力”" class="headerlink" title="3）直接押注“官方 PR 能力”"></a>3）直接押注“官方 PR 能力”</h2><p>官方主仓的 WeCom 能力确实在推进，但如果你要本周上线，建议优先选<strong>已在社区验证过的插件版本</strong>，把可控性握在自己手里。</p>
+<hr>
+<h1 id="五、给团队的落地建议（可直接照抄）"><a href="#五、给团队的落地建议（可直接照抄）" class="headerlink" title="五、给团队的落地建议（可直接照抄）"></a>五、给团队的落地建议（可直接照抄）</h1><p>如果你是第一次接 OpenClaw + 企业微信，我建议按这个节奏做：</p>
+<ol>
+<li><strong>第 1 天</strong>：先跑通 <code>wecom-app</code> 最小链路（收消息 + 回消息）；</li>
+<li><strong>第 2 天</strong>：补日志、告警、重试策略；</li>
+<li><strong>第 3 天</strong>：再做多账号、语音识别、群聊等增强。</li>
+</ol>
+<p>不要一上来就追求“功能全开”。在 IM 场景里，<strong>稳定可回消息</strong> 永远比“功能很多但偶发掉线”更重要。</p>
+<hr>
+<h1 id="参考链接（可复核）"><a href="#参考链接（可复核）" class="headerlink" title="参考链接（可复核）"></a>参考链接（可复核）</h1><ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/BytePioneer-AI/openclaw-china/blob/main/README.md">BytePioneer-AI&#x2F;openclaw-china README</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/BytePioneer-AI/openclaw-china/blob/main/doc/guides/wecom-app/configuration.md">wecom-app 配置指南</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/BytePioneer-AI/openclaw-china/blob/main/extensions/wecom-app/openclaw.plugin.json">wecom-app 插件清单（openclaw.plugin.json）</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/sunnoy/openclaw-plugin-wecom/blob/main/package.json">sunnoy&#x2F;openclaw-plugin-wecom package.json</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/openclaw/openclaw/pull/13228">OpenClaw 主仓 WeCom PR #13228</a></li>
+</ul>
+</div><div class="article-tags is-size-7 mb-4"><span class="mr-2">#</span><a class="link-muted mr-2" rel="tag" href="/tags/OpenClaw/">OpenClaw</a><a class="link-muted mr-2" rel="tag" href="/tags/%E4%BC%81%E4%B8%9A%E5%BE%AE%E4%BF%A1/">企业微信</a><a class="link-muted mr-2" rel="tag" href="/tags/WeCom/">WeCom</a><a class="link-muted mr-2" rel="tag" href="/tags/%E6%8F%92%E4%BB%B6/">插件</a><a class="link-muted mr-2" rel="tag" href="/tags/%E6%95%99%E7%A8%8B/">教程</a></div><!--!--></article></div><!--!--><nav class="post-navigation mt-4 level is-mobile"><div class="level-start"><a class="article-nav-prev level level-item link-muted" href="/2026/02/24/taalas-hc1-ai-chip-deep-dive/"><i class="level-item fas fa-chevron-left"></i><span class="level-item">把模型烧进晶体管：Taalas HC1 如何用一个&quot;异端&quot;架构击穿 AI 推理成本</span></a></div><div class="level-end"><a class="article-nav-next level level-item link-muted" href="/2026/02/24/start-working/"><span class="level-item"> </span><i class="level-item fas fa-chevron-right"></i></a></div></nav><!--!--></div><div class="column column-left is-4-tablet is-4-desktop is-4-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar is-rounded" src="/img/conan-avatar.svg" alt="Lu Zhongqiu"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">Lu Zhongqiu</p><p class="is-size-6 is-block">Builder · Thinker · Writer</p><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>分享已知的是无趣的，我只研究我当前不知道的，顺便分享</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">文章</p><a href="/archives/"><p class="title">8</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">分类</p><a href="/categories/"><p class="title">3</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">标签</p><a href="/tags/"><p class="title">35</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/luzhongqiu" target="_blank" rel="me noopener">关注我</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="me noopener" title="Github" href="https://github.com/luzhongqiu"><i class="fab fa-github"></i></a></div></div></div><!--!--><div class="card widget" data-type="categories"><div class="card-content"><div class="menu"><h3 class="menu-label">分类</h3><ul class="menu-list"><li><a class="level is-mobile" href="/categories/AI/"><span class="level-start"><span class="level-item">AI</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/categories/%E5%B7%A5%E4%BD%9C/"><span class="level-start"><span class="level-item">工作</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/"><span class="level-start"><span class="level-item">深度学习</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></div></div></div><div class="card widget" data-type="recent-posts"><div class="card-content"><h3 class="menu-label">最新文章</h3><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-03-01T05:00:00.000Z">2026-03-01</time></p><p class="title"><a href="/2026/03/01/vibe-coding-perspectives/">强者 Vibe，弱者 Wipe</a></p><p class="categories"><a href="/categories/AI/">AI</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-02-26T02:00:00.000Z">2026-02-26</time></p><p class="title"><a href="/2026/02/26/agent-client-protocol-introduction/">Agent Client Protocol（ACP）：AI 编码世界的 LSP</a></p><p class="categories"><a href="/categories/AI/">AI</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-02-25T14:00:00.000Z">2026-02-25</time></p><p class="title"><a href="/2026/02/25/yolo-series-development-and-comparison/">YOLO 目标检测系列算法的发展历程与版本对比</a></p><p class="categories"><a href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/">深度学习</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-02-25T10:00:00.000Z">2026-02-25</time></p><p class="title"><a href="/2026/02/25/agent-skill-path-resolution-across-cli/">Agent Skill 脚本路径问题：四大 CLI 实现对比与最佳实践</a></p><p class="categories"><a href="/categories/AI/">AI</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-02-24T14:00:00.000Z">2026-02-24</time></p><p class="title"><a href="/2026/02/24/taalas-hc1-ai-chip-deep-dive/">把模型烧进晶体管：Taalas HC1 如何用一个&quot;异端&quot;架构击穿 AI 推理成本</a></p><p class="categories"><a href="/categories/AI/">AI</a></p></div></article></div></div><div class="card widget" data-type="archives"><div class="card-content"><div class="menu"><h3 class="menu-label">归档</h3><ul class="menu-list"><li><a class="level is-mobile" href="/archives/2026/03/"><span class="level-start"><span class="level-item">三月 2026</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/02/"><span class="level-start"><span class="level-item">二月 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li></ul></div></div></div><div class="card widget" data-type="tags"><div class="card-content"><div class="menu"><h3 class="menu-label">标签</h3><div class="field is-grouped is-grouped-multiline"><div class="control"><a class="tags has-addons" href="/tags/ACP/"><span class="tag">ACP</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI%E7%BC%96%E7%A8%8B/"><span class="tag">AI编程</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI%E8%8A%AF%E7%89%87/"><span class="tag">AI芯片</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Agent/"><span class="tag">Agent</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AgentSkills/"><span class="tag">AgentSkills</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Claude-Code/"><span class="tag">Claude Code</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Codex/"><span class="tag">Codex</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/DeepSeek/"><span class="tag">DeepSeek</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/IDE/"><span class="tag">IDE</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/LLM/"><span class="tag">LLM</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/MCP/"><span class="tag">MCP</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/NVIDIA/"><span class="tag">NVIDIA</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/OpenClaw/"><span class="tag">OpenClaw</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Protocol/"><span class="tag">Protocol</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Skill/"><span class="tag">Skill</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Taalas/"><span class="tag">Taalas</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Vibe-Coding/"><span class="tag">Vibe Coding</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/WeCom/"><span class="tag">WeCom</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/YOLO/"><span class="tag">YOLO</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/oh-my-opencode/"><span class="tag">oh-my-opencode</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/openclaw/"><span class="tag">openclaw</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E4%BC%81%E4%B8%9A%E5%BE%AE%E4%BF%A1/"><span class="tag">企业微信</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E5%A4%A7%E6%A8%A1%E5%9E%8B/"><span class="tag">大模型</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E5%B7%A5%E4%BD%9C/"><span class="tag">工作</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E5%BE%AE%E4%BF%A1%E5%85%AC%E4%BC%97%E5%8F%B7/"><span class="tag">微信公众号</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E6%80%9D%E8%80%83/"><span class="tag">思考</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E6%8E%A8%E7%90%86/"><span class="tag">推理</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E6%8F%92%E4%BB%B6/"><span class="tag">插件</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E6%95%99%E7%A8%8B/"><span class="tag">教程</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E6%98%A5%E8%8A%82/"><span class="tag">春节</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E7%9B%AE%E6%A0%87%E6%A3%80%E6%B5%8B/"><span class="tag">目标检测</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E7%A1%AC%E4%BB%B6/"><span class="tag">硬件</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E8%85%BE%E8%AE%AF/"><span class="tag">腾讯</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E8%A7%86%E8%A7%89/"><span class="tag">计算机视觉</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E9%98%BF%E9%87%8C/"><span class="tag">阿里</span><span class="tag">1</span></a></div></div></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">订阅更新</h3><form action="https://feedburner.google.com/fb/a/mailverify" method="post" target="popupwindow" onsubmit="window.open(&#039;https://feedburner.google.com/fb/a/mailverify?uri=&#039;,&#039;popupwindow&#039;,&#039;scrollbars=yes,width=550,height=520&#039;);return true"><input type="hidden" value="" name="uri"><input type="hidden" name="loc" value="en_US"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="订阅"></div></div></form></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">follow.it</h3><form action="" method="post" target="_blank"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="订阅"></div></div></form></div></div></div></div><!--!--></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><p class="is-size-7"><span>&copy; 2026 Lu Zhongqiu</span></p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="GitHub" href="https://github.com/luzhongqiu"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("zh-cn");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script data-pjax src="/js/column.js"></script><script src="/js/animation.js"></script><a id="back-to-top" title="回到顶端" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script data-pjax src="/js/back_to_top.js" defer></script><!--!--><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.js" defer></script><script>window.addEventListener("load", () => {
+      window.cookieconsent.initialise({
+        type: "info",
+        theme: "edgeless",
+        static: false,
+        position: "bottom-left",
+        content: {
+          message: "此网站使用Cookie来改善您的体验。",
+          dismiss: "知道了！",
+          allow: "允许使用Cookie",
+          deny: "拒绝",
+          link: "了解更多",
+          policy: "Cookie政策",
+          href: "https://www.cookiesandyou.com/",
+        },
+        palette: {
+          popup: {
+            background: "#edeff5",
+            text: "#838391"
+          },
+          button: {
+            background: "#4b81e8"
+          },
+        },
+      });
+    });</script><script src="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/js/lightgallery.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/js/jquery.justifiedGallery.min.js" defer></script><script>window.addEventListener("load", () => {
+            if (typeof $.fn.lightGallery === 'function') {
+                $('.article').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof $.fn.justifiedGallery === 'function') {
+                if ($('.justified-gallery > p > .gallery-item').length) {
+                    $('.justified-gallery > p > .gallery-item').unwrap();
+                }
+                $('.justified-gallery').justifiedGallery();
+            }
+        });</script><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/pjax@0.2.8/pjax.min.js"></script><script src="/js/pjax.js"></script><!--!--><!--!--><!--!--><script data-pjax src="/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="想要查找什么..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script data-pjax src="/js/insight.js" defer></script><script data-pjax>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/content.json"}, {"hint":"想要查找什么...","untitled":"(无标题)","posts":"文章","pages":"页面","categories":"分类","tags":"标签"});
+        });</script></body></html>

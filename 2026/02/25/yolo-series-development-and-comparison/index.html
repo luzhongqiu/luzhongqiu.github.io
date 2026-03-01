@@ -1,0 +1,413 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>YOLO 目标检测系列算法的发展历程与版本对比 - Lu Zhongqiu</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="Lu Zhongqiu"><meta name="msapplication-TileImage" content="/img/favicon.svg"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Lu Zhongqiu"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="引言在计算机视觉领域，目标检测是一个永恒的核心课题。从早期的滑动窗口+手工特征，到后来的两阶段检测范式（R-CNN系列），再到如今单阶段算法的全面崛起，这个领域经历了翻天覆地的变化。而在单阶段检测算法中，YOLO（You Only Look Once）系列无疑是最具影响力、工程化最成功的代表。"><meta property="og:type" content="blog"><meta property="og:title" content="YOLO 目标检测系列算法的发展历程与版本对比"><meta property="og:url" content="https://luzhongqiu.github.io/2026/02/25/yolo-series-development-and-comparison/"><meta property="og:site_name" content="Lu Zhongqiu"><meta property="og:description" content="引言在计算机视觉领域，目标检测是一个永恒的核心课题。从早期的滑动窗口+手工特征，到后来的两阶段检测范式（R-CNN系列），再到如今单阶段算法的全面崛起，这个领域经历了翻天覆地的变化。而在单阶段检测算法中，YOLO（You Only Look Once）系列无疑是最具影响力、工程化最成功的代表。"><meta property="og:locale" content="zh_CN"><meta property="og:image" content="https://ar5iv.labs.arxiv.org/html/1506.02640/assets/x2.png"><meta property="og:image" content="https://ar5iv.labs.arxiv.org/html/1506.02640/assets/x3.png"><meta property="og:image" content="https://ar5iv.labs.arxiv.org/html/1612.08242/assets/x2.png"><meta property="og:image" content="https://ar5iv.labs.arxiv.org/html/2004.10934/assets/fig/detector.png"><meta property="og:image" content="https://ar5iv.labs.arxiv.org/html/2207.02696/assets/figures/elan.png"><meta property="og:image" content="https://ar5iv.labs.arxiv.org/html/2402.13616/assets/figs/pgi.png"><meta property="og:image" content="https://ar5iv.labs.arxiv.org/html/2402.13616/assets/figs/gelan.png"><meta property="og:image" content="https://ar5iv.labs.arxiv.org/html/2405.14458/assets/x2.png"><meta property="og:image" content="https://ar5iv.labs.arxiv.org/html/2502.12524/assets/x2.png"><meta property="og:image" content="https://ar5iv.labs.arxiv.org/html/2502.12524/assets/x3.png"><meta property="article:published_time" content="2026-02-25T14:00:00.000Z"><meta property="article:modified_time" content="2026-03-01T06:09:42.035Z"><meta property="article:author" content="Lu Zhongqiu"><meta property="article:tag" content="YOLO"><meta property="article:tag" content="目标检测"><meta property="article:tag" content="计算机视觉"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="https://ar5iv.labs.arxiv.org/html/1506.02640/assets/x2.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"https://luzhongqiu.github.io/2026/02/25/yolo-series-development-and-comparison/"},"headline":"YOLO 目标检测系列算法的发展历程与版本对比","image":["https://ar5iv.labs.arxiv.org/html/1506.02640/assets/x2.png","https://ar5iv.labs.arxiv.org/html/1506.02640/assets/x3.png","https://ar5iv.labs.arxiv.org/html/1612.08242/assets/x2.png","https://ar5iv.labs.arxiv.org/html/2004.10934/assets/fig/detector.png","https://ar5iv.labs.arxiv.org/html/2207.02696/assets/figures/elan.png","https://ar5iv.labs.arxiv.org/html/2402.13616/assets/figs/pgi.png","https://ar5iv.labs.arxiv.org/html/2402.13616/assets/figs/gelan.png","https://ar5iv.labs.arxiv.org/html/2405.14458/assets/x2.png","https://ar5iv.labs.arxiv.org/html/2502.12524/assets/x2.png","https://ar5iv.labs.arxiv.org/html/2502.12524/assets/x3.png"],"datePublished":"2026-02-25T14:00:00.000Z","dateModified":"2026-03-01T06:09:42.035Z","author":{"@type":"Person","name":"Lu Zhongqiu"},"publisher":{"@type":"Organization","name":"Lu Zhongqiu","logo":{"@type":"ImageObject","url":"https://luzhongqiu.github.io/img/logo.svg"}},"description":"引言在计算机视觉领域，目标检测是一个永恒的核心课题。从早期的滑动窗口+手工特征，到后来的两阶段检测范式（R-CNN系列），再到如今单阶段算法的全面崛起，这个领域经历了翻天覆地的变化。而在单阶段检测算法中，YOLO（You Only Look Once）系列无疑是最具影响力、工程化最成功的代表。"}</script><link rel="canonical" href="https://luzhongqiu.github.io/2026/02/25/yolo-series-development-and-comparison/"><link rel="icon" href="/img/favicon.svg"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.0.0/css/all.css"><link data-pjax rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/atom-one-light.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;600&amp;family=Source+Code+Pro"><link data-pjax rel="stylesheet" href="/css/default.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"><!--!--><!--!--><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><!--!--><!--!--><!-- hexo injector head_end start --><script>
+  (function () {
+      function switchTab() {
+          if (!location.hash) {
+            return;
+          }
+
+          const id = '#' + CSS.escape(location.hash.substring(1));
+          const $tabMenu = document.querySelector(`.tabs a[href="${id}"]`);
+          if (!$tabMenu) {
+            return;
+          }
+
+          const $tabMenuContainer = $tabMenu.parentElement.parentElement;
+          Array.from($tabMenuContainer.children).forEach($menu => $menu.classList.remove('is-active'));
+          Array.from($tabMenuContainer.querySelectorAll('a'))
+              .map($menu => document.getElementById($menu.getAttribute("href").substring(1)))
+              .forEach($content => $content.classList.add('is-hidden'));
+
+          if ($tabMenu) {
+              $tabMenu.parentElement.classList.add('is-active');
+          }
+          const $activeTab = document.querySelector(id);
+          if ($activeTab) {
+              $activeTab.classList.remove('is-hidden');
+          }
+      }
+      switchTab();
+      window.addEventListener('hashchange', switchTab, false);
+  })();
+  </script><link rel="stylesheet" href="/css/custom.css"><!-- hexo injector head_end end --><meta name="generator" content="Hexo 8.1.1"></head><body class="is-2-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/">Lu Zhongqiu</a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a><a class="navbar-item" href="/about">About</a></div><div class="navbar-end"><a class="navbar-item search" title="搜索" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-8-widescreen"><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item"><time dateTime="2026-02-25T14:00:00.000Z" title="2/25/2026, 2:00:00 PM">2026-02-25</time>发表</span><span class="level-item"><time dateTime="2026-03-01T06:09:42.035Z" title="3/1/2026, 6:09:42 AM">2026-03-01</time>更新</span><span class="level-item"><a class="link-muted" href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/">深度学习</a></span><span class="level-item">1 小时读完 (大约7024个字)</span></div></div><h1 class="title is-3 is-size-4-mobile">YOLO 目标检测系列算法的发展历程与版本对比</h1><div class="content"><h2 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h2><p>在计算机视觉领域，目标检测是一个永恒的核心课题。从早期的滑动窗口+手工特征，到后来的两阶段检测范式（R-CNN系列），再到如今单阶段算法的全面崛起，这个领域经历了翻天覆地的变化。而在单阶段检测算法中，YOLO（You Only Look Once）系列无疑是最具影响力、工程化最成功的代表。</p>
+<p>从2016年Joseph Redmon发布YOLOv1至今，YOLO系列已经走过了十个年头，迭代了12个主要版本。这期间，不仅有原作者的天才设计，还有来自工业界和学术界的持续贡献，形成了一个蓬勃发展的生态系统。本文将系统梳理YOLO系列的发展脉络，对比各版本的核心特性与性能，并给出实际场景下的选型建议。</p>
+<h2 id="发展历程：从天才idea到工业标准"><a href="#发展历程：从天才idea到工业标准" class="headerlink" title="发展历程：从天才idea到工业标准"></a>发展历程：从天才idea到工业标准</h2><h3 id="奠基期：YOLOv1（2016）"><a href="#奠基期：YOLOv1（2016）" class="headerlink" title="奠基期：YOLOv1（2016）"></a>奠基期：YOLOv1（2016）</h3><p>2016年，Joseph Redmon的一篇论文《You Only Look Once: Unified, Real-Time Object Detection》彻底改变了目标检测的格局。在此之前，两阶段算法（如Faster R-CNN）虽然精度较高，但推理速度较慢，难以满足实时需求。</p>
+<p><img src="https://ar5iv.labs.arxiv.org/html/1506.02640/assets/x2.png" alt="YOLOv1 模型：将图像划分为 S×S 网格，每格预测 B 个边界框和类别概率"></p>
+<blockquote>
+<p><em>Figure 2 from <a target="_blank" rel="noopener" href="https://arxiv.org/abs/1506.02640">YOLOv1 (Redmon et al., 2016)</a>：检测编码为 S×S×(B·5+C) 张量，每个格子负责预测中心点落入其中的目标。</em></p>
+</blockquote>
+<p><img src="https://ar5iv.labs.arxiv.org/html/1506.02640/assets/x3.png" alt="YOLOv1 网络架构：24 层卷积 + 2 层全连接"></p>
+<blockquote>
+<p><em>Figure 3 from <a target="_blank" rel="noopener" href="https://arxiv.org/abs/1506.02640">YOLOv1</a>：网络由 24 层卷积层后接 2 层全连接层组成，交替使用 1×1 卷积降维。</em></p>
+</blockquote>
+<p><strong>核心突破</strong>：</p>
+<ul>
+<li>首次将目标检测视为<strong>回归问题</strong>，直接从图像像素回归出边界框坐标和类别概率</li>
+<li>单网络端到端训练，无需区域提议（Region Proposal）阶段</li>
+<li>将图像划分为S×S网格，每个网格负责预测中心点落在其中的目标</li>
+</ul>
+<p><strong>点评</strong>：<br>YOLOv1的设计哲学极具颠覆性——“看一次就够了”。这种简洁性带来了极快的推理速度，但也存在明显局限：对小目标和密集目标检测效果较差，边界框定位不够精确。然而，它为后续所有YOLO版本奠定了”单阶段、实时、端到端”的基调。</p>
+<h3 id="进化期：YOLOv2-YOLO9000（2017）"><a href="#进化期：YOLOv2-YOLO9000（2017）" class="headerlink" title="进化期：YOLOv2&#x2F;YOLO9000（2017）"></a>进化期：YOLOv2&#x2F;YOLO9000（2017）</h3><p>Redmon很快意识到v1的不足，并在次年推出了YOLOv2，同时还发布了一个野心勃勃的版本——YOLO9000，能检测超过9000类物体。</p>
+<p><img src="https://ar5iv.labs.arxiv.org/html/1612.08242/assets/x2.png" alt="YOLOv2 Anchor 设计：通过 k-means 聚类先验框尺寸，中心坐标用 sigmoid 约束在格子内"></p>
+<blockquote>
+<p><em>Figure 3 from <a target="_blank" rel="noopener" href="https://arxiv.org/abs/1612.08242">YOLOv2&#x2F;YOLO9000 (Redmon &amp; Farhadi, 2017)</a>：预测宽高相对于聚类中心的偏移，用 sigmoid 将中心坐标限制在当前格子范围内。</em></p>
+</blockquote>
+<p><strong>核心改进</strong>：</p>
+<ul>
+<li>引入<strong>Anchor Box</strong>（借鉴Faster R-CNN），大幅提升边界框召回率</li>
+<li>添加<strong>Batch Normalization</strong>，加速收敛并提升模型稳定性</li>
+<li>采用<strong>多尺度训练</strong>，让模型适应不同分辨率的输入</li>
+<li>使用<strong>Darknet-19</strong>作为骨干网络，平衡精度与速度</li>
+<li>YOLO9000：提出了一种联合训练方法，能同时利用检测数据集和分类数据集</li>
+</ul>
+<p><strong>点评</strong>：<br>YOLOv2是一次非常务实的改进。Anchor Box的引入是关键——它解决了v1中”每个网格只能预测一个目标”的限制。多尺度训练则让模型变得更加鲁棒。YOLO9000的联合训练思路很有想象力，虽然在当时实用性有限，但为后来的开放词汇检测埋下了伏笔。</p>
+<h3 id="成熟期：YOLOv3（2018）"><a href="#成熟期：YOLOv3（2018）" class="headerlink" title="成熟期：YOLOv3（2018）"></a>成熟期：YOLOv3（2018）</h3><p>YOLOv3是Redmon的最后一个主要版本，也是整个系列中最经典、最具生命力的版本之一。即使在今天，仍有大量项目基于v3进行开发。</p>
+<p><strong>核心改进</strong>：</p>
+<ul>
+<li>提出<strong>Darknet-53</strong>骨干网络，更深的网络结构带来更强的特征提取能力</li>
+<li>实现<strong>多尺度预测</strong>（FPN的雏形），在3个不同尺度的特征图上进行检测，有效解决了小目标检测问题</li>
+<li>每个预测点预测3个Anchor Box，进一步提升召回率</li>
+<li>用逻辑回归替代softmax进行分类，支持多标签分类</li>
+</ul>
+<p><strong>点评</strong>：<br>YOLOv3的设计体现了”实用主义”的巅峰。Darknet-53借鉴了ResNet的残差思想，既保证了深度又避免了梯度消失。多尺度预测是另一个关键改进——它让模型能够同时捕捉不同大小的目标，这是v3相比v2最大的提升。Redmon在发布v3后不久便宣布退出计算机视觉领域，但他留下的v3却成为了工业界的”常青树”。</p>
+<h3 id="转折期：YOLOv4（2020）"><a href="#转折期：YOLOv4（2020）" class="headerlink" title="转折期：YOLOv4（2020）"></a>转折期：YOLOv4（2020）</h3><p>Redmon离开后，YOLO系列的火炬传到了Alexey Bochkovskiy手中。2020年，他发布了YOLOv4，这是YOLO系列发展史上的一个重要转折点。</p>
+<p><img src="https://ar5iv.labs.arxiv.org/html/2004.10934/assets/fig/detector.png" alt="YOLOv4 检测器架构：CSPDarknet53 骨干 + SPP + PANet Neck + YOLOv3 Head"></p>
+<blockquote>
+<p><em>Figure 2 from <a target="_blank" rel="noopener" href="https://arxiv.org/abs/2004.10934">YOLOv4 (Bochkovskiy et al., 2020)</a>：完整检测器由 Input、Backbone、Neck、Prediction Head 四部分组成。</em></p>
+</blockquote>
+<p><strong>核心改进</strong>：</p>
+<ul>
+<li>引入<strong>CSP（Cross Stage Partial）结构</strong>，优化梯度流动，减少计算量</li>
+<li>提出<strong>Mosaic数据增强</strong>，将4张图片拼接成一张，极大丰富了背景信息</li>
+<li>使用<strong>PANet（Path Aggregation Network）</strong> 替代FPN，增强特征融合能力</li>
+<li>采用<strong>CIoU Loss</strong>，同时考虑边界框的重叠面积、中心点距离和长宽比</li>
+<li>加入大量训练技巧：余弦退火学习率、label smoothing等</li>
+</ul>
+<p><strong>点评</strong>：<br>YOLOv4标志着YOLO系列从”个人作品”向”社区协作”的转变。AlexeyAB没有追求革命性的架构创新，而是将当时各种有效的技巧整合在一起——CSP、Mosaic、PANet、CIoU……这些改进虽然单独来看都不是首创，但组合起来却产生了显著的效果。Mosaic增强尤其聪明，它用一种极其简单的方式大幅提升了模型的鲁棒性。</p>
+<h3 id="工程化：YOLOv5（2020）"><a href="#工程化：YOLOv5（2020）" class="headerlink" title="工程化：YOLOv5（2020）"></a>工程化：YOLOv5（2020）</h3><p>就在YOLOv4发布后不久，Ultralytics公司推出了YOLOv5。这个版本在学术界引发了一些争议（因为没有对应的论文），但在工程界却获得了巨大的成功。</p>
+<p><strong>核心改进</strong>：</p>
+<ul>
+<li>完全迁移至<strong>PyTorch</strong>框架，告别了Darknet的晦涩代码</li>
+<li>提出<strong>Focus模块</strong>，对特征图进行切片再拼接，减少下采样的信息损失</li>
+<li>完善的<strong>工程生态</strong>：丰富的预训练模型、简单的API、完整的部署工具链</li>
+<li>灵活的模型缩放策略：通过深度因子和宽度因子控制模型大小（Nano&#x2F;Small&#x2F;Medium&#x2F;Large）</li>
+</ul>
+<p><strong>点评</strong>：<br>YOLOv5的最大贡献不在于算法创新，而在于<strong>工程化</strong>。Ultralytics将YOLO从一个”算法”变成了一个”产品”。PyTorch的迁移让更多开发者能够轻松上手，完善的工具链让部署变得前所未有的简单。v5的成功告诉我们：在工业界，有时好的工程实现比论文中的新点子更重要。</p>
+<h3 id="工业化：YOLOv6（2022）"><a href="#工业化：YOLOv6（2022）" class="headerlink" title="工业化：YOLOv6（2022）"></a>工业化：YOLOv6（2022）</h3><p>2022年，美团视觉智能部发布了YOLOv6，这是国内工业界对YOLO系列的重要贡献。v6的设计目标非常明确——面向端侧部署。</p>
+<p><strong>核心改进</strong>：</p>
+<ul>
+<li>引入<strong>RepVGG重参数化</strong>技术，训练时使用多分支结构提升精度，推理时合并为单分支提升速度</li>
+<li>专为端侧优化的骨干网络设计</li>
+<li>提供更丰富的量化支持</li>
+</ul>
+<p><strong>点评</strong>：<br>YOLOv6代表了YOLO系列在<strong>工业化落地</strong>方向上的深入探索。重参数化是一个极具实用价值的技术——它让我们能够”鱼与熊掌兼得”：训练时的高精度和推理时的高效率。v6的出现也说明，YOLO系列已经不再是少数人的游戏，而是全球工业界共同参与的平台。</p>
+<h3 id="架构创新：YOLOv7（2022）"><a href="#架构创新：YOLOv7（2022）" class="headerlink" title="架构创新：YOLOv7（2022）"></a>架构创新：YOLOv7（2022）</h3><p>同样是2022年，Chien-Yao Wang等人发布了YOLOv7。这个版本在学术界获得了很高的评价，被认为是”学术派”YOLO的代表。</p>
+<p><img src="https://ar5iv.labs.arxiv.org/html/2207.02696/assets/figures/elan.png" alt="YOLOv7 E-ELAN：通过分组卷积增加特征基数，以 shuffle+merge 方式提升不同特征图的学习多样性"></p>
+<blockquote>
+<p><em>Figure 2 from <a target="_blank" rel="noopener" href="https://arxiv.org/abs/2207.02696">YOLOv7 (Wang et al., 2022)</a>：E-ELAN 不改变原有梯度传输路径，用 group conv + cardinality shuffle 增强特征表达能力。</em></p>
+</blockquote>
+<p><strong>核心改进</strong>：</p>
+<ul>
+<li>提出<strong>E-ELAN（Extended Efficient Layer Aggregation Network）</strong>，通过控制最短最长梯度路径来增强梯度流动</li>
+<li>深入探索<strong>模型重参化</strong>策略，提出了更科学的重参化方法</li>
+<li>使用<strong>动态标签分配</strong>策略，优化训练过程</li>
+</ul>
+<p><strong>点评</strong>：<br>YOLOv7是一次扎实的架构创新。E-ELAN的设计体现了对梯度流动的深刻理解——它让网络能够更深、更高效地学习。v7证明了：即使在YOLO这样已经高度优化的架构上，仍然有通过精细设计提升性能的空间。</p>
+<h3 id="Anchor-Free：YOLOv8（2023）"><a href="#Anchor-Free：YOLOv8（2023）" class="headerlink" title="Anchor-Free：YOLOv8（2023）"></a>Anchor-Free：YOLOv8（2023）</h3><p>2023年，Ultralytics带着YOLOv8强势回归。这是Ultralytics继v5之后的又一力作，也是YOLO系列的一次架构跃迁。</p>
+<p><strong>核心改进</strong>：</p>
+<ul>
+<li><strong>解耦头</strong>：将分类和检测头分开，让两个任务各自优化</li>
+<li><strong>Anchor-Free</strong>：抛弃了Anchor Box的设计，直接预测目标的中心点和宽高</li>
+<li><strong>任务统一化</strong>：在同一框架下支持检测、分割、姿态估计等多种任务</li>
+<li>新的骨干网络和Neck设计</li>
+</ul>
+<p><strong>点评</strong>：<br>YOLOv8是一次勇敢的架构升级。解耦头的设计非常直观——分类和检测本来就是两个不同的任务，用不同的头来处理是合理的。Anchor-Free则进一步简化了检测流程，减少了超参数的数量。更重要的是，v8开始向”多任务统一”的方向迈进，这是计算机视觉的一个重要趋势。</p>
+<h3 id="信息可编程：YOLOv9（2024-02）"><a href="#信息可编程：YOLOv9（2024-02）" class="headerlink" title="信息可编程：YOLOv9（2024.02）"></a>信息可编程：YOLOv9（2024.02）</h3><p>2024年2月，WongKinYiu（v4、v7的作者之一）发布了YOLOv9。这个版本的核心思想是”可编程梯度信息”。</p>
+<p><img src="https://ar5iv.labs.arxiv.org/html/2402.13616/assets/figs/pgi.png" alt="YOLOv9 PGI：主分支 + 辅助可逆分支 + 多级辅助信息，解决深层网络梯度信息丢失问题"></p>
+<blockquote>
+<p><em>Figure 3 from <a target="_blank" rel="noopener" href="https://arxiv.org/abs/2402.13616">YOLOv9 (Wang et al., 2024)</a>：PGI 由主分支（推理用）、辅助可逆分支（提供可靠梯度）、多级辅助信息三部分构成。</em></p>
+</blockquote>
+<p><img src="https://ar5iv.labs.arxiv.org/html/2402.13616/assets/figs/gelan.png" alt="YOLOv9 GELAN：对比 CSPNet 和 ELAN，GELAN 支持插入任意计算块的泛化高效层聚合网络"></p>
+<blockquote>
+<p><em>Figure 4 from <a target="_blank" rel="noopener" href="https://arxiv.org/abs/2402.13616">YOLOv9</a>：GELAN 将 CSPNet 与 ELAN 结合，可插入任意计算块，在轻量化的同时保持高精度。</em></p>
+</blockquote>
+<p><strong>核心改进</strong>：</p>
+<ul>
+<li>提出<strong>PGI（Programmable Gradient Information）</strong>，解决深层网络训练时的信息丢失问题</li>
+<li>设计<strong>GELAN（Generalized Efficient Layer Aggregation Network）</strong>，在保持轻量化的同时提升精度</li>
+<li>重新思考特征融合策略，确保梯度能有效流动</li>
+</ul>
+<p><strong>点评</strong>：<br>YOLOv9的设计哲学很有深度——它关注的是”信息如何在网络中流动”。PGI的核心思想是：在深层网络中，梯度信息会逐渐丢失，我们需要一种方式来”编程”这些信息，让它们能够有效地传播。v9在COCO数据集上取得了当时的最高精度，证明了这种思路的有效性。</p>
+<h3 id="端到端：YOLOv10（2024-05）"><a href="#端到端：YOLOv10（2024-05）" class="headerlink" title="端到端：YOLOv10（2024.05）"></a>端到端：YOLOv10（2024.05）</h3><p>2024年5月，清华大学的团队发布了YOLOv10。这个版本的目标很明确：实现真正的”端到端”检测，去掉NMS后处理。</p>
+<p><img src="https://ar5iv.labs.arxiv.org/html/2405.14458/assets/x2.png" alt="YOLOv10 一致性双标签分配：一对多分支提供丰富训练信号，一对一分支实现 NMS-Free 推理"></p>
+<blockquote>
+<p><em>Figure 2 from <a target="_blank" rel="noopener" href="https://arxiv.org/abs/2405.14458">YOLOv10 (Wang et al., 2024)</a>：训练时同时优化两条分支，推理时只用一对一分支，天然无重复预测，无需 NMS。</em></p>
+</blockquote>
+<p><strong>核心改进</strong>：</p>
+<ul>
+<li><strong>NMS-Free</strong>：通过双标签分配策略，让模型直接输出无冗余的检测结果，无需NMS后处理</li>
+<li>优化的模型架构，在保持精度的同时提升效率</li>
+<li>更低的延迟，特别适合高密度检测场景</li>
+</ul>
+<p><strong>点评</strong>：<br>NMS是目标检测流程中一个”令人讨厌”的步骤——它会带来额外的延迟，而且不是可微的，无法在训练中优化。YOLOv10通过巧妙的标签分配策略去掉了NMS，实现了真正的”端到端”。这在高密度场景下特别有价值，因为NMS的延迟往往会随着目标数量的增加而增加。</p>
+<h3 id="全能王：YOLOv11（2024-09）"><a href="#全能王：YOLOv11（2024-09）" class="headerlink" title="全能王：YOLOv11（2024.09）"></a>全能王：YOLOv11（2024.09）</h3><p>2024年9月，Ultralytics发布了YOLOv11。这个版本将”多任务统一”推向了新的高度。</p>
+<p><strong>核心改进</strong>：</p>
+<ul>
+<li>提出<strong>C3k2&#x2F;C2PSA</strong>架构，进一步优化特征提取和融合</li>
+<li>统一支持**检测、分割、姿态估计、OBB（旋转框）**等多种任务</li>
+<li>更完善的量化和部署工具链</li>
+<li>更好的小目标检测能力</li>
+</ul>
+<p><strong>点评</strong>：<br>YOLOv11代表了”大一统”的趋势。在一个框架下支持多种任务，不仅降低了开发成本，也让任务之间的信息能够相互促进。v11的工程生态也是所有YOLO版本中最完善的——从训练到部署，从量化到加速，几乎所有环节都有现成的工具。</p>
+<h3 id="注意力时代：YOLOv12（2025-02）"><a href="#注意力时代：YOLOv12（2025-02）" class="headerlink" title="注意力时代：YOLOv12（2025.02）"></a>注意力时代：YOLOv12（2025.02）</h3><p>2025年2月，Ultralytics发布了最新的YOLOv12。这个版本标志着YOLO系列正式进入”注意力时代”。</p>
+<p><img src="https://ar5iv.labs.arxiv.org/html/2502.12524/assets/x2.png" alt="YOLOv12 Area Attention：与 Window&#x2F;Axial 等局部注意力的对比，将特征图等分为纵向或横向区域"></p>
+<blockquote>
+<p><em>Figure 2 from <a target="_blank" rel="noopener" href="https://arxiv.org/abs/2502.12524">YOLOv12 (Tian et al., 2025)</a>：Area Attention 将特征图等分为 l 个区域（默认4），在区域内做自注意力，兼顾大感受野与线性复杂度。</em></p>
+</blockquote>
+<p><img src="https://ar5iv.labs.arxiv.org/html/2502.12524/assets/x3.png" alt="YOLOv12 R-ELAN 架构：对比 CSPNet、ELAN、C3K2，R-ELAN 加入残差连接改善深层网络梯度流"></p>
+<blockquote>
+<p><em>Figure 3 from <a target="_blank" rel="noopener" href="https://arxiv.org/abs/2502.12524">YOLOv12</a>：R-ELAN（Residual ELAN）通过残差连接解决深层网络梯度衰减，确保训练稳定性。</em></p>
+</blockquote>
+<p><strong>核心改进</strong>：</p>
+<ul>
+<li>引入<strong>Area Attention</strong>，将自注意力复杂度从O(n²)降至线性，通过划分水平&#x2F;垂直区域来实现高效的全局建模</li>
+<li>设计<strong>R-ELAN</strong>，在GELAN基础上添加残差连接，改善梯度流动</li>
+<li>集成<strong>FlashAttention</strong>优化，让注意力操作在实时推理中可用</li>
+<li>平衡全局建模和局部特征提取，在精度和效率之间取得更好的平衡</li>
+</ul>
+<p><strong>点评</strong>：<br>YOLOv12是一次大胆的尝试——将Transformer中的自注意力机制引入到实时检测架构中。Area Attention的设计非常巧妙：它既保留了自注意力的全局建模能力，又通过区域划分将复杂度控制在可接受范围内。v12的出现标志着：注意力机制不再只是NLP和大模型的专利，它正在全面进入实时计算机视觉领域。</p>
+<h2 id="版本对比：数据说话"><a href="#版本对比：数据说话" class="headerlink" title="版本对比：数据说话"></a>版本对比：数据说话</h2><p>为了更直观地对比各版本的性能，我们整理了近年来主要版本在COCO val2017数据集上的表现。</p>
+<h3 id="精度对比（mAP-50-95）"><a href="#精度对比（mAP-50-95）" class="headerlink" title="精度对比（mAP 50-95）"></a>精度对比（mAP 50-95）</h3><table>
+<thead>
+<tr>
+<th>规格</th>
+<th>YOLOv8</th>
+<th>YOLOv9</th>
+<th>YOLOv10</th>
+<th>YOLOv11</th>
+<th>YOLOv12</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Nano</td>
+<td>37.3</td>
+<td>38.3</td>
+<td>38.5</td>
+<td>39.5</td>
+<td>38.0</td>
+</tr>
+<tr>
+<td>Small</td>
+<td>44.9</td>
+<td>46.8</td>
+<td>46.3</td>
+<td>47.0</td>
+<td>~47.5</td>
+</tr>
+<tr>
+<td>Medium</td>
+<td>50.2</td>
+<td>51.4</td>
+<td>51.3</td>
+<td>51.5</td>
+<td>~52.0</td>
+</tr>
+<tr>
+<td>Large</td>
+<td>52.9</td>
+<td>53.0</td>
+<td>53.2</td>
+<td>53.4</td>
+<td>~54.0</td>
+</tr>
+<tr>
+<td>XLarge</td>
+<td>53.9</td>
+<td>55.6</td>
+<td>54.4</td>
+<td>54.7</td>
+<td>55.2</td>
+</tr>
+</tbody></table>
+<p>从精度数据来看，整体呈现稳步提升的趋势。值得注意的是：</p>
+<ul>
+<li>YOLOv9-E在XLarge规格下取得了55.6的最高精度，这在当时是非常出色的成绩</li>
+<li>YOLOv11在中低规格下表现突出，Nano规格比v8高出2.2个mAP</li>
+<li>YOLOv12在Small以上规格中表现最好，说明Area Attention在较大模型上更有优势</li>
+</ul>
+<h3 id="参数量与效率对比（X规格）"><a href="#参数量与效率对比（X规格）" class="headerlink" title="参数量与效率对比（X规格）"></a>参数量与效率对比（X规格）</h3><table>
+<thead>
+<tr>
+<th>版本</th>
+<th>参数量 (M)</th>
+<th>GFLOPs</th>
+<th>mAP 50-95</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>YOLOv8-X</td>
+<td>68.2</td>
+<td>257.8</td>
+<td>53.9</td>
+</tr>
+<tr>
+<td>YOLOv9-E</td>
+<td>58.1</td>
+<td>192.5</td>
+<td>55.6</td>
+</tr>
+<tr>
+<td>YOLOv10-X</td>
+<td>29.5</td>
+<td>160.4</td>
+<td>54.4</td>
+</tr>
+<tr>
+<td>YOLOv11-X</td>
+<td>56.9</td>
+<td>194.9</td>
+<td>54.7</td>
+</tr>
+<tr>
+<td>YOLOv12-X</td>
+<td>57.5</td>
+<td>138.0</td>
+<td>55.2</td>
+</tr>
+</tbody></table>
+<p>效率数据更有意思：</p>
+<ul>
+<li>YOLOv10-X的参数量只有29.5M，是所有X规格中最小的，这得益于NMS-Free设计带来的简化</li>
+<li>YOLOv12-X的GFLOPs只有138.0，是所有版本中最低的，同时精度却达到了55.2——这充分体现了Area Attention的效率优势</li>
+<li>YOLOv9-E在参数量和GFLOPs都低于v8-X的情况下，精度反而更高，说明PGI和GELAN的设计非常高效</li>
+</ul>
+<h2 id="重要变体：百花齐放"><a href="#重要变体：百花齐放" class="headerlink" title="重要变体：百花齐放"></a>重要变体：百花齐放</h2><p>除了主要版本外，YOLO生态中还涌现出了许多重要的变体，它们针对不同的应用场景进行了优化。</p>
+<h3 id="YOLO-World（腾讯AILab）"><a href="#YOLO-World（腾讯AILab）" class="headerlink" title="YOLO-World（腾讯AILab）"></a>YOLO-World（腾讯AILab）</h3><p><strong>核心特点</strong>：开放词汇检测，文本驱动，无需重训</p>
+<p><strong>点评</strong>：YOLO-World是一个非常有想象力的作品。它将YOLO的实时能力与CLIP的开放词汇能力结合起来，让用户能够通过文本描述来检测任意类别的物体，而无需重新训练模型。这种”即插即用”的特性在很多实际场景中非常有用，比如工业质检中的缺陷检测（缺陷类型往往是多样化且难以预定义的）。</p>
+<h3 id="YOLO-NAS（Deci-AI）"><a href="#YOLO-NAS（Deci-AI）" class="headerlink" title="YOLO-NAS（Deci AI）"></a>YOLO-NAS（Deci AI）</h3><p><strong>核心特点</strong>：NAS架构搜索，INT8量化友好</p>
+<p><strong>点评</strong>：YOLO-NAS代表了”自动化设计”的方向。Deci AI使用神经架构搜索（NAS）技术，自动设计出更高效的架构。更重要的是，他们在搜索过程中就考虑了量化友好性，使得YOLO-NAS在INT8量化下的性能损失非常小。这对于边缘设备部署来说非常有价值。</p>
+<h3 id="RT-DETR（百度）"><a href="#RT-DETR（百度）" class="headerlink" title="RT-DETR（百度）"></a>RT-DETR（百度）</h3><p><strong>核心特点</strong>：Transformer实时检测，mAP 53-54.8</p>
+<p><strong>点评</strong>：RT-DETR是Transformer在实时检测领域的成功尝试。它证明了：只要设计得当，Transformer架构也能达到实时性能。RT-DETR的NMS-Free设计也很有特色——它通过匈牙利算法直接进行一对一匹配，避免了NMS带来的延迟。</p>
+<h3 id="Gold-YOLO（华为诺亚）"><a href="#Gold-YOLO（华为诺亚）" class="headerlink" title="Gold-YOLO（华为诺亚）"></a>Gold-YOLO（华为诺亚）</h3><p><strong>核心特点</strong>：Gather-Distribute聚合分发机制</p>
+<p><strong>点评</strong>：Gold-YOLO提出了一种新的特征融合思路——Gather-Distribute。与传统的FPN&#x2F;PANet不同，它先将所有尺度的特征聚合到一起，然后再分发给各个尺度。这种”先聚后分”的方式能够更有效地利用跨尺度信息，在小目标检测上表现尤其突出。</p>
+<h2 id="场景选型建议"><a href="#场景选型建议" class="headerlink" title="场景选型建议"></a>场景选型建议</h2><p>说了这么多，到底该选哪个版本呢？我们根据不同的需求给出以下建议：</p>
+<table>
+<thead>
+<tr>
+<th>需求</th>
+<th>推荐</th>
+<th>原因</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>嵌入式&#x2F;边缘设备</td>
+<td>YOLOv11-N&#x2F;S</td>
+<td>参数最小，量化工具链成熟</td>
+</tr>
+<tr>
+<td>极低延迟（服务器）</td>
+<td>YOLOv10-S&#x2F;M</td>
+<td>NMS-Free，高密度场景延迟优势</td>
+</tr>
+<tr>
+<td>生产环境通用</td>
+<td>YOLOv11-M</td>
+<td>生态最完善，多任务支持</td>
+</tr>
+<tr>
+<td>学术&#x2F;高精度</td>
+<td>YOLOv9-E 或 YOLOv12-X</td>
+<td>精度最高，架构最前沿</td>
+</tr>
+<tr>
+<td>动态类别检测</td>
+<td>YOLO-World</td>
+<td>开放词汇，文本驱动</td>
+</tr>
+</tbody></table>
+<h3 id="具体场景分析"><a href="#具体场景分析" class="headerlink" title="具体场景分析"></a>具体场景分析</h3><p><strong>1. 嵌入式&#x2F;边缘设备</strong></p>
+<p>如果你的部署目标是嵌入式设备（如树莓派、Jetson Nano、手机等），那么YOLOv11的Nano或Small规格是最佳选择。v11在小模型上的优化非常出色，而且Ultralytics提供了完善的量化和部署工具链，支持ONNX、TensorRT、NCNN等多种推理框架。</p>
+<p><strong>2. 极低延迟（服务器）</strong></p>
+<p>如果你需要在服务器上运行极低延迟的检测（比如实时视频流分析、自动驾驶的感知系统），那么YOLOv10是更好的选择。v10的NMS-Free设计在高密度场景下特别有优势——随着目标数量的增加，v10的延迟增长比其他版本慢得多。</p>
+<p><strong>3. 生产环境通用</strong></p>
+<p>对于大多数生产环境的应用场景，YOLOv11-M是最稳妥的选择。它的精度足够高，速度足够快，而且生态最完善——从训练到部署，从数据增强到模型量化，几乎所有环节都有现成的工具。此外，v11的多任务支持（检测、分割、姿态、OBB）也让它能够应对更多样化的需求。</p>
+<p><strong>4. 学术&#x2F;高精度</strong></p>
+<p>如果你在做学术研究，或者对精度有极高的要求（比如医疗影像分析、卫星图像解读），那么YOLOv9-E或YOLOv12-X是最佳选择。v9-E在XLarge规格下取得了55.6的mAP，是目前所有YOLO版本中最高的。v12-X则在精度和效率之间取得了更好的平衡，而且它的Area Attention设计也很有研究价值。</p>
+<p><strong>5. 动态类别检测</strong></p>
+<p>如果你需要检测的类别是动态的、无法预定义的（比如工业质检中的缺陷检测、开放环境下的监控），那么YOLO-World是唯一的选择。它让你能够通过文本描述来定义检测类别，无需重新训练模型——这种灵活性在很多实际场景中是不可替代的。</p>
+<h2 id="YOLOv12技术亮点深度解析"><a href="#YOLOv12技术亮点深度解析" class="headerlink" title="YOLOv12技术亮点深度解析"></a>YOLOv12技术亮点深度解析</h2><p>作为YOLO系列的最新版本，YOLOv12有几个技术亮点值得我们深入探讨。</p>
+<h3 id="Area-Attention：线性复杂度的全局建模"><a href="#Area-Attention：线性复杂度的全局建模" class="headerlink" title="Area Attention：线性复杂度的全局建模"></a>Area Attention：线性复杂度的全局建模</h3><p>自注意力机制（Self-Attention）的最大问题是复杂度——它的计算量是O(n²)，其中n是token的数量。对于高分辨率图像来说，这是不可接受的。</p>
+<p>YOLOv12提出的<strong>Area Attention</strong>巧妙地解决了这个问题。它的核心思想是：</p>
+<ol>
+<li>将特征图划分为水平区域和垂直区域</li>
+<li>在每个区域内进行自注意力计算</li>
+<li>这样既保留了一定的全局建模能力，又将复杂度从O(n²)降至线性</li>
+</ol>
+<p><strong>点评</strong>：Area Attention是一种非常”工程化”的创新。它没有追求理论上的完美，而是在精度和效率之间找到了一个很好的平衡点。通过区域划分，它既避免了全局注意力的高昂计算成本，又比纯粹的局部注意力拥有更大的感受野。</p>
+<h3 id="R-ELAN：改善梯度流动"><a href="#R-ELAN：改善梯度流动" class="headerlink" title="R-ELAN：改善梯度流动"></a>R-ELAN：改善梯度流动</h3><p>YOLOv12在GELAN（来自YOLOv9）的基础上，添加了残差连接，形成了<strong>R-ELAN</strong>。</p>
+<p><strong>设计思路</strong>：</p>
+<ul>
+<li>保留GELAN的高效特征聚合能力</li>
+<li>添加残差连接，确保梯度能够直接传播到较早的层</li>
+<li>这种设计让网络能够更深，同时避免梯度消失</li>
+</ul>
+<p><strong>点评</strong>：残差连接（Residual Connection）并不是什么新东西，但它的有效性已经被无数次证明。YOLOv12将它和GELAN结合起来，是一次”简单但有效”的改进。这也说明：在架构设计中，有时不需要追求花哨的新东西，把已有的技巧用好就足够了。</p>
+<h3 id="FlashAttention：让注意力在实时推理中可用"><a href="#FlashAttention：让注意力在实时推理中可用" class="headerlink" title="FlashAttention：让注意力在实时推理中可用"></a>FlashAttention：让注意力在实时推理中可用</h3><p>FlashAttention是近年来最重要的深度学习优化之一。它通过重新组织计算顺序，大幅提升了自注意力的计算速度和内存效率。</p>
+<p>YOLOv12集成了FlashAttention优化，这使得Area Attention在实时推理中变得可用。没有FlashAttention，即使Area Attention的理论复杂度很低，实际运行速度可能也无法接受。</p>
+<p><strong>点评</strong>：好的算法需要好的实现才能发挥价值。FlashAttention就是一个典型的例子——它不是改变算法本身，而是改变算法的实现方式，却带来了巨大的性能提升。YOLOv12的作者们显然很清楚这一点，他们及时地将最新的优化技巧整合到了架构中。</p>
+<h2 id="结语：YOLO系列的启示"><a href="#结语：YOLO系列的启示" class="headerlink" title="结语：YOLO系列的启示"></a>结语：YOLO系列的启示</h2><p>回顾YOLO系列十年的发展历程，我们可以得到很多启示：</p>
+<p><strong>1. 简洁性是工程成功的关键</strong></p>
+<p>YOLOv1的成功，很大程度上在于它的简洁——“看一次就够了”。这种简洁性让它容易理解、容易实现、容易优化。在工程领域，简单的方案往往比复杂的方案更有生命力。</p>
+<p><strong>2. 架构创新和工程化同样重要</strong></p>
+<p>YOLOv3、v7、v9、v12代表了架构创新的方向，而v5、v6、v8、v11则代表了工程化的方向。这两条线都很重要——没有架构创新，就没有性能的突破；没有工程化，再好的算法也难以落地。</p>
+<p><strong>3. 社区协作是技术进步的加速器</strong></p>
+<p>Redmon在的时候，YOLO是个人作品；Redmon离开后，YOLO变成了社区协作的平台。AlexeyAB、Ultralytics、美团、清华大学……来自全球的开发者和研究者共同推动着YOLO系列的发展。这种社区协作模式大大加速了技术进步。</p>
+<p><strong>4. 趋势总是会到来的</strong></p>
+<p>从两阶段到单阶段，从Anchor-Based到Anchor-Free，从CNN到Attention……这些趋势在早期都充满争议，但最终都成为了主流。YOLO系列的发展历程告诉我们：不要抗拒趋势，要主动拥抱趋势，在合适的时候将新的技术整合到自己的架构中。</p>
+<p>未来，YOLO系列会走向何方？我们可以期待：更好的多任务统一，更强的开放词汇能力，更高效的注意力机制，更完善的工具链……但有一点是肯定的：YOLO系列还会继续发展，继续推动计算机视觉的进步。</p>
+<p>对于我们这些使用者来说，最重要的不是追最新的版本，而是根据自己的需求选择合适的版本，把它用好。毕竟，在实际项目中，把一个模型用好比用一个”最好”的模型更重要。</p>
+</div><div class="article-tags is-size-7 mb-4"><span class="mr-2">#</span><a class="link-muted mr-2" rel="tag" href="/tags/YOLO/">YOLO</a><a class="link-muted mr-2" rel="tag" href="/tags/%E7%9B%AE%E6%A0%87%E6%A3%80%E6%B5%8B/">目标检测</a><a class="link-muted mr-2" rel="tag" href="/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E8%A7%86%E8%A7%89/">计算机视觉</a></div><!--!--></article></div><!--!--><nav class="post-navigation mt-4 level is-mobile"><div class="level-start"><a class="article-nav-prev level level-item link-muted" href="/2026/02/26/agent-client-protocol-introduction/"><i class="level-item fas fa-chevron-left"></i><span class="level-item">Agent Client Protocol（ACP）：AI 编码世界的 LSP</span></a></div><div class="level-end"><a class="article-nav-next level level-item link-muted" href="/2026/02/25/agent-skill-path-resolution-across-cli/"><span class="level-item">Agent Skill 脚本路径问题：四大 CLI 实现对比与最佳实践</span><i class="level-item fas fa-chevron-right"></i></a></div></nav><!--!--></div><div class="column column-left is-4-tablet is-4-desktop is-4-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar is-rounded" src="/img/conan-avatar.svg" alt="Lu Zhongqiu"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">Lu Zhongqiu</p><p class="is-size-6 is-block">Builder · Thinker · Writer</p><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>分享已知的是无趣的，我只研究我当前不知道的，顺便分享</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">文章</p><a href="/archives/"><p class="title">8</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">分类</p><a href="/categories/"><p class="title">3</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">标签</p><a href="/tags/"><p class="title">35</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/luzhongqiu" target="_blank" rel="me noopener">关注我</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="me noopener" title="Github" href="https://github.com/luzhongqiu"><i class="fab fa-github"></i></a></div></div></div><!--!--><div class="card widget" data-type="categories"><div class="card-content"><div class="menu"><h3 class="menu-label">分类</h3><ul class="menu-list"><li><a class="level is-mobile" href="/categories/AI/"><span class="level-start"><span class="level-item">AI</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/categories/%E5%B7%A5%E4%BD%9C/"><span class="level-start"><span class="level-item">工作</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/"><span class="level-start"><span class="level-item">深度学习</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></div></div></div><div class="card widget" data-type="recent-posts"><div class="card-content"><h3 class="menu-label">最新文章</h3><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-03-01T05:00:00.000Z">2026-03-01</time></p><p class="title"><a href="/2026/03/01/vibe-coding-perspectives/">强者 Vibe，弱者 Wipe</a></p><p class="categories"><a href="/categories/AI/">AI</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-02-26T02:00:00.000Z">2026-02-26</time></p><p class="title"><a href="/2026/02/26/agent-client-protocol-introduction/">Agent Client Protocol（ACP）：AI 编码世界的 LSP</a></p><p class="categories"><a href="/categories/AI/">AI</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-02-25T14:00:00.000Z">2026-02-25</time></p><p class="title"><a href="/2026/02/25/yolo-series-development-and-comparison/">YOLO 目标检测系列算法的发展历程与版本对比</a></p><p class="categories"><a href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/">深度学习</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-02-25T10:00:00.000Z">2026-02-25</time></p><p class="title"><a href="/2026/02/25/agent-skill-path-resolution-across-cli/">Agent Skill 脚本路径问题：四大 CLI 实现对比与最佳实践</a></p><p class="categories"><a href="/categories/AI/">AI</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-02-24T14:00:00.000Z">2026-02-24</time></p><p class="title"><a href="/2026/02/24/taalas-hc1-ai-chip-deep-dive/">把模型烧进晶体管：Taalas HC1 如何用一个&quot;异端&quot;架构击穿 AI 推理成本</a></p><p class="categories"><a href="/categories/AI/">AI</a></p></div></article></div></div><div class="card widget" data-type="archives"><div class="card-content"><div class="menu"><h3 class="menu-label">归档</h3><ul class="menu-list"><li><a class="level is-mobile" href="/archives/2026/03/"><span class="level-start"><span class="level-item">三月 2026</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/02/"><span class="level-start"><span class="level-item">二月 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li></ul></div></div></div><div class="card widget" data-type="tags"><div class="card-content"><div class="menu"><h3 class="menu-label">标签</h3><div class="field is-grouped is-grouped-multiline"><div class="control"><a class="tags has-addons" href="/tags/ACP/"><span class="tag">ACP</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI%E7%BC%96%E7%A8%8B/"><span class="tag">AI编程</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI%E8%8A%AF%E7%89%87/"><span class="tag">AI芯片</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Agent/"><span class="tag">Agent</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AgentSkills/"><span class="tag">AgentSkills</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Claude-Code/"><span class="tag">Claude Code</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Codex/"><span class="tag">Codex</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/DeepSeek/"><span class="tag">DeepSeek</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/IDE/"><span class="tag">IDE</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/LLM/"><span class="tag">LLM</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/MCP/"><span class="tag">MCP</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/NVIDIA/"><span class="tag">NVIDIA</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/OpenClaw/"><span class="tag">OpenClaw</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Protocol/"><span class="tag">Protocol</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Skill/"><span class="tag">Skill</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Taalas/"><span class="tag">Taalas</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Vibe-Coding/"><span class="tag">Vibe Coding</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/WeCom/"><span class="tag">WeCom</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/YOLO/"><span class="tag">YOLO</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/oh-my-opencode/"><span class="tag">oh-my-opencode</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/openclaw/"><span class="tag">openclaw</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E4%BC%81%E4%B8%9A%E5%BE%AE%E4%BF%A1/"><span class="tag">企业微信</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E5%A4%A7%E6%A8%A1%E5%9E%8B/"><span class="tag">大模型</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E5%B7%A5%E4%BD%9C/"><span class="tag">工作</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E5%BE%AE%E4%BF%A1%E5%85%AC%E4%BC%97%E5%8F%B7/"><span class="tag">微信公众号</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E6%80%9D%E8%80%83/"><span class="tag">思考</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E6%8E%A8%E7%90%86/"><span class="tag">推理</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E6%8F%92%E4%BB%B6/"><span class="tag">插件</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E6%95%99%E7%A8%8B/"><span class="tag">教程</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E6%98%A5%E8%8A%82/"><span class="tag">春节</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E7%9B%AE%E6%A0%87%E6%A3%80%E6%B5%8B/"><span class="tag">目标检测</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E7%A1%AC%E4%BB%B6/"><span class="tag">硬件</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E8%85%BE%E8%AE%AF/"><span class="tag">腾讯</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E8%A7%86%E8%A7%89/"><span class="tag">计算机视觉</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E9%98%BF%E9%87%8C/"><span class="tag">阿里</span><span class="tag">1</span></a></div></div></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">订阅更新</h3><form action="https://feedburner.google.com/fb/a/mailverify" method="post" target="popupwindow" onsubmit="window.open(&#039;https://feedburner.google.com/fb/a/mailverify?uri=&#039;,&#039;popupwindow&#039;,&#039;scrollbars=yes,width=550,height=520&#039;);return true"><input type="hidden" value="" name="uri"><input type="hidden" name="loc" value="en_US"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="订阅"></div></div></form></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">follow.it</h3><form action="" method="post" target="_blank"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="订阅"></div></div></form></div></div></div></div><!--!--></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><p class="is-size-7"><span>&copy; 2026 Lu Zhongqiu</span></p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="GitHub" href="https://github.com/luzhongqiu"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("zh-cn");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script data-pjax src="/js/column.js"></script><script src="/js/animation.js"></script><a id="back-to-top" title="回到顶端" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script data-pjax src="/js/back_to_top.js" defer></script><!--!--><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.js" defer></script><script>window.addEventListener("load", () => {
+      window.cookieconsent.initialise({
+        type: "info",
+        theme: "edgeless",
+        static: false,
+        position: "bottom-left",
+        content: {
+          message: "此网站使用Cookie来改善您的体验。",
+          dismiss: "知道了！",
+          allow: "允许使用Cookie",
+          deny: "拒绝",
+          link: "了解更多",
+          policy: "Cookie政策",
+          href: "https://www.cookiesandyou.com/",
+        },
+        palette: {
+          popup: {
+            background: "#edeff5",
+            text: "#838391"
+          },
+          button: {
+            background: "#4b81e8"
+          },
+        },
+      });
+    });</script><script src="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/js/lightgallery.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/js/jquery.justifiedGallery.min.js" defer></script><script>window.addEventListener("load", () => {
+            if (typeof $.fn.lightGallery === 'function') {
+                $('.article').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof $.fn.justifiedGallery === 'function') {
+                if ($('.justified-gallery > p > .gallery-item').length) {
+                    $('.justified-gallery > p > .gallery-item').unwrap();
+                }
+                $('.justified-gallery').justifiedGallery();
+            }
+        });</script><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/pjax@0.2.8/pjax.min.js"></script><script src="/js/pjax.js"></script><!--!--><!--!--><!--!--><script data-pjax src="/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="想要查找什么..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script data-pjax src="/js/insight.js" defer></script><script data-pjax>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/content.json"}, {"hint":"想要查找什么...","untitled":"(无标题)","posts":"文章","pages":"页面","categories":"分类","tags":"标签"});
+        });</script></body></html>
