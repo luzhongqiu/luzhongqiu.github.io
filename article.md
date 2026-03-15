@@ -1,16 +1,3 @@
----
-title: 从 OpenViking 到 GitAgent：一天挖出来的云端 Agent 架构方案
-date: 2026-03-15 20:00:00
-categories:
-  - AI
-tags:
-  - OpenViking
-  - GitAgent
-  - kimi-cli
-  - Agent
-  - 云端架构
----
-
 你有没有试过搭一个多用户的云端 AI 助手平台？
 
 就是那种每个用户登录进来，都有自己专属的 Agent —— 记得他上次说“我只用 uv 不用 pip”，记得他项目里的认证逻辑在哪个文件，上次犯过的错误不会再犯，而且所有用户的数据完全隔离，不会串号。
