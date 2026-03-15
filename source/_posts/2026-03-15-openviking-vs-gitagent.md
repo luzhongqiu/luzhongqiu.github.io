@@ -161,3 +161,9 @@ GitAgent 给我的感觉是「有趣」——用 Git 来管理 Agent 的整个�
 **项目地址：**
 - OpenViking：https://github.com/volcengine/OpenViking
 - GitAgent：https://github.com/open-gitagent/gitagent
+
+---
+
+**系列文章：**
+- [从 kaos 到 OpenViking：云多用户 Agent 系统的文件系统隔离方案](/2026/03/15/kaos-openviking-filesystem-isolation/) — 深入 kimi-cli 的 `kaos` 抽象层，探讨如何用 OpenViking 做运行时文件隔离
+- [OpenViking 有 5 个能力，kimi-cli 一个都没用上](/2026/03/15/openviking-kimi-cli-gap-analysis/) — 对比 OpenViking 的完整上下文能力（记忆、技能、蒸馏）与 kimi-cli 现状的 gap 分析

@@ -1,8 +1,8 @@
 ---
 title: 从 kaos 到 OpenViking：云多用户 Agent 系统的文件系统隔离方案
-date: 2026-03-15 14:30:00
+date: 2026-03-15 23:00:00
 categories:
-  - Agent 系统
+  - AI
 tags:
   - OpenViking
   - kimi-cli
@@ -198,7 +198,7 @@ async def handle_user_agent_request(user_request):
 **解决的问题**：
 - 在同一个进程里实现了多用户的文件系统完全隔离
 - 没有容器的沉重开销
-- 利用 OpenViking 现有的用户命名空间能力，不用重复造轮子
+- 利用 OpenViking 现有的用户命名空间能力，不用重复造轮
 - 代码改动小，主要是写一个 `OpenVikingKaos` 实现类
 
 **没解决的问题**：
@@ -209,6 +209,40 @@ async def handle_user_agent_request(user_request):
 不过没关系，架构本来就是分层解决问题的。文件系统隔离这一层，用 `kaos` + `ContextVar` + `OpenViking` 的组合，已经是我能想到的最优雅的方案了。
 
 
+## 8. 进一步：OpenViking 远不止是个文件系统
+
+自上一节，这篇文章多在说「文件隔离」。但 OpenViking 真正的价値，其实在更高的一层。
+
+kimi-cli 目前最大的闹题是：**它没有长期记忆。** session 结束，经验消失，下次从零开始。而 OpenViking 的记忆体系正好能补这个缺口：
+
+- **`viking://user/memories/`** — 用户偏好、习惯跨 session 持久化。用户说一次「我们项目只用 uv」，永久记住
+- **`viking://agent/memories/`** — Agent 任务执行经验。上次 debug 出来的项目配置巧门，下次直接复用
+- **`viking://agent/skills/`** — 动态技能库。每次成功完成一类任务，把「最佳做法」写回 skill 库，越用越聪明
+- **`memcommit`** — session 结束时自动蒸馏。不是流水账，而是提煒出结构化的经验
+
+完整的组合方案局局长这样：
+
+```
+云平台
+│
+├── kaos 层 → OpenVikingKaos        ← 文件读写隐离（本文讲的）
+│
+└── MCP Tools → OpenViking Memory Plugin ← 记忆/技能/蒸馏（这里补上）
+    ├── memsearch   # 语义搜索知识库
+    ├── memread     # 读取单条记忆
+    ├── membrowse   # 浏览知识结构
+    └── memcommit   # session 结束、蒸馏经验
+         ↓
+    OpenViking Server
+    ├── viking://user/memories/     # 用户偏好（跨 session 持久）
+    ├── viking://agent/memories/    # 任务经验
+    ├── viking://agent/skills/      # 动态技能库
+    └── viking://resources/         # 项目知识库（代码、文档）
+```
+
+文件系统隔离解决的是「不同用户的数据不互相污染」；记忆/技能/蒸馏解决的是「同一个用户的 Agent 越用越好用」。两件事都重要，缺一不可。
+
+
 ## 一点个人感想
 
 研究这个方案的时候，我最大的感受是：好的抽象真的能让复杂问题变简单。`kaos` 把文件系统操作抽象成一个接口，`ContextVar` 解决了协程间的上下文传递，OpenViking 负责底层的存储和用户隔离——三者各司其职，组合起来就产生了奇妙的化学反应。
@@ -216,3 +250,9 @@ async def handle_user_agent_request(user_request):
 这也提醒我，在写代码的时候，不要一开始就想着“怎么实现”，而是先想想“怎么抽象”。一个好的接口，能给未来留下无限的扩展空间。就像 `kaos` 一样，今天我们用 OpenViking 做后端，明天说不定就能用 S3，或者用 IPFS——接口不变，实现可以随便换。
 
 这大概就是编程的乐趣之一吧。
+
+---
+
+**系列文章**：
+- [调研了两个 AI Agent 上下文管理项目：OpenViking 和 GitAgent](/2026/03/15/openviking-vs-gitagent/)
+- [OpenViking 有 5 个能力，kimi-cli 一个都没用上](/2026/03/15/openviking-kimi-cli-gap-analysis/) — 记忆、技能、蒸馏的完整 gap 分析
