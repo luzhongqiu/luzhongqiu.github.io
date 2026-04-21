@@ -1,0 +1,116 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 740 560" width="740" height="560">
+  <defs>
+    <style>
+      .box { rx: 8; ry: 8; }
+      .title { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 13px; font-weight: 600; }
+      .desc { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 11px; }
+      .arrow { fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    </style>
+    <marker id="ahb" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#57606a"/>
+    </marker>
+  </defs>
+
+  <rect width="740" height="560" fill="#ffffff"/>
+
+  <!-- Title -->
+  <text x="370" y="30" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="16" font-weight="600" fill="#24292f">LeCun 完整自主智能架构 vs JEPA 边界</text>
+
+  <!-- Outer Box: Full Architecture -->
+  <rect x="30" y="48" width="680" height="460" fill="#f6f8fa" stroke="#d0d7de" stroke-width="2" class="box"/>
+  <text x="50" y="70" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" fill="#57606a">完整自主智能架构（2022 蓝图）</text>
+
+  <!-- JEPA Highlight Box -->
+  <rect x="50" y="210" width="640" height="210" fill="#fff8c5" stroke="#d4a72c" stroke-width="2.5" stroke-dasharray="6,3" class="box" opacity="0.35"/>
+  <text x="660" y="230" text-anchor="end" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="600" fill="#7d4e00">JEPA 管辖范围</text>
+
+  <!-- Configurator -->
+  <rect x="280" y="72" width="180" height="50" fill="#eaeef2" stroke="#8c959f" stroke-width="1.5" class="box"/>
+  <text x="370" y="94" text-anchor="middle" class="title" fill="#424a53">配置器 Configurator</text>
+  <text x="370" y="112" text-anchor="middle" class="desc" fill="#57606a">"当前任务是推箱子"</text>
+
+  <!-- Arrow down from Configurator -->
+  <line x1="370" y1="122" x2="370" y2="138" class="arrow" stroke="#57606a" marker-end="url(#ahb)"/>
+
+  <!-- Top Row: Cost, Actor, Memory -->
+  <rect x="80" y="148" width="160" height="54" fill="#ddf4ff" stroke="#54aeff" stroke-width="1.5" class="box"/>
+  <text x="160" y="172" text-anchor="middle" class="title" fill="#0969da">代价模块 Cost</text>
+  <text x="160" y="190" text-anchor="middle" class="desc" fill="#57606a">"到门口 = 好"</text>
+
+  <rect x="290" y="148" width="160" height="54" fill="#ddf4ff" stroke="#54aeff" stroke-width="1.5" class="box"/>
+  <text x="370" y="172" text-anchor="middle" class="title" fill="#0969da">行动器 Actor</text>
+  <text x="370" y="190" text-anchor="middle" class="desc" fill="#57606a">"选哪个动作"</text>
+
+  <rect x="500" y="148" width="160" height="54" fill="#ddf4ff" stroke="#54aeff" stroke-width="1.5" class="box"/>
+  <text x="580" y="172" text-anchor="middle" class="title" fill="#0969da">短期记忆 Memory</text>
+  <text x="580" y="190" text-anchor="middle" class="desc" fill="#57606a">"刚才推过了"</text>
+
+  <!-- Arrows down into JEPA -->
+  <line x1="160" y1="202" x2="160" y2="270" class="arrow" stroke="#54aeff" stroke-width="1.5" marker-end="url(#ahb)"/>
+  <line x1="370" y1="202" x2="370" y2="270" class="arrow" stroke="#54aeff" stroke-width="1.5" marker-end="url(#ahb)"/>
+  <line x1="580" y1="202" x2="580" y2="270" class="arrow" stroke="#54aeff" stroke-width="1.5" marker-end="url(#ahb)"/>
+
+  <!-- JEPA Core -->
+  <rect x="220" y="278" width="300" height="74" fill="#fff8c5" stroke="#d4a72c" stroke-width="2.5" class="box"/>
+  <text x="370" y="306" text-anchor="middle" class="title" fill="#7d4e00" font-size="15">JEPA（世界模型）</text>
+  <text x="370" y="328" text-anchor="middle" class="desc" fill="#7d4e00">输入：sₜ + aₜ  →  输出：预测下一状态 ŝₜ₊₁</text>
+  <text x="370" y="344" text-anchor="middle" class="desc" fill="#7d4e00">契约：只回答 "当前状态 + 动作 → 预测状态" 这个映射</text>
+
+  <!-- JEPA Internal: Context Encoder & Target Encoder -->
+  <!-- Left: Context Encoder -->
+  <rect x="70" y="370" width="170" height="64" fill="#ddf4ff" stroke="#54aeff" stroke-width="2" class="box"/>
+  <text x="155" y="396" text-anchor="middle" class="title" fill="#0969da">Context Encoder</text>
+  <text x="155" y="416" text-anchor="middle" class="desc" fill="#57606a">感知 → 状态表征 zₜ</text>
+
+  <!-- Arrow from Context to Predictor -->
+  <line x1="240" y1="402" x2="280" y2="402" class="arrow" stroke="#0969da" stroke-width="2" marker-end="url(#ahb)"/>
+  <text x="258" y="394" class="desc" fill="#0969da">zₜ</text>
+
+  <!-- Center: Predictor -->
+  <rect x="285" y="370" width="170" height="64" fill="#fff8c5" stroke="#d4a72c" stroke-width="2" class="box"/>
+  <text x="370" y="396" text-anchor="middle" class="title" fill="#7d4e00">Predictor</text>
+  <text x="370" y="416" text-anchor="middle" class="desc" fill="#7d4e00">预测下一状态 ŝₜ₊₁</text>
+
+  <!-- Arrow from Predictor to comparison -->
+  <line x1="455" y1="402" x2="495" y2="402" class="arrow" stroke="#d4a72c" stroke-width="2" marker-end="url(#ahb)"/>
+  <text x="472" y="394" class="desc" fill="#7d4e00">ŝₜ₊₁</text>
+
+  <!-- Right: Target Encoder -->
+  <rect x="500" y="370" width="170" height="64" fill="#ffebe9" stroke="#ff8182" stroke-width="2" class="box"/>
+  <text x="585" y="396" text-anchor="middle" class="title" fill="#cf222e">Target Encoder</text>
+  <text x="585" y="416" text-anchor="middle" class="desc" fill="#57606a">客观参照（EMA）</text>
+
+  <!-- Arrow from Target to comparison -->
+  <line x1="585" y1="370" x2="585" y2="360" class="arrow" stroke="#cf222e" stroke-width="1.5" marker-end="url(#ahb)"/>
+  <text x="595" y="368" class="desc" fill="#cf222e">sₜ₊₁</text>
+
+  <!-- Loss comparison circle -->
+  <circle cx="525" cy="402" r="22" fill="#f6f8fa" stroke="#d0d7de" stroke-width="1.5"/>
+  <text x="525" y="406" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" font-weight="600" fill="#24292f">Loss</text>
+
+  <!-- Bottom: Side input to Target -->
+  <text x="680" y="390" text-anchor="start" class="desc" fill="#57606a">真实下一</text>
+  <text x="680" y="406" text-anchor="start" class="desc" fill="#57606a">时刻输入</text>
+  <line x1="670" y1="402" x2="650" y2="402" class="arrow" stroke="#57606a" stroke-width="1.5" marker-end="url(#ahb)"/>
+
+  <!-- Bottom: Action input -->
+  <text x="155" y="480" text-anchor="middle" class="desc" fill="#57606a">动作 aₜ</text>
+  <line x1="155" y1="470" x2="155" y2="440" class="arrow" stroke="#57606a" stroke-width="1.5" marker-end="url(#ahb)"/>
+  <line x1="155" y1="440" x2="285" y2="440" class="arrow" stroke="#57606a" stroke-width="1.5"/>
+  <line x1="285" y1="440" x2="285" y2="434" class="arrow" stroke="#57606a" stroke-width="1.5" marker-end="url(#ahb)"/>
+
+  <!-- Bottom Labels -->
+  <rect x="50" y="500" width="20" height="14" fill="#fff8c5" stroke="#d4a72c" stroke-width="1.5" class="box"/>
+  <text x="78" y="512" class="desc" fill="#57606a">JEPA 管辖范围</text>
+
+  <rect x="230" y="500" width="20" height="14" fill="#ddf4ff" stroke="#54aeff" stroke-width="1.5" class="box"/>
+  <text x="258" y="512" class="desc" fill="#57606a">JEPA 不包含</text>
+
+  <rect x="400" y="500" width="20" height="14" fill="#f6f8fa" stroke="#d0d7de" stroke-width="1.5" class="box"/>
+  <text x="428" y="512" class="desc" fill="#57606a">完整架构容器</text>
+
+  <!-- Boundary note -->
+  <text x="370" y="542" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" fill="#7d4e00" font-weight="500">
+    JEPA 不决定 "aₜ 是什么"，也不评估 "ŝₜ₊₁ 好不好" —— 它只回答 "sₜ + aₜ → ŝₜ₊₁"
+  </text>
+</svg>
