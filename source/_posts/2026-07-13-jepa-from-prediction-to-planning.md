@@ -35,6 +35,11 @@ LLM-JEPA：让同一知识的两种语言表达在表示空间中可预测
 Value-Guided JEPA：让表示空间不仅可预测，而且适合规划
 ```
 
+<p align="center">
+  <img src="/img/jepa/jepa-evolution-map.svg" alt="JEPA 从视觉表征预测、语言双视图对齐到价值引导规划的演进路线" width="720">
+</p>
+<p align="center"><em>同一种表示预测思想，进入不同问题后，Predictor 的角色也随之改变。</em></p>
+
 # 第一条延续：当 JEPA 遇到语言模型
 
 ## 它没有取代 next-token prediction
@@ -67,6 +72,11 @@ L = L_NTP + λ · [1 - cos(Pred(Enc(Text)), Enc(Code))]
 可以把它想成让模型在回答前留出几块“只用于组织整体意思的草稿纸”。这些 token 不负责生成可读文字，它们负责把输入压成一个能够靠近目标表示的向量。`k=0` 时甚至没有额外预测 token，而是直接对齐两边的表示。
 
 训练时，论文还用 block-causal attention mask 阻止 `Text` 和 `Code` 互相偷看，在一次组合计算中拿到相互独立的输入表示与目标表示。推理时，整条 JEPA 支路以及 `[PRED]` token 都被移除，模型仍然按普通自回归方式生成。因此它增加的是训练约束，不增加在线推理步骤。
+
+<p align="center">
+  <img src="/img/jepa/llm-jepa-training-inference.svg" alt="LLM-JEPA 训练期同时优化 NTP 与 JEPA 表示对齐、推理期移除 JEPA 分支的流程" width="720">
+</p>
+<p align="center"><em>[PRED] 是训练用的表示接口，不是部署时另起一套世界模型。</em></p>
 
 从[公开代码](https://github.com/galilai-group/llm-jepa)看，这套实现也没有照搬 I-JEPA 的完整配方：没有 EMA target encoder，目标表示没有被 `detach`，JEPA 损失的梯度会同时流向两侧。它更接近“共享编码器上的成对表示一致性正则”，而不是经典 I-JEPA 那种 context encoder、predictor 与慢速 target encoder 的非对称结构。
 
@@ -104,6 +114,11 @@ L = L_NTP + λ · [1 - cos(Pred(Enc(Text)), Enc(Code))]
 目标就在墙的另一侧。从平面坐标看，当前位置和目标只差半米；从行动上看，机器人必须先远离目标，绕过长墙，再从另一侧回来。一个普通的欧氏距离会持续告诉规划器：“贴着墙已经非常接近了。”于是规划器容易卡在墙边的局部最优点，不愿意接受那段“先变远、后变近”的绕路。
 
 如果编码器学到的潜空间也保留了这种错误几何，世界模型即便把每一步都预测对，规划器看到的仍是一张不好用的地图。
+
+<p align="center">
+  <img src="/img/jepa/predictable-vs-plannable.svg" alt="隔墙场景中普通潜空间距离与价值塑形距离对规划路径的不同影响" width="720">
+</p>
+<p align="center"><em>欧氏意义上的“近”，并不等于行动意义上的“容易到达”。</em></p>
 
 这里必须拆开两个经常被混为一谈的能力：
 
@@ -153,6 +168,11 @@ V(s, g) = - ||E(s) - E(g)||
 2. 冻结这个潜空间；
 3. 再训练动作编码器和 Predictor，去拟合已经固定的潜空间动力学；
 4. 规划时用 Predictor rollout，用 quasi-distance 评价候选未来。
+
+<p align="center">
+  <img src="/img/jepa/value-guided-planning-loop.svg" alt="Value-Guided JEPA 使用 Predictor rollout、价值评分和 MPPI 组成闭环规划的流程" width="720">
+</p>
+<p align="center"><em>Predictor 负责展开候选未来，value-shaped distance 负责告诉规划器哪条未来值得走。</em></p>
 
 与最佳标准 JEPA 基线 `pred_VCReg` 相比，成功率为：
 
