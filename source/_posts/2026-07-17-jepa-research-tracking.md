@@ -1,0 +1,289 @@
+---
+title: JEPA 下游研究追踪 · 2026-07-17
+date: 2026-07-17 10:00:00
+categories:
+  - JEPA研究追踪
+tags:
+  - JEPA
+  - JEPA追踪
+---
+
+> 本文属于「JEPA追踪」系列，记录每日论文检索、原文核验与阶段性判断；它保留研究日志的证据密度，与经过主题化重写的原创博客区分。
+
+# JEPA 下游研究日报（2026-07-17）
+
+> 检索截止：2026-07-17（Asia/Shanghai）  
+> 去重基线：已完整读取 `research/jepa/` 中 2026-07-15、2026-07-16 与文本检索专题，并读取自动化记忆；不重复汇报 BA-Future-JEPA、GeoWorld、US-JEPA、NeuroVFM、MoP-JEPA、P-JEPA、Rabtriever。  
+> 纳入标准：论文须明确引用 JEPA 核心工作，并实际复用、改造或评估潜表示预测机制来完成具体下游任务。仅在 related work 中提及 JEPA 的论文不计入。  
+> 证据原则：搜索与引用索引只用于发现候选；以下实质性结论均回到会议页、论文原文、arXiv 或作者官方代码核验。
+
+## 今日结论
+
+今天新增三篇高可信、领域跨度较大的 JEPA 下游工作：
+
+1. **Clin-JEPA 把 V-JEPA 2-AC 式“保留 predictor 做 rollout”迁移到 ICU 电子病历。** 它在 64,874 名 MIMIC-IV 患者上共同训练 Qwen3-8B LoRA encoder 与 92M latent predictor，并以五阶段课程控制表示坍塌与在线/目标空间漂移。论文多任务 AUROC 有竞争力，但官方评测代码默认在 rollout 时逐步输入测试轨迹中的后续真实干预动作；因此 headline 的 `history+future` 结果不能直接理解成“只根据前 24 小时做前瞻预测”。[论文原文](https://arxiv.org/html/2605.10840)；[官方 rollout 代码](https://github.com/Kamaleswaran-Lab/Clin-JEPA/blob/main/clin_jepa/evaluation/rollout.py#L303-L336)
+2. **AD-L-JEPA 是正式发表于 AAAI 2026 的汽车 LiDAR JEPA。** 它在鸟瞰图（BEV）空间预测被遮挡区域 embedding，在 KITTI3D、Waymo 与 ONCE 的 3D 检测上稳定改善从头训练，并相对 Occupancy-MAE 显著降低预训练显存和 GPU-hours。不过论文报告三次 fine-tuning 中的最佳值而非均值，精度增益的稳定性仍需独立复现。[AAAI 正式页面](https://ojs.aaai.org/index.php/AAAI/article/view/38402)；[扩展全文](https://arxiv.org/html/2501.04969)
+3. **CryoLVM 把 I-JEPA 式 masked latent prediction 与 3D SCUNet 结合，用于冷冻电镜密度图。** 它在 sharpening、super-resolution、missing-wedge restoration 三项任务上均优于所列专用基线，并有 JEPA-vs-MAE 消融；但该消融只覆盖 sharpening，missing wedge 又是人工 Fourier wedge，不能直接外推到真实 cryo-ET 采集缺失。[ICLR 2026 OpenReview](https://openreview.net/forum?id=9xcvEF2BRi)；[arXiv 原文](https://arxiv.org/abs/2602.02620)
+
+综合博客价值排序：**Clin-JEPA（高，但应以评测审计为主线） > AD-L-JEPA（高） > CryoLVM（中高）**。共同趋势是：JEPA 正从通用视觉预训练目标变成领域世界状态的接口；与此同时，下游结果是否可信，越来越取决于 rollout 时可见的信息、领域 masking、数据切分和 matched ablation，而不是模型名中是否含 “JEPA”。
+
+## JEPA 方向最新进展
+
+### Predictor 从预训练附件变成下游系统组件
+
+I-JEPA、V-JEPA 通常在下游丢弃 predictor；V-JEPA 2-AC 保留 action-conditioned predictor 做规划。Clin-JEPA 进一步让 encoder LoRA 接收 predictor 的 rollout 梯度，再用 warmup、EMA alignment、hard sync 等阶段避免共同训练崩溃。这是真正把 JEPA 从“表征学习”推向“可组合状态转移”的路线。[Clin-JEPA 方法](https://arxiv.org/html/2605.10840#S3)
+
+它也暴露出新的评测纪律：只要 predictor 依赖未来 action，就必须说明 action 是预定策略、候选干预，还是回顾性记录中的真实治疗，否则 rollout 可能把未来信息带回预测时点。
+
+### Masking 正变成领域本体的一部分
+
+昨日 NeuroVFM/Vol-JEPA 只在头部 foreground 采样 3D target；今天 AD-L-JEPA 同时遮挡 BEV 中的空与非空网格，CryoLVM 则在三维密度图中采样 target patches。它们共同说明：masking policy 决定模型被迫学习何种不变量——车辆场景需理解占据与空白，分子密度需兼顾局部结构和长程几何，临床轨迹则需时间与干预条件。
+
+### MJEPA 是音频/跨模态线的最新高价值进展
+
+[MJEPA: A Simple and Scalable Joint-Embedding Predictive Architecture for Audio-Visual Learning](https://arxiv.org/html/2606.25225)（arXiv v1，2026-06-23；FAIR at Meta、NYU）实际采用并扩展 JEPA：以单一共享 encoder 处理 audio、video、audio-video，联合做模态内 masked latent prediction 与六种跨模态 pooled-latent prediction。其 ViT-g 冻结特征在 AudioSet-20K 达到 audio/video/audio-video mAP 40.97/29.82/45.44；基础 ViT-L 的 video-only 结果比此前最佳 frozen baseline 高 6.8 mAP，并在 ESC-50、FSD50K 与视频 benchmark 报告强结果。[原文主表](https://arxiv.org/html/2606.25225#S5)
+
+本日深读名额已满，因此不将 MJEPA 草率压缩为第四篇；下一轮应优先审计跨模态正迁移来自 JEPA prediction、数据量、1B 参数规模还是 probe 协议。
+
+### A-JEPA 本体今日无独立高可信新增
+
+本轮覆盖 A-JEPA/Audio-JEPA、I-JEPA、V-JEPA/V-JEPA 2、临床时序、汽车 LiDAR、cryo-EM、无线多模态与粒子物理。音频线最强新增是 MJEPA 对 A-JEPA/V-JEPA 的统一跨模态扩展；未发现另一篇既能以一手全文确认实际采用 A-JEPA、又比 MJEPA 更值得优先深读的新增下游论文。
+
+## 新增下游论文解读
+
+### 1. Clin-JEPA：ICU 患者轨迹与风险预测
+
+**完整题目**：[Clin-JEPA: A Multi-Phase Co-Training Framework for Joint-Embedding Predictive Pretraining on EHR Patient Trajectories](https://arxiv.org/abs/2605.10840)  
+**作者**：Yixuan Yang、Mehak Arora、Ryan Zhang、Baraa Abed、Junseob Kim、Tilendra Choudhary、Md Hassanuzzaman、Kevin Zhu、Ayman Ali、Chengkun Yang、Alasdair Edward Gent、Victor Moas、Rishikesan Kamaleswaran。  
+**机构**：Duke University。  
+**时间与出处**：arXiv v4，2026-07-04；官方仓库说明仍在 double-blind review，当前按预印本处理。  
+**代码**：[Kamaleswaran-Lab/Clin-JEPA](https://github.com/Kamaleswaran-Lab/Clin-JEPA)，MIT License；MIMIC-IV 需 PhysioNet credential，仓库无公开模型权重。
+
+#### 如何衔接 JEPA
+
+- 继承 I-JEPA/V-JEPA 的 online encoder、EMA target encoder 与 stop-gradient latent target，并以 V-JEPA 2-AC 的保留 predictor 为直接参照。
+- 冻结 Qwen3-8B base weights，以 rank-16 LoRA 将每小时 state、临床 action、demographics 文本编码为 4,096 维 latent。
+- 92.5M、6 层 block-causal Transformer predictor 接收历史状态与干预，预测下一小时绝对 latent state。
+- 先做 encoder SFT 初始化，再依次 predictor warmup、encoder–predictor co-training、EMA target alignment、hard sync、predictor finalization。
+- 损失为 target latent 的 L1 teacher-forcing loss 加 2-step autoregressive rollout loss；推理时保留 encoder 与 predictor，递归生成最长 48 小时轨迹。[架构与课程](https://arxiv.org/html/2605.10840#S3)
+
+这不是 related-work 式引用，而是对 JEPA encoder–predictor 共同训练和推理生命周期的实质改造。
+
+#### 数据、任务、指标与基线（事实）
+
+- MIMIC-IV ICU：84,497 次 stays、64,874 名患者；按患者 70/15/15 切分；长 stay 以 12 小时 stride 切成最长 72 小时窗口，共 197K training windows。[实验设置](https://arxiv.org/html/2605.10840#S5.SS1)
+- Track 1：ICareFM Early Event Prediction 的 circulatory、respiratory、kidney、liver、hyperglycemia、Sepsis-3、decompensation 共 7 项任务，时域 8–48 小时。
+- Track 2：10,346 个 test stays 上的 8 项二分类结局，包括 6 种死亡时点、住院超过 7 天、住院期间 sepsis。
+- 指标：AUROC、AUPRC、clustered bootstrap 95% CI；另报告 48 小时 latent L1 drift、时间维表示标准差及 UMAP cohort geometry。
+- 基线：Ridge、LightGBM、LSTM、TCN，以及共享 SFT 初始化和同 predictor 的 SFT-only、V-JEPA 2-AC-style。
+- 每项任务仍训练单隐层 MLP probe；“单一 backbone 无 task-specific fine-tuning”不等于 zero-shot。
+
+#### 关键结果（作者报告）
+
+| 评测 | Clin-JEPA | 最强传统基线 | 关键对照 |
+|---|---:|---:|---:|
+| Track 1 mean AUROC，history+future | 0.851 | LightGBM 0.827 | V-JEPA 2-AC 0.831；SFT 0.818 |
+| Track 1 mean AUPRC，history+future | 0.408 | LightGBM 0.406 | 基本持平 |
+| Track 2 mean AUROC，history+future | 0.883 | LSTM 0.865 | V-JEPA 2-AC 0.874；SFT 0.876 |
+| Track 2 mean AUPRC，history+future | 0.601 | LSTM 0.566 | V-JEPA 2-AC 0.580；SFT 0.592 |
+| Track 2 mean AUROC，history-only | 0.864 | LSTM 0.865 | 未领先 |
+
+论文还报告：48 小时 latent rollout error 相对起点下降 15.7%，其他范式上升约 3% 至 4,951%；deteriorating/stable cohort 的 latent centroid displacement ratio 为 4.83，V-JEPA 2-AC-style 为 2.62，SFT 为 1.03。[逐任务附录表](https://arxiv.org/html/2605.10840#Sx1.SS4)
+
+#### 事实、作者主张与本研究推断
+
+- **事实**：论文在 patient-disjoint MIMIC-IV 切分上报告 15 个任务；history+future 平均 AUROC 领先所列传统基线，history-only Track 2 为 0.864，略低于 LSTM 0.865；官方代码公开完整训练与评测管线。
+- **作者主张**：共同训练让 encoder 的 latent geometry 对 rollout 友好，五阶段课程分别抑制表示坍塌与 online/target space drift；保留 predictor 后，一套 latent 可同时支持轨迹模拟和风险预测。
+- **本研究推断**：它最有价值的是把“encoder 是否适合被 predictor 递归消费”变成独立评测问题。但官方 `rollout.py` 从完整测试轨迹载入 `actions`，逐步取后续 action，默认配置又是 `zero_actions: false`。[实现](https://github.com/Kamaleswaran-Lab/Clin-JEPA/blob/main/clin_jepa/evaluation/rollout.py#L303-L336)；[配置](https://github.com/Kamaleswaran-Lab/Clin-JEPA/blob/main/configs/eval/rollout.yaml#L7-L13) 若这些 action 是 index time 后真实发生的治疗，history+future 特征就含回顾性信息，不能当作只用前 24 小时的可部署预后模型。
+
+#### 创新、局限、复现与风险
+
+- 创新在于把 rollout gradient 送回 LLM encoder LoRA，并将“冷 predictor 拉垮 encoder”与“target space 漂移”拆成不同阶段处理。
+- 单中心 MIMIC-IV，只有内部患者级随机切分；没有 eICU/HiRID/AmsterdamUMCdb 外部验证、时间外推、前瞻静默运行、亚群公平性或校准。
+- 若目标是 counterfactual planning，还需要干预策略、可识别性和 off-policy evaluation；若目标是风险预测，则应补只用 index time 已知 action 的结果。
+- headline 训练 11,776 steps；`w/o warmup` 与 `w/o alignment` 消融仅 4,608 steps（39% 预算），削弱“每阶段都必要”的纯因果归因。[预算说明](https://arxiv.org/html/2605.10840#Sx1.SS3)
+- 主训练只报告 seed 42；bootstrap CI 衡量 test sampling uncertainty，不代表训练种子稳定性。
+- 复现需 8×H200、54 小时、约 430 GPU-hours，并依赖 MIMIC-IV v3.1、Qwen3-8B、FlashAttention 2；无公开 checkpoint。
+- 这是回顾性预印本，不能视作临床决策支持、患者数字孪生或因果治疗模拟器的部署证据。
+
+**博客价值：高，但宜写审计型文章。** 推荐题目：《JEPA 能模拟 ICU 患者未来吗？Clin-JEPA 的五阶段训练，与一条容易忽略的未来 action 通道》。
+
+### 2. AD-L-JEPA：BEV latent 空间中的汽车 LiDAR 预训练
+
+**完整题目**：[Self-Supervised Representation Learning with Joint Embedding Predictive Architecture for Automotive LiDAR Object Detection](https://ojs.aaai.org/index.php/AAAI/article/view/38402)  
+**作者**：Haoran Zhu、Zhenyuan Dong、Kristi Topollai、Beiyao Sha、Anna Ewa Choromanska。  
+**机构**：New York University，Department of Electrical and Computer Engineering。  
+**时间与出处**：AAAI 2026，40(16):13925–13933；2026-03-14；DOI [10.1609/aaai.v40i16.38402](https://doi.org/10.1609/aaai.v40i16.38402)。  
+**代码与权重**：[官方 GitHub](https://github.com/HaoranZhuExplorer/adljepa) 提供预训练/微调代码、KITTI3D 与 ONCE 权重及 logs。
+
+#### 如何衔接 JEPA
+
+- 将 I-JEPA 式 context encoder、EMA target encoder、masked latent prediction 改到稀疏 LiDAR 的 BEV 空间。
+- 在空与非空 BEV grids 中都制造 mask，避免模型预先知道“哪里为空”。
+- context encoder 处理可见点云，target encoder 提供目标 BEV latent；三层卷积 predictor 结合 mask token 预测遮挡网格 embedding。
+- masked 空/非空区域分别加权计算 cosine latent prediction loss；对 context 与 predicted non-empty embeddings 加 VICReg 式 variance regularization，并以 EMA 更新 target encoder。
+- 下游丢弃 predictor，完整微调 sparse 3D convolution encoder，并接 SECOND、PV-RCNN 或 CenterPoint。[扩展版方法](https://arxiv.org/html/2501.04969#S3)
+
+#### 数据、任务、指标与基线（事实）
+
+- KITTI3D 约 7K frames；Waymo 20%/100% 约 30K/150K frames；ONCE 用 100K、500K、1M 无标签预训练规模。
+- 下游为 car/vehicle、pedestrian、cyclist 的 LiDAR 3D object detection；另做 Waymo→KITTI 迁移和 20%/50%/100% 标签效率。
+- 检测器：SECOND、PV-RCNN、CenterPoint；指标：KITTI AP、Waymo LEVEL_2 AP/APH、ONCE mAP。
+- SSL 基线：Occupancy-MAE、ALSO；ONCE 表另含 BYOL、PointContrast、SwAV、DeepCluster、DepthContrast、ProposalContrast。
+- 效率指标：A100 GPU-hours 与峰值 GPU memory。[实验设置](https://arxiv.org/html/2501.04969#S4)
+
+#### 关键结果（作者报告）
+
+| 设置 | 从头训练 | 最强主要 SSL 对照 | AD-L-JEPA |
+|---|---:|---:|---:|
+| KITTI3D，SECOND，overall AP | 66.36 | Occupancy-MAE 67.08 | **67.92** |
+| KITTI3D，PV-RCNN，overall AP | 71.01 | ALSO 71.82 | **72.59** |
+| Waymo 100% pretrain→20% fine-tune，AP | 64.67 | Occupancy-MAE 65.34 | **65.41** |
+| ONCE 100K pretrain，mAP | 51.89 | ALSO 52.68 | **53.50** |
+| ONCE 500K pretrain，mAP | 51.89 | 其它方法最高 52.86 | **54.87** |
+| ONCE 1M pretrain，mAP | 51.89 | DeepCluster 53.72 | **54.70** |
+
+ONCE 100K/500K/1M 相对从头训练提升 +1.61/+2.98/+2.81 mAP；500K 略高于 1M。Waymo 20% 预训练后以 KITTI 20% 标签微调时，AD-L-JEPA overall AP 63.30，从头训练 62.01、Occupancy-MAE 62.12。[主表](https://arxiv.org/html/2501.04969#S4.SS2)
+
+正式 AAAI 摘要报告，相对 Occupancy-MAE 减少 1.9×–2.7× GPU-hours 和 2.8×–4× GPU memory。[AAAI 页面](https://ojs.aaai.org/index.php/AAAI/article/view/38402) 扩展版 GPU-hours 为 Waymo 20% 19.25 vs 56、Waymo 100% 77 vs 210、ONCE 100K 30 vs 56。
+
+#### 事实、作者主张与本研究推断
+
+- **事实**：三个数据集、三种 detector family 和跨数据集低标签实验总体呈正迁移；论文正式发表，代码、权重、日志公开。Waymo 增益接近饱和，ONCE 500K 最明显。
+- **作者主张**：BEV latent prediction 比显式 point/occupancy reconstruction 更能容纳驾驶场景中的多种合理结构，同时省去 dense 3D decoder，因此更好、更省算力。
+- **本研究推断**：效率优势有直接架构依据，比“latent 能表示多个未来”的证据更强；当前 predictor 仍输出单一 embedding，也没有 mode coverage 或不确定性校准。真正被验证的是 JEPA-style pretraining 对 3D detection transfer 有用。
+
+#### 创新、局限、复现与风险
+
+- 创新是 BEV empty/non-empty 联合 masking、显式 variance regularization，以及轻量 2D predictor 替代 dense 3D reconstruction decoder。
+- 多项设计同时改变；即使附录有组件消融，仍缺同 masking/同 backbone 下仅替换 latent-vs-occupancy target 的最小对照。
+- 所有 fine-tuning 做三次独立运行，但报告**最佳值**，没有均值、标准差或显著性检验；约 1 AP 的差距可能对种子敏感。[协议](https://arxiv.org/html/2501.04969#S4)
+- 部分基线由作者重跑，部分 ONCE 数字来自 benchmark/原论文；跨行并非完全相同训练预算。
+- ONCE 1M 低于 500K，被解释为数据冗余，但没有控制实验直接证明。
+- 评测是离线检测，不含闭环驾驶、极端天气、跨城市、传感器退化与安全关键 false negative。
+- 官方栈为 Python 3.8、PyTorch 1.10.1+CUDA 11.1、OpenPCDet 0.5；权重和日志公开降低了复核门槛。
+
+**博客价值：高。** 推荐题目：《不重建点云，直接预测 BEV embedding：AD-L-JEPA 为什么能把 LiDAR 预训练显存降到四分之一》。精度和效率应分开表述，精度旁必须标注“取三次最佳值”。
+
+### 3. CryoLVM：冷冻电镜密度图的 JEPA 预训练
+
+**完整题目**：[CryoLVM: Self-supervised Learning from Cryo-EM Density Maps with Large Vision Models](https://arxiv.org/abs/2602.02620)  
+**作者**：Weining Fu、Kai Shu、Kui Xu、Qiangfeng Cliff Zhang。  
+**机构**：清华大学生命科学学院、膜生物学国家重点实验室、北京生物结构前沿研究中心、清华-北大生命科学联合中心及相关机构。  
+**时间与出处**：ICLR 2026 Poster；OpenReview 2026-01-26 published、2026-04-11 last modified，arXiv v2 为 2026-02-24。[ICLR poster](https://iclr.cc/virtual/2026/poster/10011072)；[OpenReview](https://openreview.net/forum?id=9xcvEF2BRi)  
+**代码状态**：截至本次检索，论文、OpenReview、arXiv 与作者项目列表未链接官方代码或 checkpoint。
+
+#### 如何衔接 JEPA
+
+- 采用 I-JEPA 的 context encoder、EMA target encoder、target predictor、3D block masking 与 Smooth L1 latent alignment，但把标准 ViT 换成 3D SCUNet。
+- density volume 经三次 downsampling Swin-Conv blocks，兼顾局部 convolution 与 window attention；encoder 输出变为 3D patch embeddings 并加入 sinusoidal position encoding。
+- predictor 根据 context embeddings 和 target positions 预测 target encoder latent。
+- 下游接对称上采样 SCUNet decoder，并联合 fine-tune encoder 和 decoder，并非冻结线性探测。
+- 三项下游统一以 MSE + differentiable-histogram Jensen–Shannon alignment（论文称 `HistKL`）做监督 fine-tuning。[方法原文](https://arxiv.org/html/2602.02620#S3)
+
+#### 数据、任务、指标与基线（事实）
+
+- 自监督预训练：Cryo2StructData 原训练集 7,392 张高分辨实验密度图；排除下游 baseline test maps 后余 7,302 张，分辨率 1–4 Å，统一为 1 Å voxel 和 `48³` crops。
+- Sharpening：400/70/50 train/val/test；输入 3–6 Å 实验 map，target 由对应 PDB 结构经 Chimera `molmap` 模拟；指标 CCbox/CCmask/CCpeaks、Q-score；基线 deposited、DeepEMhancer、EMReady。
+- Super-resolution：400/50/40；输入约 2.3–6 Å，target 模拟为 1.8 Å；指标 dmodel、FSC-0.143、FSC-0.5、CryoRes；基线 deposited、DeepEMhancer、EMGAN。
+- Missing-wedge：400/50/40；对较低分辨 map 在 Fourier domain 人工施加约 ±60° wedge；指标 FSC-0.143/FSC-0.5 及 CC；基线 IsoNet。
+- 下游统一训练 500 epochs、AdamW、bf16、DDP、`48³` crops；正文 batch 32、超参表 batch 35，存在复现冲突。
+
+#### 关键结果（作者报告）
+
+| 任务/指标 | 最强主要基线 | CryoLVM | 变化 |
+|---|---:|---:|---:|
+| Sharpening CCbox | EMReady 0.878 | **0.894** | +0.016 |
+| Sharpening CCmask | EMReady 0.802 | **0.821** | +0.019 |
+| Sharpening Q-score | EMReady 0.424 | **0.444** | +0.020 |
+| Super-resolution dmodel（Å，低优） | EMGAN 2.49 | **2.33** | -0.16 Å |
+| Super-resolution FSC-0.143（Å，低优） | EMGAN 2.70 | **2.58** | -0.12 Å |
+| Super-resolution CryoRes（Å，低优） | DeepEMhancer 3.47 | **3.39** | -0.08 Å |
+| Missing wedge FSC-0.143（Å，低优） | IsoNet 10.448 | **10.094** | -3.39% |
+| Missing wedge FSC-0.5（Å，低优） | IsoNet 12.361 | **11.447** | -7.39% |
+
+关键归因消融只在 sharpening：scratch→JEPA 的 CCbox 0.878→0.894、Q-score 0.437→0.444；MAE→JEPA 为 CCbox 0.881→0.894、Q-score 0.441→0.444。SCUNet 也强于 ViT，尤其 missing-wedge FSC-0.143 为 10.09 vs 16.51；完整性能来自 **JEPA pretraining + SCUNet + HistKL + supervised fine-tuning** 的组合。[实验原文](https://arxiv.org/html/2602.02620#S4)
+
+#### 事实、作者主张与本研究推断
+
+- **事实**：ICLR 2026 正式论文在三项任务均报告相对所列专用基线的改善；pretrain-vs-scratch 与 JEPA-vs-MAE 为 latent prediction 提供直接证据，但仅覆盖 sharpening。
+- **作者主张**：JEPA 避免在低 SNR cryo-EM 中重建噪声，SCUNet 同时捕获局部原子细节与长程结构；HistKL 将最佳 validation loss 的到达时间从 279 epochs 降到 107 epochs。
+- **本研究推断**：最可信结论是“同 SCUNet 下，JEPA 预训练比 MAE/从头训练更适合 sharpening”。“通用 foundation model”证据仍有限：只有三种相近 restoration tasks，所有下游均全量微调，另外两项没有 JEPA-vs-MAE 消融。
+
+#### 创新、局限、复现与风险
+
+- 首次把 JEPA 与 3D SCUNet 用于 cryo-EM density maps，并提供同 backbone 的 MAE 对照。
+- Sharpening/super-resolution target 均由 PDB atomic structure 经 `molmap` 模拟；真实实验 map 是输入，但监督目标不是独立实测真值，可能引入 simulator/structure-fitting bias。
+- Missing wedge 是对已有 map 人工 Fourier masking，而非真实有限倾角 tilt series；不能据此声称解决真实 cryo-ET 的噪声、CTF、alignment 与 specimen heterogeneity。
+- 预训练只排除与下游测试相同的 maps；未说明是否按 sequence identity/structural homology 去重。下游 ≤30% chain identity 控制不等于 pretrain/test homology control。
+- 主表无置信区间、重复种子或显著性检验；test set 仅 40–50 maps，0.01–0.02 的 CC 差异是否稳定未知。
+- 未给出完整预训练 optimizer、epoch、硬件与总算力，无官方代码/权重，且 batch size 文本矛盾，复现风险偏高。
+- 未直接评测 atomic model building、domain identification、结构功能注释或药物发现收益；更好的 FSC/Q-score 是否转化为科学发现仍待验证。
+
+**博客价值：中高。** 推荐题目：《JEPA 看懂分子密度了吗？CryoLVM 从 7,302 张冷冻电镜图学到的，和它还没证明的》。必须并列说明 synthetic target、synthetic wedge 与无代码。
+
+## 横向比较
+
+| 论文 | JEPA 改造层级 | 具体下游 | 最强证据 | 主要风险 | 证据等级 |
+|---|---|---|---|---|---|
+| Clin-JEPA | encoder–predictor co-training、retained predictor、五阶段课程 | 15 个 ICU early-event / stay-level risk tasks，latent rollout | patient-disjoint MIMIC-IV、逐任务 CI、SFT/V-JEPA 2-AC 对照、公开代码 | headline rollout 默认使用未来真实 action；单中心预印本；单训练种子 | **中：机制新，临床解释需下调** |
+| AD-L-JEPA | BEV empty/non-empty masking、latent target、variance regularization | KITTI/Waymo/ONCE 3D detection 与低标签迁移 | AAAI 正式发表；三数据集/三 detector；代码、权重、日志；效率实测 | 报告三次最佳而非均值；离线检测；多项设计同时改变 | **中高：正式、可复现、应用证据广** |
+| CryoLVM | 3D SCUNet + I-JEPA masked prediction + supervised decoder | sharpening、super-resolution、missing-wedge restoration | ICLR 正式发表；JEPA-vs-MAE/scratch 消融；三任务 | 消融只覆盖一任务；模拟 target/wedge；无代码 | **中高：正式，真实采集外推有限** |
+
+共同结论：
+
+1. JEPA 的价值要按层级归因。Clin-JEPA 改训练生命周期，AD-L-JEPA 改空间 masking/目标，CryoLVM 改三维 backbone；latent prediction 只是完整系统中的一层。
+2. Matched ablation 比跨论文 leaderboard 更重要。CryoLVM 的 JEPA-vs-MAE、Clin-JEPA 的 history-only vs history+future、AD-L-JEPA 的同 detector 从头训练对照，分别决定了结论强度。
+3. Rollout 信息集是新风险。当 predictor 从预训练附件变成部署组件，未来 action、候选控制和 teacher forcing 必须纳入数据泄漏审计。
+4. 正式发表不等于部署完成。AD-L-JEPA 没有闭环驾驶；CryoLVM 没有真实 tilt-series；Clin-JEPA 是单中心回顾性预印本。
+
+## 值得继续追的问题
+
+1. **Clin-JEPA 去掉未来真实 action 后还剩多少收益？** 应比较只用前 24 小时动作、全零未来 action、策略模型预测 action、多个候选 intervention plan，并报告 calibration、AUPRC、外院迁移和 subgroup performance。
+2. **Clin-JEPA 能否成为因果模拟器？** 当前只是观察数据上的 conditional-mean latent rollout，没有处理 treatment confounding、policy shift、positivity 与 counterfactual identifiability。
+3. **AD-L-JEPA 的 AP 增益是否跨种子稳定？** 需公开三次运行全部结果，并与 Occupancy-MAE 做 matched masking/compute/decoder 消融；还应测跨城市、雨雪雾、LiDAR dropout 和校准偏移。
+4. **CryoLVM 能否通过真实 cryo-ET tilt series 验证？** 应在真实 missing-wedge、CTF/noise/alignment 条件下测试，并量化对 ModelAngelo 等 atomic-building pipeline 的提升。
+5. **MJEPA 的跨模态正迁移来自哪里？** 下一轮核对同数据/同参数下 shared encoder、cross-modal predictor、joint tokenization、ViT-g scaling 的增量，并检查 retrieval 与分类是否一致。
+6. **几何、多未来与领域 action 能否合并？** GeoWorld/Temporal Straightening 解决 geometry，MoP-JEPA 解决多未来，Clin-JEPA 暴露 action information set；下游 world model 需要三者同时成立。
+
+## 博客价值判断
+
+- **首选 Clin-JEPA 技术与评测审计**：《JEPA 能模拟 ICU 患者未来吗？五阶段 co-training、latent rollout，以及未来 action 泄漏边界》。宜解释共同训练难点，并用官方代码展示“世界模型评测必须先定义预测时可见信息”；不宜写成“JEPA 已能预测 ICU 结局”。
+- **次选 AD-L-JEPA 效率案例**：《从体素重建到 BEV latent prediction：JEPA 如何降低 LiDAR 预训练成本》。以 1.9×–2.7× GPU-hours、2.8×–4× memory 为主证据，把精度增益放在种子报告限制旁。
+- **CryoLVM 可做 JEPA 进入科学成像专题**：可与 NeuroVFM、US-JEPA 比较三种三维/噪声成像的 target 与 masking；若单写，需补真实 cryo-ET 和 atomic-building 影响。
+
+## 未纳入与检索去重记录
+
+### 已确认实际采用 JEPA，但本日未深读
+
+| 候选 | 分类 | 未纳入原因 |
+|---|---|---|
+| [MJEPA](https://arxiv.org/html/2606.25225) | 统一 A-JEPA/V-JEPA 式模态内与跨模态 latent prediction；音频、视频、音视频分类与 retrieval | 本日已满 3 篇；下一轮最高优先级，需审计数据/模型规模和 probe 公平性 |
+| [Temporal Straightening](https://arxiv.org/html/2603.12231) | ICML 2026；在 JEPA world model 上加曲率正则做 latent planning | 留待与 GeoWorld/MoP-JEPA 做规划专题 |
+| [JetParticle-JEPA](https://arxiv.org/html/2606.14813) | Particle Transformer JEPA；JetClass/top/quark-gluon tagging | 仍为预印本且数据主要为模拟，留待核对 detector-missing、低标签和种子稳定性 |
+| [JEPA-MSAC](https://arxiv.org/html/2603.29796) | temporal block-masked multimodal JEPA；定位、波束、RSSI | DeepSense 6G Scenario 32 连续序列切重叠滑窗后随机 70/30，需先审计 temporal leakage |
+
+### 暂不归为实际 JEPA 下游证据
+
+- **Mine-JEPA / SIGReg 类候选**：命名或叙述引用 JEPA，但若主体优化是独立正则/目标，且没有 JEPA matched ablation，不与实际复用 JEPA pipeline 的论文混排。
+- **只在 related work 引用 I-JEPA/V-JEPA 的 MAE、生成式 world model、通用 VLM**：只作背景或候选发现线索。
+- **教程、综述、观点及无标准任务/无原文的项目页**：不作为下游实证。
+
+## 来源链接
+
+### 今日深读
+
+- Clin-JEPA：[arXiv 摘要](https://arxiv.org/abs/2605.10840)；[HTML 全文](https://arxiv.org/html/2605.10840)；[官方代码](https://github.com/Kamaleswaran-Lab/Clin-JEPA)；[rollout 实现](https://github.com/Kamaleswaran-Lab/Clin-JEPA/blob/main/clin_jepa/evaluation/rollout.py#L303-L336)；[默认配置](https://github.com/Kamaleswaran-Lab/Clin-JEPA/blob/main/configs/eval/rollout.yaml#L7-L13)
+- AD-L-JEPA：[AAAI 页面](https://ojs.aaai.org/index.php/AAAI/article/view/38402)；[DOI](https://doi.org/10.1609/aaai.v40i16.38402)；[arXiv 扩展全文](https://arxiv.org/html/2501.04969)；[官方代码与权重](https://github.com/HaoranZhuExplorer/adljepa)
+- CryoLVM：[ICLR poster](https://iclr.cc/virtual/2026/poster/10011072)；[OpenReview](https://openreview.net/forum?id=9xcvEF2BRi)；[arXiv](https://arxiv.org/abs/2602.02620)；[PDF](https://arxiv.org/pdf/2602.02620)
+
+### 后续候选的一手来源
+
+- MJEPA：[arXiv HTML](https://arxiv.org/html/2606.25225)
+- Temporal Straightening：[arXiv](https://arxiv.org/abs/2603.12231)；[官方代码](https://github.com/Agentic-Learning-AI-Lab/temporal-straightening)
+- JetParticle-JEPA：[arXiv HTML](https://arxiv.org/html/2606.14813)
+- JEPA-MSAC：[arXiv HTML](https://arxiv.org/html/2603.29796)
+
+---
+
+如果你愿意，下一轮可以优先深挖 **MJEPA 的音视频统一训练与 retrieval 证据**，或把 **Clin-JEPA 的 future-action 评测边界**整理成一篇中文技术博客。
