@@ -1,0 +1,309 @@
+---
+title: JEPA 下游研究追踪 · 2026-07-19
+date: 2026-07-19 10:00:00
+categories:
+  - JEPA研究追踪
+tags:
+  - JEPA
+  - JEPA追踪
+---
+
+本文属于「JEPA追踪」系列，记录每日论文检索、原文核验与阶段性判断；它保留研究日志的证据密度，与经过主题化重写的原创博客区分。
+
+# JEPA 下游研究追踪（2026-07-19）
+
+> 检索截止：2026-07-19（Asia/Shanghai）
+>
+> 检索重点：沿 I-JEPA、V-JEPA/V-JEPA 2、A-JEPA 及 JEPA 通用引用链，寻找真正复用、改造或评估 JEPA，并把它用于具体下游任务的新增论文。
+>
+> 纳入原则：实质性结论均回到论文原文、会议页、官方项目页或官方代码仓库核验；只在相关工作中提到 JEPA 的论文不进入主解读。
+
+## 今日结论
+
+今天确认 3 篇此前未在本系列解读、且满足“实际使用 JEPA”标准的高价值论文：
+
+1. **COJEPA** 把 I-JEPA 扩展到 3D 结构脑 MRI，并用对比目标补足全局个体辨识能力；它在同卵双胞胎检索和年龄回归上给出亮眼结果，但纯 JEPA 并非所有任务中的最佳目标，且代码链接目前仍是占位符。
+2. **Market JEPA** 把每日约 500 只美国股票的无序横截面压缩为因子 token，再用时序 JEPA 学习市场“风险天气”。表示与波动率、相关性集中度等二阶结构强相关，却几乎不编码涨跌方向；这是一篇表征学习论文，不是选股或收益预测系统。
+3. **DSeq-JEPA** 直接改写 I-JEPA 的目标区域选择与预测顺序：先用目标编码器注意力寻找判别区域，再从主要线索到次要线索顺序预测。它在分类、细粒度识别、检测、分割与 CLEVR 上稳定但幅度温和地优于 I-JEPA。
+
+三篇论文共同说明：**JEPA 正从“换一个数据模态”转向“针对领域结构重新设计可预测对象”**。本轮最值得保留的反面证据也很清楚：对比损失可能比纯 JEPA 更适合个体身份，手工金融观测量在部分市场状态任务上仍显著优于 JEPA，视觉任务中的增益多为 0.3–1.5 个百分点。当前证据支持“JEPA 是可塑的表征目标”，尚不支持“JEPA 普遍替代领域基线”。
+
+## JEPA 方向最新进展
+
+### 1. 目标空间正在被领域结构重新定义
+
+- **空间域**：COJEPA 不只是把 2D patch 换成 3D patch，还引入前景感知遮挡、世界坐标位置编码和 3D 卷积 patch stem，以适配 MRI 的物理坐标和大片背景。[论文原文](https://arxiv.org/abs/2607.11962)
+- **集合—时间域**：Market JEPA 先用置换不变 tokenizer 把每天的股票集合变成固定数量的因子 token，再在“时间 × 因子”网格上做遮挡预测。[ICML 2026 论文页](https://openreview.net/forum?id=BZfkxSasd3)
+- **语义顺序域**：DSeq-JEPA 把 I-JEPA 的随机、并行目标块改为注意力驱动且有序的区域序列，说明“预测顺序”本身也可以成为 JEPA 的归纳偏置。[ECCV 2026 项目页](https://dseqjepa-project.com/)
+
+### 2. JEPA 与其他自监督目标的关系更像互补，而非取代
+
+COJEPA 同时报告对比目标（CO）、纯预测目标（JEPA）和联合目标（COJEPA）。零样本同卵双胞胎检索 R@1 从 JEPA 的 0.26 上升到 CO 的 0.78，再到 COJEPA 的 0.84；这说明身份辨识主要受益于全局对比约束，JEPA 的贡献要通过联合目标和其他任务交叉判断。[COJEPA 原文](https://arxiv.org/html/2607.11962)
+
+Market JEPA 则用共享 tokenizer、编码器规模、数据切分和优化设置的 MAE 做对照。JEPA 在部分恢复阶段预测任务上更强，但在两个已经接近饱和的恢复任务上反而下降。结论不应简化为“latent prediction 总胜过 reconstruction”。[ICML 论文 PDF](https://openreview.net/pdf/6ddc0f748a4cbe51806b18a848fcf17e6b28f3ee.pdf)
+
+### 3. 近期值得继续核验的相邻进展
+
+- **SALT**：ICLR 2026 工作先训练像素重建教师，再冻结教师训练视频 JEPA 学生，重点讨论冻结教师与训练计算效率；它值得单独与 V-JEPA 2 做协议对齐。[arXiv 原文](https://arxiv.org/abs/2509.24317)
+- **Causal-JEPA**：把随机 patch 遮挡推进到对象级潜变量干预，并在 CLEVRER 反事实问答与 PushT 操作中评估；方法价值很高，但当前出处是 ICML 2026 Compositional Learning Workshop，不是 ICML 主会。[arXiv 原文](https://arxiv.org/abs/2602.11389)｜[官方代码](https://github.com/galilai-group/cjepa)
+- **CR-JEPA**：面向遥感图文检索的跨模态 JEPA 候选，目前需要进一步核验数据切分、负样本和与强 CLIP 系基线的公平性。[arXiv 原文](https://arxiv.org/abs/2606.00706)
+- **ER-JEPA**：面向 ECG 表征的候选，需要检查其与 A-JEPA、通用时序掩码建模的实质差异以及外部队列验证。[arXiv 原文](https://arxiv.org/abs/2607.01145)
+
+这些候选今天不进入主解读，原因是本轮优先把三条差异最大的下游路线做完整核验，而不是堆叠摘要。
+
+## 新增下游论文解读
+
+### 一、COJEPA：把局部可预测性与个体辨识同时带入 3D 脑 MRI
+
+#### 基本信息
+
+- **完整题目**：*Contrastive Joint-Embedding Prediction for Representation Learning in Structural MRI*
+- **作者与机构**：Fabian Mager、Lars Kai Hansen；丹麦技术大学（Technical University of Denmark）应用数学与计算机科学系。
+- **发布时间与出处**：2026-07-12 提交 arXiv v1，当前为预印本。[arXiv 摘要页](https://arxiv.org/abs/2607.11962)
+- **使用的 JEPA**：直接以 I-JEPA 的上下文编码器、EMA 目标编码器、预测器和块遮挡 latent prediction 为基础，扩展到 3D T1 加权 MRI。
+- **下游任务**：零样本同卵/异卵双胞胎检索、BraTS 2024 全肿瘤分割、OpenBHB 外部测试集脑龄回归。
+
+#### 方法如何衔接 JEPA
+
+**论文事实**：模型使用 ViT-B 主干和较小的 12 层预测器，在 3D 体数据中预测被遮挡目标块的 latent embedding；同时对两个视图的全局 CLS token 加入 InfoNCE。为适配 MRI，作者加入分层 3D 卷积 patch stem、基于物理世界坐标的正弦位置编码，以及避免目标块落在空气背景中的前景感知遮挡。[方法与实现细节](https://arxiv.org/html/2607.11962)
+
+**作者主张**：JEPA 负责学习局部结构可预测性，对比目标负责全局判别性，联合目标能得到同时适合解剖结构和个体差异的表征。
+
+**本次判断**：这是对 I-JEPA 的实质性领域改造，不是把现成 I-JEPA embedding 当普通特征。但实验只能证明两种损失在该设置下互补，不能把 COJEPA 的全部收益都归因于 JEPA。
+
+#### 数据、指标、基线与关键结果
+
+**预训练数据与条件**：
+
+- HCP-YA 与 AABC 两个健康人群队列，共 2,286 份 T1w MRI，年龄覆盖 22 岁到 90 岁以上；作者按家庭关系处理训练/保留划分，以便做双胞胎检索。
+- ViT-B 训练 4,000 个 epoch，使用 8 张 AMD MI250X、bfloat16；每 GPU 每步处理 12 个 crop、每个样本两个视图。这个训练条件对医学影像团队并不轻量。[原文实验设置](https://arxiv.org/html/2607.11962)
+
+| 下游任务 | 指标/设置 | JEPA | 仅对比 CO | COJEPA | 需要怎样解读 |
+|---|---:|---:|---:|---:|---|
+| 同卵双胞胎零样本检索 | R@1 | 0.26 | 0.78 | **0.84** | 联合目标最好，但主要跃升来自对比目标 |
+| 异卵双胞胎零样本检索 | R@1 | 0.07 | 0.16 | **0.17** | 效果较弱，符合遗传相似性下降 |
+| BraTS 全肿瘤分割，冻结主干，5% 标签 | Dice | 0.43 | **0.52** | **0.52** | 低标签下全局判别损失帮助明显 |
+| BraTS 全肿瘤分割，端到端，100% 标签 | Dice | 约 0.70 | 约 0.71 | 约 0.71 | 全量微调后目标差异基本收敛 |
+| OpenBHB 3T，端到端脑龄回归 | MAE，年，越低越好 | 约 2.93 | 约 2.77 | **2.55** | 联合目标最好，但测试限于 3T 子集 |
+
+作者还引用外部 BrainIAC 在 BraTS 上约 0.79 Dice 的结果。由于主干、训练数据和评估协议不同，它只能作为量级参照，不能当作严格同表基线。论文内部最重要的基线是同一架构下的 CO、JEPA 与 COJEPA 三个目标消融。
+
+#### 创新、局限、复现条件与风险
+
+**相对已有工作的创新**：
+
+1. 把 I-JEPA 的块级 latent prediction 完整迁移到 3D 结构 MRI，而不是只把 2D 切片当自然图像。
+2. 用世界坐标位置编码和前景感知遮挡处理 MRI 的空间对齐与背景稀疏问题。
+3. 同时评估个体身份、病灶分割和年龄回归，展示局部结构与全局个体信息之间的张力。
+
+**局限与复现条件**：
+
+- 预训练只使用 2,286 份健康 MRI，规模远小于通用视觉预训练，病理分布也未进入预训练。
+- 外部 OpenBHB 中 1.5T 站点表现更差，提示磁场强度、扫描仪和站点迁移仍是风险。
+- 论文摘要声称提供代码，但正文中的代码链接截至检索时仍显示为 `XXX` 占位符；因此目前不能从官方仓库端到端复现。[arXiv 当前版本](https://arxiv.org/html/2607.11962)
+- 4,000 epoch、8 张 MI250X 的成本较高，文中也承认超参数搜索有限。
+- 双胞胎检索衡量的是家族/个体相似性，不等于临床诊断效用；脑龄 MAE 也不能自动转化为疾病预测价值。
+
+**潜在风险**：健康队列上的身份判别能力可能同时编码扫描站点、人口属性或其他混杂变量。若用于临床，必须增加多中心外部验证、亚组公平性分析和隐私评估。
+
+#### 博客价值判断
+
+**值得单独改写，优先级高。** 最适合的原创博客主题不是“JEPA 在 MRI 上刷新指标”，而是“为什么医学影像同时需要局部可预测性与全局个体辨识”。它有明确的方法冲突、消融和负面证据，足以区别于日报；但应等官方代码补齐后再加入复现实验章节。
+
+---
+
+### 二、Market JEPA：学习市场风险几何，而不是预测涨跌
+
+#### 基本信息
+
+- **完整题目**：*Joint-Embedding Predictive Learning of Latent Market States in U.S. Equities*
+- **作者与机构**：Simon Mahns（Johns Hopkins University, Whiting School of Engineering）、Randall Balestriero（Brown University, Department of Computer Science）、Mahmoud “Mido” Assran（Mila – Quebec AI Institute）。
+- **发布时间与出处**：ICML 2026 regular paper，收录于 PMLR 306；OpenReview 页面发布于 2026-04-30、最终修改于 2026-06-24。[ICML/OpenReview 论文页](https://openreview.net/forum?id=BZfkxSasd3)
+- **使用的 JEPA**：在每日股票集合的 factor token 上训练时序 JEPA，使用上下文编码器、预测器、EMA 目标编码器、stop-gradient 和 latent-space masked prediction。
+- **下游任务**：市场风险几何探测、近邻检索、状态转移/压力事件检测、恢复动态预测、新闻主题对齐；明确不做收益最大化或可交易策略。
+
+#### 方法如何衔接 JEPA
+
+**论文事实**：每天最多 512 只股票，每只股票由 28 个仅使用当日及历史信息的 OHLCV 派生特征表示。置换不变 tokenizer 通过 row MLP、两个 ISAB 和 PMA，把无序横截面压缩为 24 个、维度 128 的 factor token。时序 JEPA 再处理长度 21 天的 clip，在“时间 × factor slot”网格上混合连续时间遮挡、随机 slot、整日和整 slot 遮挡，并预测 EMA 目标编码器的 latent。[论文 PDF](https://openreview.net/pdf/6ddc0f748a4cbe51806b18a848fcf17e6b28f3ee.pdf)
+
+模型还使用步长课程 `{1, 3, 7, 21}`，对应约 `{20, 60, 140, 420}` 个交易日的可见跨度。上下文编码器和预测器均为 6 层、4 头、维度 128 的 Transformer。
+
+**作者主张**：latent masked prediction 会偏向跨时间和股票共享的、缓慢变化的二阶结构，同时忽略难以预测的方向性收益，因此得到的是“risk weather”而不是价格方向。
+
+**本次判断**：实验确实支持“表示更像风险状态压缩器”，但它包含大量手工构造的波动率和相关性历史特征；JEPA 学到的不是从原始成交数据中自动发现全部金融规律。新闻对齐是统计关联，不是模型理解新闻内容，更不是因果解释。
+
+#### 数据、指标、基线与关键结果
+
+**数据与切分**：
+
+- Massive.com 的美国普通股日频 OHLCV，覆盖 NYSE、NASDAQ 和 NYSE American；价格仅做拆股调整，不含分红再投资。
+- 原始时段为 2017-10 至 2025-10；特征预热后有效数据自 2018-05 开始，共 1,864 个交易日。
+- 训练集 2018–2022，验证集 2023，测试集 2024–2025；标准化只拟合训练集。股票池取训练期平均成交金额最高的 512 只，随后固定。
+
+**主要诊断结果**：
+
+- kNN 邻域与 21 日已实现波动率的 Spearman 相关系数达到 **0.78**，与相关矩阵第一主成分解释率为 **0.68**，与市场方向仅 **0.11**。
+- 对当期风险统计量做线性 ridge 解码，测试集相关系数对应的 (R^2) 为 **0.415**，第一主成分解释率为 **0.447**，有效秩为 **0.361**。
+- 对至少间隔 63 天的市场几何距离做 Mantel 风格检验：JEPA 为 **0.35**（95% CI 0.16–0.54），波动率单变量基线为 **0.44**，频谱 oracle 为 **0.68**，时间距离基线为 **-0.10**。JEPA 有信息，但没有超过最直接的波动率描述量，更不能接近使用目标结构的 oracle。
+- 极端事件的 latent displacement 显著增大：崩盘日 Cohen's (d=0.92)，VIX 突升日 (d=1.47)，均 (p<0.001)；FOMC 与 CPI 例行公告分别只有 (d=0.06) 与 (0.03)，不显著。
+- 在 2024–2025 测试集上，新闻主题近邻对齐在排除窗口 21–252 天时显著，窗口 126 天的差值为 **0.0162**；这证明表示与新闻主题变化有弱但可重复的关联，不证明预测新闻或解释事件。[补充实验](https://openreview.net/attachment?id=BZfkxSasd3&name=originally_submitted_PDF)
+
+**与领域特征和 MAE 的关键对照**：
+
+| 任务 | 18 个手工特征 AUC/AP | + JEPA AUC/AP | + 匹配 MAE AUC/AP | 结果含义 |
+|---|---:|---:|---:|---|
+| 恢复期有效秩上升 | 0.690 / 0.139 | **0.800 / 0.324** | 0.723 / 0.200 | JEPA 提供明显互补信息 |
+| 压力期平均相关性上升 | 0.549 / 0.085 | **0.671 / 0.093** | 0.541 / 0.067 | AUC 改善，AP 改善很小 |
+| 恢复期平均相关性下降 | **0.969 / 0.818** | 0.960 / 0.683 | 0.973 / **0.887** | JEPA 反而伤害饱和基线 |
+| 恢复期第一主成分占比下降 | **0.972 / 0.837** | 0.754 / 0.360 | 0.937 / 0.770 | JEPA 显著更差 |
+
+基线还包括时间距离、波动率、频谱 oracle、HAR、Gaussian HMM，以及与 JEPA 共享 tokenizer、编码器规模、数据切分和训练预算的 MAE。最重要的结论是：JEPA 的互补价值依任务而变，不是对传统金融统计量的统一替代。
+
+#### 创新、局限、复现条件与风险
+
+**相对已有工作的创新**：
+
+1. 通过集合 tokenizer 解决每日股票数量和顺序不固定的问题，再在时间维做 JEPA。
+2. 把评估中心放在“表示编码了什么”，包括风险几何、事件位移和跨模态新闻对齐，而不是只报预测误差。
+3. 使用严格时间切分和匹配 MAE 消融，给出若干 JEPA 不占优的结果。
+
+**局限与复现条件**：
+
+- [官方代码仓库](https://github.com/nautsimon/SSL-equities) 已公开实现，但 README 明确说明实际市场数据是 proprietary，仓库只提供形状匹配的合成数据。因此可复现模型管线，不能端到端审计论文主结果。
+- 时间跨度只有约 7.5 年，极端市场周期有限；固定训练期高流动性股票池也更接近大盘股市场，不代表小盘股或其他国家市场。
+- 输入已经包含波动率、相关性等拖尾统计量，表示与这些变量高度相关并不意外。
+- 状态位移与 regime change 在滞后 0 最强，说明它主要同步反映变化，不是提前预警。
+- 类别不平衡使 AP 明显低于 AUC；只报告 AUC 会夸大实用性。
+
+**潜在风险**：把“市场状态表示”包装成交易信号会越过论文证据边界。部署还需处理数据许可、复权规则、退市和缺失值、交易成本、概念漂移及监管合规；当前研究没有覆盖这些问题。
+
+#### 博客价值判断
+
+**非常值得单独改写，优先级最高。** 推荐主题是“JEPA 为什么擅长市场风险天气，却不擅长涨跌方向”。它能用一个非视觉领域说明 latent prediction 的信息偏好，同时包含金融场景中罕见的负结果和边界声明。原创博客必须明确：这不是量化选股教程。
+
+---
+
+### 三、DSeq-JEPA：把目标区域的预测顺序变成学习信号
+
+#### 基本信息
+
+- **完整题目**：*DSeq-JEPA: Discriminative Sequential Joint-Embedding Predictive Architecture*
+- **作者**：Xiangteng He、Shunsuke Sakai、Shivam Chandhok、Sara Beery、Kun Yuan、Nicolas Padoy、Tatsuhito Hasegawa、Leonid Sigal；作者团队涉及 University of British Columbia、Vector Institute、University of Fukui、University of Strasbourg 等机构。
+- **发布时间与出处**：arXiv v1 于 2025-11-21 提交，v3 于 2026-03-17 更新；官方项目页标注已被 **ECCV 2026 Main Conference** 接收。[arXiv](https://arxiv.org/abs/2511.17354)｜[ECCV 项目页](https://dseqjepa-project.com/)
+- **使用的 JEPA**：直接修改 I-JEPA 的目标区域生成和并行预测策略，并提供带对比正则的 DSeq-C-JEPA 版本。
+- **下游任务**：ImageNet 分类、iNaturalist21/CUB/Stanford Cars 细粒度分类、MS-COCO 检测与实例分割、ADE20K 语义分割、CLEVR Count/Dist。
+
+#### 方法如何衔接 JEPA
+
+**论文事实**：DSeq-JEPA 从 EMA 目标编码器取得 class token 与 patch token 的相似度，生成注意力显著图；通过自适应阈值和连通域抽取候选区域，再按平均归一化注意力得分排序。预测器从最具判别性的区域开始，依次预测后续区域的目标 embedding。上下文编码器、EMA 目标编码器和 latent-space prediction 仍保留 I-JEPA 框架。[项目方法说明](https://dseqjepa-project.com/)
+
+**作者主张**：这种顺序形成从主要视觉线索到次要线索的课程，把 JEPA 的 latent prediction 与自回归式顺序建模结合，并更接近人类选择性视觉感知。
+
+**本次判断**：论文证明的是“注意力排序的区域预测对迁移有帮助”。“更接近人类视觉”只是启发性比喻，实验没有认知科学对照；它也不等于模型获得了通用的序列推理能力。
+
+#### 数据、指标、基线与关键结果
+
+模型在 ImageNet-1K 上预训练，ViT-B/L 主要设置训练 600 epoch，ViT-H/16 使用 448 分辨率。主要直接基线是相同骨干的 I-JEPA；扩展比较包括 C-JEPA、MAE、DINO、iBOT、NEPA 与 LeJEPA。
+
+| 骨干/任务 | I-JEPA | DSeq-JEPA | 差值 |
+|---|---:|---:|---:|
+| ViT-B，ImageNet linear | 72.4 | **73.5** | +1.1 |
+| ViT-B，ImageNet fine-tune | 83.5 | **84.0** | +0.5 |
+| ViT-B，iNaturalist21 | 35.9 | **36.4** | +0.5 |
+| ViT-B，CUB-200-2011 | 65.3 | **66.2** | +0.9 |
+| ViT-B，Stanford Cars | 65.9 | **67.3** | +1.4 |
+| ViT-H/448，ImageNet linear | 81.1 | **82.4** | +1.3 |
+| MS-COCO，box AP | 49.9 | **50.5** | +0.6 |
+| CLEVR Count | 85.6 | **86.4** | +0.8 |
+| CLEVR Dist | 71.2 | **71.5** | +0.3 |
+
+项目页还报告 ViT-H/448 的三个细粒度任务平均比 I-JEPA 高 1.5 个百分点，总体均值从 68.4 提升到 69.7；推理成本为 17.8 GFLOPs/图像，接近原骨干。[官方结果页](https://dseqjepa-project.com/)
+
+最关键的 ViT-B 消融不是“加一个 sequential 模块就涨点”：
+
+| 目标选择与预测方式 | ImageNet linear | iNaturalist21 |
+|---|---:|---:|
+| 均匀目标 + 并行预测（I-JEPA） | 72.4 | 35.9 |
+| 均匀目标 + 顺序预测 | 72.3 | 34.9 |
+| 判别目标 + 并行预测 | 72.0 | 35.7 |
+| 判别目标 + 随机顺序 | 71.7 | 35.0 |
+| 判别目标 + 注意力顺序 | **73.5** | **36.4** |
+
+只有“选择判别区域”和“按得分有序预测”同时成立才有增益，支持两者的协同设计，而非单一组件带来的参数红利。
+
+#### 创新、局限、复现条件与风险
+
+**相对已有工作的创新**：
+
+1. 将 JEPA 的目标区域从随机几何块改成由目标编码器注意力自适应产生的语义区域。
+2. 把目标预测由彼此独立改成有条件的顺序过程，显式测试了预测顺序这一设计轴。
+3. 在全局分类、细粒度、稠密预测和 CLEVR 上做了跨层次迁移验证。
+
+**局限与复现条件**：
+
+- 预训练仍以 ImageNet 静态自然图像为中心，尚未验证视频、机器人、医学或遥感领域中的顺序是否稳定。
+- 相对 I-JEPA 的多数增益在 0.3–1.4 个百分点；与 DINO/iBOT 等方法比较时，视图数、增强和训练预算不完全一致，不能只看单一 ImageNet linear 数字。
+- 区域重要性来自模型自身目标编码器注意力，可能强化早期偏差或数据集偏见；定性可视化不能替代因果消融。
+- [官方代码](https://github.com/SkyShunsuke/DSeq-JEPA) 采用 MIT 许可证，提供预训练与 linear probing 命令以及 Google Drive checkpoint；README 当前没有完整列出 COCO、ADE20K、CLEVR 的端到端复现脚本，稠密任务复现仍需补充配置。
+- 训练时要生成显著图、连通域和区域顺序，训练复杂度高于普通 I-JEPA；17.8 GFLOPs 只说明下游推理骨干几乎不增加成本。
+
+**潜在风险**：若注意力把背景捷径当作“最具判别性区域”，顺序课程可能更快固化捷径。迁移到细粒度或高风险视觉任务时，需要检查目标区域是否落在真实对象上，并报告亚组与背景偏差。
+
+#### 博客价值判断
+
+**值得单独改写，优先级中高。** 推荐主题是“JEPA 里被忽略的设计变量：先预测什么、后预测什么”。它可与 I-JEPA 随机并行遮挡做清晰对照，也有一组很有解释力的负消融；写作时应避免把注意力顺序包装成“像人一样推理”。
+
+## 横向比较
+
+| 论文 | JEPA 的实质改造 | 下游场景 | 最强证据 | 关键反证/边界 | 复现状态 |
+|---|---|---|---|---|---|
+| COJEPA | 3D I-JEPA + 全局 InfoNCE；前景遮挡与世界坐标 | MRI 检索、分割、脑龄 | MZ twin R@1 0.84；脑龄 MAE 2.55 | 纯 JEPA 身份检索远弱于 CO；全量分割微调差异收敛 | 论文可读，官方代码链接仍占位 |
+| Market JEPA | 集合 tokenizer + 时间×因子 masked JEPA | 风险几何、事件与恢复状态 | 风险变量相关强，部分恢复任务 AUC/AP 大增 | 波动率基线距离相关更高；两个恢复任务加入 JEPA 变差；不预测收益 | 代码公开，真实数据专有 |
+| DSeq-JEPA | 注意力选区 + 判别顺序预测 | 分类、FGVC、检测、分割、CLEVR | 多任务稳定优于匹配 I-JEPA；关键组合消融成立 | 增益多为 0.3–1.5 点；“人类视觉”未被验证 | 预训练/linear 代码与 checkpoint 公开，稠密复现不完整 |
+
+横向看，三者分别改造了 JEPA 的三个核心对象：**空间掩码、token 化的状态空间、目标预测顺序**。它们的共同成功条件并不是“预测 latent”这一个口号，而是先明确领域中哪些因素可预测、哪些因素应被丢弃。共同失败模式也一致：一旦下游目标依赖难预测的瞬时信息，或现成领域统计量已经高度贴合标签，JEPA 不会自动占优。
+
+## 值得继续追的问题
+
+1. **COJEPA 的互补性来自哪里？** 需要在同一 3D 骨干上加入 VICReg/Barlow Twins、不同全局 pooling 与更多对比权重，区分 InfoNCE、数据增强和 JEPA 的贡献。
+2. **MRI 预训练能否跨站点、磁场强度和疾病迁移？** 等代码发布后，优先复核 OpenBHB 1.5T 子集、外部 BraTS 中心和健康/病理亚组。
+3. **Market JEPA 是否只是非线性压缩手工风险特征？** 可用仅原始收益/成交量、去掉拖尾波动率特征、跨国家市场和更长历史做反事实消融。
+4. **市场表示能否在状态变化前提供信息？** 当前最佳对齐在 lag 0。应严格区分同步检测、短期预警与可交易预测，并使用滚动训练和交易成本评估。
+5. **DSeq 的顺序是否跨数据集稳定？** 应检查同一图像在增强、不同 checkpoint 和领域迁移下的目标区域排序一致性，并和随机课程、教师外部显著图对照。
+6. **冻结教师视频 JEPA 是否更划算？** 下一轮可深挖 SALT，与 V-JEPA 2 在数据量、分辨率、训练 FLOPs、教师成本和下游协议上做同口径核算。
+7. **对象级干预能否扩展到真实世界？** Causal-JEPA 在 CLEVRER 和 PushT 上有吸引力，但需要检验不完美对象发现、真实视频遮挡和多对象长时程规划下的退化。
+8. **“JEPA”命名边界如何收紧？** 一些论文把任意 DINOv2/自监督 embedding encoder 称为 JEPA encoder。后续应继续要求存在上下文—目标编码器、latent predictor 或与核心 JEPA 明确等价的训练目标。
+
+## 博客价值判断
+
+| 候选原创博客 | 价值 | 建议 |
+|---|---|---|
+| JEPA 为什么学到市场“风险天气”，却几乎不学涨跌方向 | **高** | 最有跨领域解释力；保留负结果，明确不是选股系统 |
+| 医学影像为何同时需要局部预测与全局对比 | **高** | 以 CO/JEPA/COJEPA 三目标张力为主线；等待代码后补复现 |
+| JEPA 里被忽略的设计变量：目标区域的预测顺序 | **中高** | 用组合消融讲清“选择 × 顺序”的协同，避免拟人化 |
+
+如果只选一个主题优先主题化重写，建议选 **Market JEPA**。它最能把 JEPA 的核心归纳偏置讲清楚：模型不是保留所有信息，而是保留跨上下文可预测的信息。COJEPA 更适合后续做复现型文章；DSeq-JEPA 更适合方法设计型短文。
+
+## 未纳入与检索去重记录
+
+- **Beyond Generative Priors: Minority Sampling with JEPA-Guided Diffusion**：论文把现成 DINOv2 称为 “JEPA encoder”，并利用其 Jacobian 估计密度；没有复用 I-JEPA/V-JEPA 的上下文—目标—预测器训练管线。它虽引用 I-JEPA 且用于少数样本扩散，但按本追踪的严格口径归入“广义 joint-embedding 命名”，不作为实际 JEPA 下游论文解读。[ICML 2026 论文页](https://openreview.net/forum?id=Vn0lOKou5q)
+- Causal-JEPA、JA4-JEPA、RhythmJEPA、SALT、CR-JEPA、ER-JEPA 已登记为后续候选，今日不做摘要凑数。JA4-JEPA 的异常为合成配对，RhythmJEPA 样本小且代码链接当前不可核验；两者都需要避免把论文任务外推成真实入侵检测或临床诊断。
+- BA-Future-JEPA、GeoWorld、US-JEPA、NeuroVFM/Vol-JEPA、MoP-JEPA、P-JEPA、Rabtriever、Clin-JEPA、AD-L-JEPA、CryoLVM、MJEPA、Temporal Straightening、JetParticle-JEPA 已在 2026-07-15 至 2026-07-18 的记录中解读，本轮未重复汇报。
+
+## 来源链接
+
+### 今日主论文
+
+- COJEPA：[arXiv 摘要](https://arxiv.org/abs/2607.11962)｜[HTML 全文](https://arxiv.org/html/2607.11962)
+- Market JEPA：[ICML/OpenReview](https://openreview.net/forum?id=BZfkxSasd3)｜[论文 PDF](https://openreview.net/pdf/6ddc0f748a4cbe51806b18a848fcf17e6b28f3ee.pdf)｜[官方代码](https://github.com/nautsimon/SSL-equities)
+- DSeq-JEPA：[arXiv](https://arxiv.org/abs/2511.17354)｜[ECCV 2026 项目页](https://dseqjepa-project.com/)｜[官方代码](https://github.com/SkyShunsuke/DSeq-JEPA)
+
+### 后续候选与排除项
+
+- SALT：[arXiv](https://arxiv.org/abs/2509.24317)
+- Causal-JEPA：[arXiv](https://arxiv.org/abs/2602.11389)｜[官方代码](https://github.com/galilai-group/cjepa)
+- JA4-JEPA：[arXiv](https://arxiv.org/abs/2607.08465)
+- RhythmJEPA：[arXiv](https://arxiv.org/abs/2606.31736)
+- CR-JEPA：[arXiv](https://arxiv.org/abs/2606.00706)
+- ER-JEPA：[arXiv](https://arxiv.org/abs/2607.01145)
+- Minority Sampling with JEPA-Guided Diffusion：[ICML/OpenReview](https://openreview.net/forum?id=Vn0lOKou5q)
