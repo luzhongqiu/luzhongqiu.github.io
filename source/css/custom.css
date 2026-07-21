@@ -27,7 +27,7 @@
    Compact post list — home pages only
    ===================================================== */
 
-.home-list-page .column-main > .card:not(.home-post-list) {
+.home-list-page .column-main > .home-post-list ~ .card {
   display: none;
 }
 

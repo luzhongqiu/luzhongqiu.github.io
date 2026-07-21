@@ -2,6 +2,8 @@
 
 const test = require('node:test');
 const assert = require('node:assert/strict');
+const { readFileSync } = require('node:fs');
+const { join } = require('node:path');
 const {
   injectHomePostList,
   renderHomePostList
@@ -67,4 +69,17 @@ test('injectHomePostList leaves unknown layouts unchanged', () => {
     html: source,
     injected: false
   });
+});
+
+test('homepage card hiding requires the compact list to be present', () => {
+  const css = readFileSync(join(__dirname, '../source/css/custom.css'), 'utf8');
+
+  assert.match(
+    css,
+    /\.home-list-page \.column-main > \.home-post-list ~ \.card\s*\{\s*display: none;\s*\}/
+  );
+  assert.doesNotMatch(
+    css,
+    /\.home-list-page \.column-main > \.card:not\(\.home-post-list\)/
+  );
 });
