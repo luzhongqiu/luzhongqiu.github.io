@@ -8,7 +8,8 @@
     "clean": "hexo clean",
     "server": "hexo server",
     "deploy": "hexo deploy",
-    "dev": "hexo server --draft"
+    "dev": "hexo server --draft",
+    "test": "node --test test/*.test.js"
   },
   "hexo": {
     "version": "8.1.1"
