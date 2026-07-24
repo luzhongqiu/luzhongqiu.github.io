@@ -1,7 +1,7 @@
 ---
 title: "在松散智能体中寻找稳定控制：调度与动态工作流方案追踪"
 date: 2026-07-23 10:30:00
-updated: 2026-07-23 11:06:49
+updated: 2026-07-24 10:41:00
 categories:
   - 智能体工程
 tags:
@@ -128,6 +128,10 @@ Temporal 明确建议把 API/LLM 等易失败或非确定操作放入 Activity�
 - 最终环境状态和验收结果。
 
 Anthropic 将完整试验记录称为 transcript/trace/trajectory，并区分“代理声称完成”与“环境中是否真的完成”的 outcome；其建议是组合代码、模型和人工 grader，并同时维护能力评测与接近 100% 通过率的回归评测。[官方事实与一方主张；来源：Anthropic《Demystifying evals for AI agents》](https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents)
+
+2026 年 7 月 24 日新上架的 GuardianAgentBench 在 580 个场景、6 个领域、3 个 agent framework 和 6 个模型上测试工具型 agent。作者报告：最佳配置总体准确率为 74.8%，工具集合扩大和顺序轮次加深都会单调降低表现；其执行期 guardrail 相比 system prompt 防御可恢复 19.9% 的失败，误报率为 0.5%。[一方主张；未同行评审预印本；来源：GuardianAgentBench](https://arxiv.org/abs/2607.20982)
+
+**本文推断：** 工具数和深度上限不只是成本预算，也是可靠性预算；guardrail 应尽量成为执行期的结构化干预，而不是只写在 system prompt 里。上述数值仍需在其他工具分布、框架和真实副作用任务上复现。
 
 ## 三、Claude Code 式动态工作流：它稳定在哪里，又没有稳定什么
 
@@ -262,6 +266,8 @@ Claude Code 把消息、工具调用和结果持续写入本地 JSONL session，
 
 Claude Code 非交互模式提供 `--max-turns` 和 `--max-budget-usd`，并支持 JSON Schema 约束最终输出。[官方事实；来源：Claude Code CLI reference](https://code.claude.com/docs/en/cli-usage)
 
+Claude Code 2.1.217 又把组织预算变成更明确的运行时边界：普通 subagent 默认最多并发 20 个，嵌套派生默认关闭，只有显式设置最大派生深度后才允许继续递归；达到 `--max-budget-usd` 后不仅拒绝新派生，还会停止正在运行的后台 subagent。[官方事实；来源：Claude Code 2.1.217 release](https://github.com/anthropics/claude-code/releases/tag/v2.1.217)
+
 Claude Code 也可通过 OpenTelemetry 导出指标、事件和 beta traces；trace 层级可以把一次用户交互关联到模型请求、工具调用、权限等待和 hook 执行。[官方事实；来源：Claude Code Monitoring](https://code.claude.com/docs/en/monitoring-usage)
 
 ### 8. 长时任务真正依赖“结构化交接产物”
@@ -270,21 +276,45 @@ Anthropic 的长时 coding harness 实验发现，仅靠 compaction 不足以让
 
 2026 年的后续实验又加入 planner、generator、evaluator，把生成与验收分离，并通过可测试的 sprint contract 推进长时任务；作者同时提醒，harness 对模型能力的假设会随模型升级而过时，需要做消融和持续调整。[一方主张；来源：Anthropic《Harness design for long-running application development》](https://www.anthropic.com/engineering/harness-design-long-running-apps)
 
+### 9. 持久化记忆还必须由控制面按线索主动投递
+
+仅仅把事实写入 memory store，并不能保证模型在需要时主动读取。Cue-Anchored Working Memory 提议让 memory 携带 path、symbol、semantic、event、temporal 等触发条件，由 harness 确定性匹配当前情境并注入相关事实。作者在一个真实 coding task 的受控实验中报告：预置 memory store 后 114 轮仍出现 0 次自愿 memory 操作，而 harness 注入的事实跨 138 次 compact-resume 保持送达；只存在对话中的 10 个事实则在第一次摘要后消失。[一方主张；单作者、未同行评审预印本；来源：Delivery, Not Storage](https://arxiv.org/abs/2607.20972)
+
+**本文推断：** 稳定记忆至少有三层：持久化存储、确定性检索/触发、受预算约束的上下文投递。把后两层留给 agent“想起来再做”，会把可靠性重新交还给概率模型；但 cue 规则本身也需要版本化、冲突处理、敏感信息过滤和误触发评测。
+
 **本文推断：** Claude Code 式动态工作流最可复用的部分，不是某个 prompt，而是这组组合：
 
-> 动态工具循环 + 脚本化编排 + 显式任务账本 + 独立工作区 + 生命周期拦截器 + 风险边界 + 外部验证 + 可恢复交接产物。
+> 动态工具循环 + 脚本化编排 + 显式任务账本 + 线索触发的记忆投递 + 独立工作区 + 生命周期拦截器 + 风险边界 + 外部验证 + 可恢复交接产物。
 
 ## 四、方案对照：它们解决的不是同一层问题
 
 | 方案 | 主要控制形态 | 动态性 | 恢复语义 | 人工/权限 | 观测与评测 | 适合承担的角色 |
 | --- | --- | --- | --- | --- | --- | --- |
 | Claude Code / Claude Agent SDK | 模型驱动工具循环、JS Dynamic Workflows、hooks、subagents | 高 | workflow 同 session 缓存已完成 agent；session resume、file rewind；均不等于通用 durable execution | permissions、hooks、sandbox、审批 | workflow 阶段进度、OTel、transcript、工具事件 | 交互式编码 agent、脚本化多 agent 编排与动态 harness |
+| GitHub Agentic Workflows | Markdown 意图 + 编译后的 Actions 控制面 + 沙箱 agent | 高，但触发、权限与写出路径静态 | 继承 Actions run/artifact 语义；未承诺跨 run replay 或业务 exactly-once | 默认只读、网络防火墙、SafeOutputs、审批 | Actions 日志、audit/logs、OTel、成本预算 | 仓库级持续 AI、定时审计、受控 PR/Issue 自动化 |
 | LangGraph | 显式 graph/state + 条件边/函数式入口 | 中高 | 每步 checkpoint、interrupt、replay/fork；Graph API 在节点边界恢复 | interrupt/HITL，权限需应用层补齐 | LangSmith tracing/eval 生态 | 状态化 agent 图与可检查执行 |
 | Temporal | 确定性 Workflow + Activities + event history | 中；模型动态决策需封装为 Activity/数据 | 确定性 replay、默认 Activity retry、长时 timers/signals | 人工等待可建模；权限策略需应用层实现 | Event History、Visibility、OTel 集成 | 最强的业务级 durable execution 外壳 |
-| Google ADK 2.0 | graph、语言原生 dynamic workflow、agent nodes | 高 | dynamic node 自动 checkpoint；恢复时跳过成功子节点 | human input、tool confirmation、callbacks | logging、tracing、eval | “代码控制流 + agent 节点”的新桥接层 |
+| Google ADK 2.x | graph、语言原生 dynamic workflow、agent nodes | 高 | dynamic node 自动 checkpoint；恢复时跳过成功子节点；2.5 扩展节点级恢复 | human input、tool confirmation、callbacks | logging、tracing、eval | “代码控制流 + agent 节点”的新桥接层 |
 | OpenAI Agents SDK | Runner loop、handoffs、agents-as-tools | 高 | session 是对话记忆；`RunState` 支持审批暂停/序列化/恢复 | tool approval、input/output/tool guardrails | 内建 tracing，与 eval 平台衔接 | 轻量多 agent loop 与 HITL |
 | AutoGen AgentChat/Core | 群聊、selector、swarm、event runtime | 高 | agent/team `save_state`/`load_state`；运行中保存可能不一致 | UserProxy/Handoff、终止条件 | logging、OpenTelemetry | 多 agent 协作实验与消息型运行时 |
+| Microsoft Agent Framework | 类型化 graph/functional/declarative workflow + agent | 中高 | 标准 checkpoint；Durable Extension 基于 Durable Task 跨 worker 恢复 | RequestPort、ToolApprovalMiddleware、HITL | workflow events、OTel、Durable Task dashboard | 微软技术栈中的状态化 agent 与 durable workflow |
 | Semantic Kernel | sequential/concurrent/handoff/group chat/magentic | 中高 | 旧 orchestration 不是 durable engine | callbacks/企业集成，具体策略自行实现 | OTel logs/metrics/traces | 既有 SK 项目；新项目应评估其继任者 |
+
+### GitHub Agentic Workflows：把自然语言代理编译进确定性 CI 控制面
+
+GitHub Agentic Workflows（`gh-aw`）把 Markdown 中的触发条件、权限、工具、预算和自然语言任务编译成锁定的 `.lock.yml` GitHub Actions 工作流；Markdown 是可编辑源，编译产物才是实际执行的安全加固计划。运行时可以选择 Copilot、Claude Code、Codex 等 agent，但 agent 只能在已编译的容器、工具 allowlist、网络出口和权限边界中动态决策。[官方事实；来源：GitHub Agentic Workflows《How They Work》](https://github.github.com/gh-aw/introduction/how-they-work/)
+
+它最值得复用的机制是把“模型建议的副作用”和“真正提交副作用”分成两个阶段：
+
+1. agent 使用只读 GitHub 权限，把创建 PR、评论、Issue 等意图写成 artifact；
+2. SafeOutputs 在独立阶段按声明的输出类型、数量上限、patch 大小、受保护文件和策略做确定性过滤；
+3. 凭据只进入后续写出 job，过滤后的动作才触达 GitHub API。
+
+[官方事实；来源：Security Architecture](https://github.github.com/gh-aw/introduction/architecture/)、[Safe Outputs](https://github.github.com/gh-aw/reference/safe-outputs/)
+
+编译期还会做 schema 校验、GitHub Actions 表达式 allowlist 和 action SHA 固定。2026-07-23 发布的 v0.83.1 进一步把 Grype 容器漏洞扫描、Syft SBOM、Grant 许可证审计和 YAML lint 纳入编译安全管线。[官方事实；来源：gh-aw v0.83.1 release](https://github.com/github/gh-aw/releases/tag/v0.83.1)
+
+**本文推断：** `gh-aw` 是“模型动态决策 + 确定性外壳”的一个非常完整的仓库级实例：自然语言负责判断，Actions 负责触发和阶段，编译器负责静态边界，SafeOutputs 负责副作用提交。但其公开文档没有把跨 run replay、外部副作用幂等或补偿定义成通用 durable execution 协议；`max`、标题去重和 PR 保护能缩小风险，不能替代业务幂等键与执行账本。
 
 ### LangGraph：agent-native 的显式状态与 checkpoint
 
@@ -304,7 +334,7 @@ Activity 默认按声明式 Retry Policy 指数退避重试，Workflow 默认不
 
 **本文推断：** 当 agent 要跨小时或天运行，并会触达钱、库存、发布、工单等真实业务状态时，Temporal 更适合作为 agent runtime 外面的“可靠骨架”，而不是让 LLM 本身承担恢复协议。
 
-### Google ADK 2.0：当前最值得跟踪的桥接方案
+### Google ADK 2.x：当前最值得跟踪的桥接方案
 
 Google ADK 2.0 的 Dynamic Workflows 支持 Python 与 Go。它允许用 `while`、条件、递归、`async/await` 等普通语言结构组织 node，而不是把所有复杂路径硬塞进静态图；同时会跟踪每个 node 执行，恢复时自动跳过已成功子节点。[官方事实；来源：ADK Dynamic Workflows](https://adk.dev/graphs/dynamic/)
 
@@ -312,7 +342,9 @@ Google ADK 2.0 的 Dynamic Workflows 支持 Python 与 Go。它允许用 `while`
 
 ADK 早期的 resumability 文档同时明确警告：工具在恢复时是 at-least-once，可能执行多次；对购买等重复有害的工具，调用者必须自行去重。修改已经暂停的 workflow 后再 resume 也不受支持。[官方事实；来源：ADK Resume Agents](https://adk.dev/runtime/resume/)
 
-**本文推断：** ADK 2.0 正在填补 LangGraph 的图式可检查性和 Temporal 的语言原生 durable orchestration 之间的空档，但仍需验证生产存储、版本迁移、并发恢复、补偿与运维工具是否达到关键业务要求。
+ADK 2.5.0 把恢复和输入边界又向前推进了一步：为 standalone node 与 `NodeTool` 增加 HITL resume，为 task-mode agent workflow node 增加基于状态的 resume，并为 `LlmAgent` workflow node 增加严格输入 schema 校验；同一版本还阻止伪造 continuation 和在 resumable mode 中由用户构造 function call 绕过模型边界。[官方事实；来源：Google ADK 2.5.0 release](https://github.com/google/adk-python/releases/tag/v2.5.0)
+
+**本文推断：** ADK 2.x 正在填补 LangGraph 的图式可检查性和 Temporal 的语言原生 durable orchestration 之间的空档；2.5.0 说明其 checkpoint 已开始与 HITL、类型边界和恢复安全联动，但仍需验证生产存储、版本迁移、并发恢复、补偿与运维工具是否达到关键业务要求。
 
 ### OpenAI Agents SDK：轻量 loop 很完整，durability 边界要看清
 
@@ -329,6 +361,14 @@ AutoGen 的 `SelectorGroupChat` 可由模型动态选择下一位 speaker，`Swa
 `GraphFlow` 提供顺序、并行、条件和循环，但官方仍标为 experimental。Agent/team 可 `save_state`/`load_state`，然而官方 API 警告：团队运行中保存可能得到不一致状态。[官方事实；来源：GraphFlow](https://microsoft.github.io/autogen/stable/user-guide/agentchat-user-guide/graph-flow.html)、[Teams API](https://microsoft.github.io/autogen/stable/reference/python/autogen_agentchat.teams.html)
 
 **本文推断：** AutoGen 适合研究 agent 之间如何协作，不应仅因“能保存状态”就被当作 durable workflow engine。
+
+### Microsoft Agent Framework：把类型化 workflow 接到 Durable Task
+
+Microsoft Agent Framework 同时提供 graph、functional 和 declarative workflow：graph 以 superstep 执行类型化 executor 与条件边，Functional API 在 `@step` 边界缓存结果，二者都暴露事件、HITL 和 checkpoint。标准 checkpoint 用于在 Agent Framework runtime 内恢复；Durable Extension 则把 agent session 和 graph workflow 接到 Durable Task，使进度可跨进程、重启和分布式 worker 恢复，并能在等待人工输入时释放计算资源。[官方事实；来源：Agent Framework Workflows](https://learn.microsoft.com/en-us/agent-framework/workflows/)、[Durable Extension](https://learn.microsoft.com/en-us/agent-framework/integrations/durable-extension)
+
+2026-07-21 的 Python 1.12.0 将 declarative workflows、`ToolApprovalMiddleware`、harness agent 的 mode/todo provider 提升为 stable，并为 Durable Task workflow 内部产生的 HITL 请求加入 response URL；同一版本还修复了 checkpoint 编码一致性，并将 harness 的文件访问改为 opt-in。[官方事实；来源：Microsoft Agent Framework Python 1.12.0 release](https://github.com/microsoft/agent-framework/releases/tag/python-1.12.0)
+
+**本文推断：** 这使先前“新项目应评估 Agent Framework”的建议变得更具体：它已经不是 Semantic Kernel 的概念性继任路线，而是一个将类型化 agent graph、审批中间件、声明式工作流和 Durable Task 分层组合的生产候选。仍要确认 Activity/工具副作用的幂等、版本迁移和 Durable Task 后端运维边界，不能因为“completed steps 不重跑”就推导出外部 exactly-once。
 
 ### Semantic Kernel：需要把历史能力与当前产品路线分开
 
@@ -594,15 +634,20 @@ async def run(run_id: str):
 
 ### 如果你需要可检查的状态化 agent 流程
 
-优先评估 LangGraph 或 Google ADK 2.0：
+优先评估 LangGraph、Google ADK 2.x 或 Microsoft Agent Framework：
 
 - 图结构清晰、需要 time travel/interrupt：LangGraph；
-- 希望用普通语言的循环/递归写动态编排，又要自动跳过已成功子节点：ADK 2.0 Dynamic Workflows；
-- 两者都要额外补齐业务幂等、权限和版本迁移策略。
+- 希望用普通语言的循环/递归写动态编排，又要自动跳过已成功子节点：ADK Dynamic Workflows；
+- 已在微软技术栈内，需要类型化 graph、声明式 workflow、HITL 和 Durable Task 的一体化路径：Microsoft Agent Framework；
+- 三者都要额外补齐业务幂等、权限和版本迁移策略。
+
+### 如果你要在 GitHub 仓库中持续运行 agent
+
+优先评估 GitHub Agentic Workflows。它把 trigger、只读权限、沙箱、网络出口、写出类型和数量上限编译进 Actions 控制面，适合定时审计、Issue/PR 分类、文档维护和受控修复。对跨系统写入或不可逆动作，仍应在 SafeOutputs 之后接业务执行账本、审批和幂等网关。
 
 ### 如果你需要跨天执行并修改关键业务状态
 
-用 Temporal 一类 durable engine 做外层，把 LLM 决策当作 Activity 的结果，把真实动作也放在可审计 Activity 中。不要让 agent framework 单独承担订单、付款、发布等恢复责任。
+用 Temporal 一类 durable engine 做外层，把 LLM 决策当作 Activity 的结果，把真实动作也放在可审计 Activity 中；微软栈也可评估 Agent Framework Durable Extension，但要用同样的副作用标准核验。不要让 agent framework 单独承担订单、付款、发布等恢复责任。
 
 ### 如果你主要研究多 agent 协作
 
@@ -612,7 +657,7 @@ AutoGen 的 selector、swarm、GraphFlow 很有表达力，但应把生产恢复
 
 以下结论尚不能只靠文档回答，需要原型或故障注入：
 
-1. ADK 2.0 Dynamic Workflows 在数据库持久层、多 worker 并发恢复时，node activation 的去重键和一致性边界是什么？
+1. ADK 2.x Dynamic Workflows 在数据库持久层、多 worker 并发恢复时，node activation 的去重键和一致性边界是什么？
 2. ADK 动态 workflow 在代码升级、node 重命名、循环体改变后，是否有可操作的版本迁移策略？
 3. LangGraph Graph API、Functional API 与 Temporal 嵌套时，哪一层拥有重试权最不容易产生“重试放大”？
 4. OpenAI `RunState` 除 HITL 外，面对进程在普通工具调用中途崩溃时能恢复到什么粒度？
@@ -622,8 +667,18 @@ AutoGen 的 selector、swarm、GraphFlow 很有表达力，但应把生产恢复
 8. 何种粒度的 checkpoint 在恢复成本、存储成本和副作用风险之间最优？
 9. “工具端幂等”无法实现时，哪些动作应直接升级为人工事务，而不是自动补偿？
 10. 如何用 capability token 把一次授权限制到 `run_id + resource + operation + expiry`，并让 subagent 只能进一步收窄、不能扩大权限？
+11. GitHub Agentic Workflows 的 SafeOutputs 在 Actions job 被取消、写出结果未知或 workflow rerun 时，哪些操作具备稳定去重语义？
+12. Agent Framework 标准 checkpoint 与 Durable Extension 嵌套时，哪一层拥有重试权，如何避免 agent/tool 的重试放大？
 
 ## 十、更新记录
+
+### 2026-07-24：补入编译式控制面与 Durable Task 路线
+
+- 新增 GitHub Agentic Workflows：明确 Markdown 意图、编译后的 Actions 计划、只读 agent、SafeOutputs 分阶段提交和编译期安全检查的组合，并纳入 7 月 23 日 v0.83.1 的供应链扫描能力。
+- 修正 Claude Code 的预算边界：补入 subagent 默认并发上限、默认禁止嵌套派生，以及预算耗尽时停止后台 subagent。
+- 将 Google ADK 跟踪基线推进到 2.5.0，补入节点级 HITL/state resume、严格输入 schema 与 continuation 防伪。
+- 将 Microsoft Agent Framework 从“待评估继任者”升级为独立方案，区分 runtime checkpoint 与基于 Durable Task 的跨 worker durable execution。
+- 纳入两篇 7 月 24 日新上架预印本：将稳定记忆从“存储”扩展为 harness 主动投递，并用 GuardianAgentBench 补强执行期 guardrail、工具面与深度预算的证据；同时明确其未同行评审边界。
 
 ### 2026-07-23：建立首版基线
 
@@ -637,6 +692,11 @@ AutoGen 的 selector、swarm、GraphFlow 很有表达力，但应把生产恢复
 
 ## 一手来源
 
+### 新论文
+
+- [Delivery, Not Storage: Cue-Anchored Working Memory as a Harness Property for Coding Agents](https://arxiv.org/abs/2607.20972)
+- [GuardianAgentBench: Where Agents Fail and How to Guard Them](https://arxiv.org/abs/2607.20982)
+
 ### Anthropic / Claude Code
 
 - [Building effective agents](https://www.anthropic.com/engineering/building-effective-agents)
@@ -649,12 +709,21 @@ AutoGen 的 selector、swarm、GraphFlow 很有表达力，但应把生产恢复
 - [Worktrees](https://code.claude.com/docs/en/worktrees)
 - [CLI reference](https://code.claude.com/docs/en/cli-usage)
 - [Monitoring with OpenTelemetry](https://code.claude.com/docs/en/monitoring-usage)
+- [Claude Code 2.1.217 release](https://github.com/anthropics/claude-code/releases/tag/v2.1.217)
 - [Effective harnesses for long-running agents](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents)
 - [Harness design for long-running application development](https://www.anthropic.com/engineering/harness-design-long-running-apps)
 - [Scaling Managed Agents: Decoupling the brain from the hands](https://www.anthropic.com/engineering/managed-agents)
 - [Beyond permission prompts: making Claude Code more secure and autonomous](https://www.anthropic.com/engineering/claude-code-sandboxing)
 - [How we contain Claude across products](https://www.anthropic.com/engineering/how-we-contain-claude)
 - [Demystifying evals for AI agents](https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents)
+
+### GitHub Agentic Workflows
+
+- [How They Work](https://github.github.com/gh-aw/introduction/how-they-work/)
+- [Security Architecture](https://github.github.com/gh-aw/introduction/architecture/)
+- [Safe Outputs](https://github.github.com/gh-aw/reference/safe-outputs/)
+- [GitHub Tools Read Permissions](https://github.github.com/gh-aw/reference/permissions/)
+- [gh-aw v0.83.1 release](https://github.com/github/gh-aw/releases/tag/v0.83.1)
 
 ### LangGraph
 
@@ -678,6 +747,7 @@ AutoGen 的 selector、swarm、GraphFlow 很有表达力，但应把生产恢复
 - [Action confirmations](https://adk.dev/tools-custom/confirmation/)
 - [Evaluation](https://adk.dev/evaluate/)
 - [Google ADK Python repository](https://github.com/google/adk-python)
+- [Google ADK 2.5.0 release](https://github.com/google/adk-python/releases/tag/v2.5.0)
 
 ### OpenAI Agents SDK
 
@@ -689,12 +759,16 @@ AutoGen 的 selector、swarm、GraphFlow 很有表达力，但应把生产恢复
 - [Guardrails](https://openai.github.io/openai-agents-python/guardrails/)
 - [Tracing](https://openai.github.io/openai-agents-python/tracing/)
 
-### AutoGen / Semantic Kernel
+### AutoGen / Microsoft Agent Framework / Semantic Kernel
 
 - [AutoGen Selector Group Chat](https://microsoft.github.io/autogen/stable/user-guide/agentchat-user-guide/selector-group-chat.html)
 - [AutoGen GraphFlow](https://microsoft.github.io/autogen/stable/user-guide/agentchat-user-guide/graph-flow.html)
 - [AutoGen Termination](https://microsoft.github.io/autogen/stable/user-guide/agentchat-user-guide/tutorial/termination.html)
 - [AutoGen Tracing and Observability](https://microsoft.github.io/autogen/stable/user-guide/agentchat-user-guide/tracing.html)
+- [Microsoft Agent Framework Workflows](https://learn.microsoft.com/en-us/agent-framework/workflows/)
+- [Microsoft Agent Framework Durable Extension](https://learn.microsoft.com/en-us/agent-framework/integrations/durable-extension)
+- [Declarative Workflows](https://learn.microsoft.com/en-us/agent-framework/workflows/declarative)
+- [Microsoft Agent Framework Python 1.12.0 release](https://github.com/microsoft/agent-framework/releases/tag/python-1.12.0)
 - [Semantic Kernel Agent Orchestration](https://learn.microsoft.com/en-us/semantic-kernel/frameworks/agent/agent-orchestration/)
 - [Semantic Kernel Observability](https://learn.microsoft.com/en-us/semantic-kernel/concepts/enterprise-readiness/observability/)
 - [Semantic Kernel official repository](https://github.com/microsoft/semantic-kernel)
