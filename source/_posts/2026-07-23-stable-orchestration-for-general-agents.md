@@ -1,7 +1,7 @@
 ---
 title: "在松散智能体中寻找稳定控制：调度与动态工作流方案追踪"
 date: 2026-07-23 10:30:00
-updated: 2026-07-24 10:41:00
+updated: 2026-07-26 11:10:33
 categories:
   - 智能体工程
 tags:
@@ -314,6 +314,8 @@ GitHub Agentic Workflows（`gh-aw`）把 Markdown 中的触发条件、权限、
 
 编译期还会做 schema 校验、GitHub Actions 表达式 allowlist 和 action SHA 固定。2026-07-23 发布的 v0.83.1 进一步把 Grype 容器漏洞扫描、Syft SBOM、Grant 许可证审计和 YAML lint 纳入编译安全管线。[官方事实；来源：gh-aw v0.83.1 release](https://github.com/github/gh-aw/releases/tag/v0.83.1)
 
+2026-07-25 发布的 v0.83.3 预发布版又在 `gh aw update` 后加入 `actions-lock` 终态校验：检查 action 是否为 40 字符 commit SHA、map key 是否与 `repo@version` 一致、version 是否解析到已存 SHA、commit 是否真实存在，以及容器 pin 是否为合法 digest 且 `pinned_image` 自洽；不满足时让更新失败，而不是把畸形锁文件留到 Actions 执行期才暴露。网络或认证失败的在线核验会被跳过，因此它提高的是更新后的 fail-closed 完整性，不应被描述为离线可证明的供应链真实性。[官方事实；预发布；来源：gh-aw v0.83.3 release](https://github.com/github/gh-aw/releases/tag/v0.83.3)、[合并实现 #47959](https://github.com/github/gh-aw/pull/47959)
+
 **本文推断：** `gh-aw` 是“模型动态决策 + 确定性外壳”的一个非常完整的仓库级实例：自然语言负责判断，Actions 负责触发和阶段，编译器负责静态边界，SafeOutputs 负责副作用提交。但其公开文档没有把跨 run replay、外部副作用幂等或补偿定义成通用 durable execution 协议；`max`、标题去重和 PR 保护能缩小风险，不能替代业务幂等键与执行账本。
 
 ### LangGraph：agent-native 的显式状态与 checkpoint
@@ -333,6 +335,14 @@ Temporal 通过 Event History 重放 Workflow；发生故障时从最后记录�
 Activity 默认按声明式 Retry Policy 指数退避重试，Workflow 默认不整体重试。Temporal 的保证不是神奇的“外部世界 exactly-once”，所以支付、发布、发信等 Activity 仍必须使用业务幂等键，必要时用 Saga/补偿动作恢复业务一致性。[官方事实；来源：Temporal Retry Policies](https://docs.temporal.io/encyclopedia/retry-policies)、[Temporal Saga 技术指南](https://pages.temporal.io/rs/250-WIU-007/images/tech-guide-saga-pattern-made-easy.pdf)
 
 **本文推断：** 当 agent 要跨小时或天运行，并会触达钱、库存、发布、工单等真实业务状态时，Temporal 更适合作为 agent runtime 外面的“可靠骨架”，而不是让 LLM 本身承担恢复协议。
+
+### 跨框架实证：审批、取消与超时不天然构成副作用栅栏
+
+2026 年预印本《Stop Means Stop》用不调用模型的最小差分探针，测试了 LangGraph Python/JavaScript、LlamaIndex Workflows、Microsoft Agent Framework、OpenAI Agents SDK 与 CrewAI 的固定版本。作者报告：五个提供执行前审批门的实现都允许同一并行执行步中的 sibling effect 在审批等待期间落地，随后拒绝已无法阻止该副作用；不同框架还分别出现恢复重复执行、取消后孤儿动作和超时后 zombie effect。研究同时把 Temporal 作为对照：强制 history replay 没有重复 Activity，但等待 Signal 的审批分支不会自动暂停 sibling Activity；不发送 heartbeat 的阻塞 Activity 和超时 Activity 仍可能在调用方已观察到停止后提交外部效果。[一方主张；单作者、未同行评审预印本；来源：Stop Means Stop](https://arxiv.org/abs/2607.14166)
+
+论文提出的 SOUNDGATE 把修复点放到框架之外：所有副作用先提交给一个 effect gate，由它执行 `hold-until-decided`、拒绝粘滞、replay 去重和 cancel/timeout fencing。作者报告其在六个框架实现上的端到端探针中阻止了全部已测违规，并用 Verus、TLA+/TLC、TLAPS、Loom 与差分一致性测试提供验证证据；但这不是端到端形式化证明，结论严格依赖 **complete mediation**——任何未经过 gate 的网络、文件、IPC 或共享内存路径都可能绕过控制，跨阶段 API 的原子性与补偿也仍需另行设计。[一方主张与作者限定；来源：Stop Means Stop](https://arxiv.org/abs/2607.14166)
+
+**本文推断：** durable execution 解决“运行时怎样重建进度”，effect barrier 解决“停止信号之后什么还能触达外部世界”，两者正交。审批、`cancel()`、timeout 和 checkpoint 只有在副作用提交点具备完整中介、稳定动作身份与 fencing 时，才能升级为可依赖的安全语义。
 
 ### Google ADK 2.x：当前最值得跟踪的桥接方案
 
@@ -478,6 +488,18 @@ checkpoint 至少携带：
 
 恢复前先做兼容性检查，不要把旧状态静默塞给新流程。
 
+### 模式 9：把“停止”实现为副作用栅栏
+
+不要把审批、取消和超时只实现成调度器中的状态标志。对每个需要控制的副作用作用域，还应满足：
+
+1. 审批未决时，同一作用域内的写动作只能进入 `HELD`，不能触达外部提交点；
+2. 拒绝是粘滞状态，迟到或重放的 attempt 不能重新打开动作；
+3. 每个逻辑副作用都有稳定身份，resume 只能复用 receipt 或被判重；
+4. cancel/timeout 推进 run epoch 或 fencing token，旧 worker 即使继续运行也不能提交；
+5. 工具进程没有绕过 gate 的网络、文件、IPC 或共享内存出口。
+
+这里的关键不是暂停所有计算。只读 sibling 可以继续，真正需要被栅住的是外部效果；如果读取结果可能在长审批期间过期，还要在释放动作前重新校验业务前置条件。
+
 ## 六、参考架构与最小实现
 
 ### 参考架构
@@ -501,7 +523,7 @@ Policy Engine ----> Human Approval Queue
 Durable Orchestrator <---- event log / checkpoints / timers
         |
         v
-Side-effect Gateway ---- idempotency / retry / reconcile / compensation
+Side-effect Gateway ---- hold / idempotency / fencing / reconcile / compensation
         |
         v
 Sandboxed Tools / Agents / External APIs
@@ -611,6 +633,8 @@ async def run(run_id: str):
 
 不充分。高频弹窗会造成疲劳，审批者也可能无法理解真实影响。硬权限、sandbox、凭据隔离和网络出口控制应先缩小 blast radius，人工只处理少量高价值决策。
 
+更隐蔽的错误是把“某个分支正在等待审批”理解成“整个审批作用域的副作用都已暂停”。并行 sibling 可能在等待期间提交，取消或超时也可能只停止调用方等待，无法撤回正在 worker thread、Promise 或远端 API 中执行的动作。审批系统必须在 effect commit point 设 barrier，并用 fencing 拒绝迟到结果；否则人类点击“拒绝”时可能已经太晚。
+
 ### 7. “replay 会复现原来的模型结果”
 
 通常不会。Temporal 通过历史事件确定性重建 Workflow，而 LLM/API 放在不重放的 Activity 中；LangGraph time travel 则会重新执行 checkpoint 之后的 LLM/API 节点，可能产生不同结果。必须先理解框架的 replay 单位。
@@ -669,8 +693,16 @@ AutoGen 的 selector、swarm、GraphFlow 很有表达力，但应把生产恢复
 10. 如何用 capability token 把一次授权限制到 `run_id + resource + operation + expiry`，并让 subagent 只能进一步收窄、不能扩大权限？
 11. GitHub Agentic Workflows 的 SafeOutputs 在 Actions job 被取消、写出结果未知或 workflow rerun 时，哪些操作具备稳定去重语义？
 12. Agent Framework 标准 checkpoint 与 Durable Extension 嵌套时，哪一层拥有重试权，如何避免 agent/tool 的重试放大？
+13. 对包含网络、文件、IPC、共享内存与多阶段 API 的真实工具，怎样证明 complete mediation，而不是只靠 wrapper 约定？effect gate 的高可用、决策认证和跨阶段补偿应由哪一层承担？
 
 ## 十、更新记录
+
+### 2026-07-26：补入副作用栅栏与停止语义实证
+
+- 纳入《Stop Means Stop》的跨框架差分探针：审批等待可能泄漏并行 sibling effect，取消与超时也可能留下孤儿或 zombie 副作用。
+- 修正“durable execution 足以承载停止语义”的潜在误读：Temporal 的 history replay 能避免该实验中的重复 Activity，但不自动提供审批分支的全局 effect barrier。
+- 增加外部 effect gate 控制模式：`hold-until-decided`、拒绝粘滞、replay 去重、cancel/timeout fencing，并明确 complete mediation、跨阶段原子性与补偿边界。
+- 跟进 gh-aw v0.83.3 预发布版：将 `actions-lock` 的 SHA、key/ref、commit 存在性和容器 digest 自洽性校验放到 update 终态，补强编译式控制面的供应链不变量。
 
 ### 2026-07-24：补入编译式控制面与 Durable Task 路线
 
@@ -694,6 +726,7 @@ AutoGen 的 selector、swarm、GraphFlow 很有表达力，但应把生产恢复
 
 ### 新论文
 
+- [Stop Means Stop: Measuring and Repairing the Enforcement Gap in Agent-Framework Control Primitives](https://arxiv.org/abs/2607.14166)
 - [Delivery, Not Storage: Cue-Anchored Working Memory as a Harness Property for Coding Agents](https://arxiv.org/abs/2607.20972)
 - [GuardianAgentBench: Where Agents Fail and How to Guard Them](https://arxiv.org/abs/2607.20982)
 
@@ -724,6 +757,8 @@ AutoGen 的 selector、swarm、GraphFlow 很有表达力，但应把生产恢复
 - [Safe Outputs](https://github.github.com/gh-aw/reference/safe-outputs/)
 - [GitHub Tools Read Permissions](https://github.github.com/gh-aw/reference/permissions/)
 - [gh-aw v0.83.1 release](https://github.com/github/gh-aw/releases/tag/v0.83.1)
+- [gh-aw v0.83.3 pre-release](https://github.com/github/gh-aw/releases/tag/v0.83.3)
+- [Post-update SHA integrity validation implementation](https://github.com/github/gh-aw/pull/47959)
 
 ### LangGraph
 
