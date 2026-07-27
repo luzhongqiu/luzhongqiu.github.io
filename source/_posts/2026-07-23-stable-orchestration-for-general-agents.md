@@ -1,7 +1,7 @@
 ---
 title: "在松散智能体中寻找稳定控制：调度与动态工作流方案追踪"
 date: 2026-07-23 10:30:00
-updated: 2026-07-26 11:10:33
+updated: 2026-07-27 10:41:40
 categories:
   - 智能体工程
 tags:
@@ -295,7 +295,7 @@ Anthropic 的长时 coding harness 实验发现，仅靠 compaction 不足以让
 | LangGraph | 显式 graph/state + 条件边/函数式入口 | 中高 | 每步 checkpoint、interrupt、replay/fork；Graph API 在节点边界恢复 | interrupt/HITL，权限需应用层补齐 | LangSmith tracing/eval 生态 | 状态化 agent 图与可检查执行 |
 | Temporal | 确定性 Workflow + Activities + event history | 中；模型动态决策需封装为 Activity/数据 | 确定性 replay、默认 Activity retry、长时 timers/signals | 人工等待可建模；权限策略需应用层实现 | Event History、Visibility、OTel 集成 | 最强的业务级 durable execution 外壳 |
 | Google ADK 2.x | graph、语言原生 dynamic workflow、agent nodes | 高 | dynamic node 自动 checkpoint；恢复时跳过成功子节点；2.5 扩展节点级恢复 | human input、tool confirmation、callbacks | logging、tracing、eval | “代码控制流 + agent 节点”的新桥接层 |
-| OpenAI Agents SDK | Runner loop、handoffs、agents-as-tools | 高 | session 是对话记忆；`RunState` 支持审批暂停/序列化/恢复 | tool approval、input/output/tool guardrails | 内建 tracing，与 eval 平台衔接 | 轻量多 agent loop 与 HITL |
+| OpenAI Agents SDK | Runner loop、handoffs、agents-as-tools、Sandbox Agents | 高 | session 保存对话；`RunState` 恢复 harness；sandbox session/snapshot 恢复或重建工作区 | tool approval、input/output/tool guardrails、sandbox 隔离 | 内建 tracing，与 eval 平台衔接 | 轻量多 agent loop、HITL 与可恢复执行工作区 |
 | AutoGen AgentChat/Core | 群聊、selector、swarm、event runtime | 高 | agent/team `save_state`/`load_state`；运行中保存可能不一致 | UserProxy/Handoff、终止条件 | logging、OpenTelemetry | 多 agent 协作实验与消息型运行时 |
 | Microsoft Agent Framework | 类型化 graph/functional/declarative workflow + agent | 中高 | 标准 checkpoint；Durable Extension 基于 Durable Task 跨 worker 恢复 | RequestPort、ToolApprovalMiddleware、HITL | workflow events、OTel、Durable Task dashboard | 微软技术栈中的状态化 agent 与 durable workflow |
 | Semantic Kernel | sequential/concurrent/handoff/group chat/magentic | 中高 | 旧 orchestration 不是 durable engine | callbacks/企业集成，具体策略自行实现 | OTel logs/metrics/traces | 既有 SK 项目；新项目应评估其继任者 |
@@ -356,13 +356,19 @@ ADK 2.5.0 把恢复和输入边界又向前推进了一步：为 standalone node
 
 **本文推断：** ADK 2.x 正在填补 LangGraph 的图式可检查性和 Temporal 的语言原生 durable orchestration 之间的空档；2.5.0 说明其 checkpoint 已开始与 HITL、类型边界和恢复安全联动，但仍需验证生产存储、版本迁移、并发恢复、补偿与运维工具是否达到关键业务要求。
 
-### OpenAI Agents SDK：轻量 loop 很完整，durability 边界要看清
+### OpenAI Agents SDK：harness 与 sandbox 已分层，仍不是业务级 durable engine
 
 OpenAI Agents SDK 的 Runner 执行“模型调用—工具/交接—再调用”的循环，并通过 `max_turns` 停止过长 run；Agent 可声明 handoffs、structured `output_type` 和 guardrails。[官方事实；来源：Running agents](https://openai.github.io/openai-agents-python/running_agents/)、[Agents](https://openai.github.io/openai-agents-python/agents/)
 
 Sessions 负责跨 run 保存对话历史，不是通用 workflow checkpoint。HITL 的 `RunState` 则可序列化到数据库或队列，在工具审批后恢复，是一个明确但范围有限的 durable pause/resume 边界。[官方事实；来源：Sessions](https://openai.github.io/openai-agents-python/sessions/)、[Human-in-the-loop](https://openai.github.io/openai-agents-python/human_in_the_loop/)
 
 SDK 默认追踪模型生成、工具、handoff 和 guardrail；tool guardrail 目前主要覆盖 `function_tool`，对 hosted tools、内建执行工具与 handoff 并非统一生效。[官方事实；来源：OpenAI Agents SDK Tracing](https://openai.github.io/openai-agents-python/tracing/)、[Guardrails](https://openai.github.io/openai-agents-python/guardrails/)
+
+2026 年 4 月发布的 Sandbox Agents 又增加了一层此前容易被忽略的恢复边界。官方把 harness 定义为模型外的控制面，持有 agent loop、模型调用、工具路由、handoff、审批、trace、恢复和 run state；sandbox 则是执行面，只负责文件、命令、依赖、挂载、端口和工作区快照。把凭据、审计、人工复核和恢复状态留在 sandbox 之外，也让丢失或过期的容器不必等于丢失整个 run。[官方事实；来源：OpenAI《The next evolution of the Agents SDK》](https://openai.com/index/the-next-evolution-of-the-agents-sdk/)、[Sandbox Agents](https://developers.openai.com/api/docs/guides/agents/sandboxes)
+
+官方文档明确要求区分三种状态：`RunState` 恢复模型项、工具状态、审批和当前 agent 位置；serialized sandbox session state 让具体 provider client 重连原工作区；snapshot 保存文件与产物，用来创建新的 sandbox。恢复优先复用 live session，其次读取 `RunState` 中的 sandbox session state，再次使用显式 serialized state，最后才按 manifest 或 snapshot 创建新环境。Sandbox Agents 目前仍是 beta，session resume 取决于 client/provider 是否实现对应能力；远程挂载也不会被复制进 snapshot。[官方事实；来源：Sandbox Agents](https://developers.openai.com/api/docs/guides/agents/sandboxes)
+
+**本文推断：** 这修正了把 OpenAI Agents SDK 仅视为“轻量 loop + HITL 序列化”的不完整判断：它已经具备 **harness 状态 + 执行工作区** 的双层恢复结构，适合长时文件型任务在容器失效后继续。但 snapshot 恢复的是工作区，不是 Temporal 式 event history；官方没有因此承诺普通工具调用的 replay 去重、外部副作用幂等、版本迁移、补偿或 exactly-once。对付款、发布、通知等业务动作，仍需要独立执行账本与副作用网关。
 
 ### AutoGen：强在协作拓扑，弱在默认持久化语义
 
@@ -697,6 +703,12 @@ AutoGen 的 selector、swarm、GraphFlow 很有表达力，但应把生产恢复
 
 ## 十、更新记录
 
+### 2026-07-27：补齐 OpenAI Agents SDK 的双层恢复边界
+
+- 纳入 Sandbox Agents：区分 harness 控制面与 sandbox 执行面，并把 `RunState`、serialized sandbox session state、snapshot 三类状态的恢复职责拆开。
+- 修正“Agents SDK 只有对话 session 与 HITL pause/resume”的不完整判断：它已能恢复 harness 并重连或重建执行工作区。
+- 同时明确限制：Sandbox Agents 仍为 beta，恢复依赖 provider/client；snapshot 不包含远程挂载，也不提供 event-history replay、外部副作用幂等、补偿或 exactly-once。
+
 ### 2026-07-26：补入副作用栅栏与停止语义实证
 
 - 纳入《Stop Means Stop》的跨框架差分探针：审批等待可能泄漏并行 sibling effect，取消与超时也可能留下孤儿或 zombie 副作用。
@@ -787,6 +799,9 @@ AutoGen 的 selector、swarm、GraphFlow 很有表达力，但应把生产恢复
 ### OpenAI Agents SDK
 
 - [Agents SDK Python](https://openai.github.io/openai-agents-python/)
+- [The next evolution of the Agents SDK](https://openai.com/index/the-next-evolution-of-the-agents-sdk/)
+- [Sandbox Agents](https://developers.openai.com/api/docs/guides/agents/sandboxes)
+- [OpenAI Agents SDK Python 0.14.0 release](https://github.com/openai/openai-agents-python/releases/tag/v0.14.0)
 - [Running agents](https://openai.github.io/openai-agents-python/running_agents/)
 - [Agents and structured outputs](https://openai.github.io/openai-agents-python/agents/)
 - [Human-in-the-loop and RunState](https://openai.github.io/openai-agents-python/human_in_the_loop/)
