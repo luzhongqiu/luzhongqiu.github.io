@@ -1,0 +1,461 @@
+---
+title: JEPA 下游研究追踪 · 2026-07-28
+date: 2026-07-28 10:00:00
+categories:
+  - JEPA研究追踪
+tags:
+  - JEPA
+  - JEPA追踪
+---
+
+> 本文属于「JEPA追踪」系列，记录每日论文检索、原文核验与阶段性判断；它保留研究日志的证据密度，与经过主题化重写的原创博客区分。
+
+# JEPA 下游研究追踪（2026-07-28）
+
+> 检索增量窗口：自上次运行 `2026-07-27T03:02:15.998Z` 起，至 2026-07-28 本次运行。
+>
+> 去重范围：自动化 memory，以及 `research/jepa/` 中 2026-07-15 至 2026-07-27 的全部既有记录；昨日已深读 PDE 控制（2607.21644）、Music-JEPA（2607.22000）与 IQ-JEPA（2607.22351），本日不重复汇报。
+>
+> 纳入标准：论文必须实际复用、改造或直接评估 JEPA，并进入明确下游任务；只在 related work 引用 JEPA 的工作不算。搜索索引只用于发现，实质性结论回到 arXiv 原文、作者官方代码仓或正式页面核验。
+>
+> 时间口径：两篇主稿的 arXiv v1 均在 2026-07-27 提交，且都晚于上次运行的 UTC 截止时间；因此属于本轮**严格新增**，不是历史回补。
+
+## 今日结论
+
+1. **今天确认 2 篇严格新增的机器人下游工作。** [LeapBot-WA](https://arxiv.org/abs/2607.23969) 于 2026-07-27 03:36:45 UTC 提交，比上次截止晚约 34 分钟；它从 V-JEPA 2.1 初始化 Predictive Anchor，并把预测 latent 接入 World Action Model。[τ](https://arxiv.org/abs/2607.24485) 于 2026-07-27 14:25:15 UTC 提交；它让当前触觉 latent 与后续动作预测未来视觉 latent 变化，再把学到的触觉表示接入 π0.5 做接触丰富操作。两篇都不只是 related-work 引用。
+2. **但两篇的 JEPA 血缘强度不同。** LeapBot-WA 是 V-JEPA 2.1 的直接下游改造：先在机器人轨迹上适配 JEPA，再以未来语义 latent 训练世界分支。τ 只引用 JEPA 的原始构想论文，自己也谨慎称为 “JEPA-style”；它实现了 predictor、detached latent target 和无像素重建，但没有 I-JEPA/V-JEPA/A-JEPA 的 context/target masking 或 EMA teacher。本文将 τ 归为**广义 JEPA-style 实际使用者**，不把它写成 I/V/A-JEPA 的直接后代。
+3. **LeapBot-WA 的强项是覆盖面，弱项是归因和复现。** 它在 RoboTwin 2.0 的平均成功率为 `91.46%`，LIBERO 为 `97.3%`，LIBERO-Plus 零样本扰动总成功率为 `73.1%`；后者高于 VLA-JEPA 的 `62.9%` 和 JEPA-VLA 的 `25.6%`，但仍低于 ImageWAM 的 `83.1%` 与 Cosmos-Policy 的 `82.2%`。[原始 PDF 的 Tables 1–3](https://arxiv.org/pdf/2607.23969) 同时改变了 V-JEPA 领域适配、ISAE、SIGReg、双 DiT 与训练目标，主表不能隔离“JEPA 本身”的净贡献。
+4. **τ 的强项是 matched ablation 和真机任务，弱项是样本规模与统计。** 在四项 Franka 真机任务上，最佳 wrist-supervision 版本的平均完整任务成功率为 `71.25%`，而最强基线 ForceVLA 为 `30.00%`；移除 JEPA-style predictive SSL 后，平均成功率降至 `51.25%`。不过每个模型每项任务只有 20 次试验，成功率分辨率为 5 个百分点，没有置信区间或训练种子。[原始 PDF 的 Tables 1–2](https://arxiv.org/pdf/2607.24485)
+5. **今天最重要的共同趋势是“训练时预测、部署时剪掉”。** LeapBot-WA 用 Anchor DiT 作为 privileged dynamics expert，推理时剪除；τ 的未来视觉 predictor 也只在训练时存在。JEPA predictor 正从部署期 planner 逐渐分化出另一种角色：它可以是训练期的表示塑形器或教师，不必成为上线系统的显式 rollout 模块。
+6. **原创博客价值排序：τ 高，LeapBot-WA 中高。** τ 适合写“未来视觉如何教会触觉理解接触”，因为它有清楚的 target/action 设计、真机 ablation 和明确反例；LeapBot-WA 适合写“为什么 V-JEPA latent 不能直接喂给 diffusion policy”，但应等待代码与更完整的 matched ablation，避免把整套系统优势全部归给 JEPA。
+
+| 论文 | 严格分类 | 下游任务 | 最强证据 | 主要边界 |
+|---|---|---|---|---|
+| LeapBot-WA | 直接复用并适配 V-JEPA 2.1 | LIBERO、RoboTwin 2.0、LIBERO-Plus、UR5 操作 | 多 benchmark；对 JEPA-VLA/VLA-JEPA 的扰动鲁棒性优势 | 系统变量多；真机仅定性；官方仓库仍是占位 |
+| τ | 广义 JEPA-style 实际使用，非 I/V/A-JEPA 直接后代 | 触觉增强 VLA；插入、盖章、擦除 | 真机任务；`w/o SSL` matched ablation | 400 条轨迹；20 trials/任务；只做同任务对象/场景变化 |
+
+## JEPA 方向最新进展
+
+### 1. 严格新增集中在机器人“训练期世界模型”
+
+本轮核查了 arXiv `cs.LG`、`cs.CV`、`cs.RO`、`cs.AI`、`eess.SP`、`eess.IV`、`cs.MM`、`cs.SD` 新论文列表，并用 JEPA、I-JEPA、V-JEPA/V-JEPA 2、A-JEPA、joint-embedding、predictive latent 与引用链交叉发现候选。截止线后最有价值的两篇都来自机器人方向：
+
+- [LeapBot-WA](https://arxiv.org/abs/2607.23969) 把 V-JEPA 2.1 适配成 World-Anchor，再通过 diffusion-friendly latent 与双 DiT 把世界动态蒸馏给 action branch；
+- [τ](https://arxiv.org/abs/2607.24485) 把未来视觉 feature change 作为触觉表示的 latent target，并在真实接触任务中联合训练动作策略。
+
+这不是简单的应用聚类。两篇都让预测分支在训练时提供未来信息，推理时却不再运行未来 rollout。相较 V-JEPA 2 action-conditioned planning、Demo-JEPA latent CEM 或昨日的 PDE-JEPA + MPPI，这是一条不同的系统路线：
+
+> JEPA 不一定直接负责测试时规划，也可以只负责把“哪些当前表示能预测后果”压入最终策略。
+
+### 2. 严格区分直接 JEPA、JEPA-style 与仅引用
+
+**LeapBot-WA：直接 JEPA 下游改造。**
+
+- 论文明确写明 Predictive Anchor 由 V-JEPA 2.1 初始化，并在机器人轨迹上做 LoRA 领域适配；
+- ISAE 重建和正则化的是冻结 JEPA feature，不是 RGB 像素；
+- Anchor DiT 学习未来语义 latent 的 flow matching，并可加 Smooth L1 future-latent target；
+- 下游是具体机器人策略与零样本视觉扰动，不是通用 feature probe。
+
+**τ：广义 JEPA-style 实际使用。**
+
+- predictor 读取当前触觉 token 与后续动作，预测多个时间偏移上的未来视觉 latent；
+- target 来自 π0.5 的视觉 encoder，并对 target 分支停止梯度；
+- 损失在 latent feature change 上做加权余弦对齐，不重建未来像素；
+- 但论文只引用 LeCun 等人的 JEPA 原始构想，没有继承 I-JEPA/V-JEPA/A-JEPA 的标准 encoder–predictor–EMA target/masking 配方。
+
+因此，τ 超过“仅受启发的一句话引用”门槛，却仍应标注为边界案例。它证明的是 **JEPA 原则可以作为接触策略的辅助表示目标**，不是“某个已预训练 JEPA backbone 在触觉上刷新 SOTA”。
+
+**没有纳入主解读的候选：**
+
+- [*On the Identifiability of Controlled World Models*](https://arxiv.org/abs/2607.22430) 已在昨日记录为核心理论进展；它没有新增具体下游系统，本日不重复。
+- [*The JEPA Paradox in Language: The Geometry of Linguistic Alternatives*](https://arxiv.org/abs/2607.23531) 在 7 月 28 日列表中首次公告，但 v1 实际提交于 2026-07-26 08:01:58 UTC，早于严格截止线；它用 matched I-JEPA/T-JEPA 诊断确定性 latent prediction 在多解文本上的 centroid degeneracy、collapse 与迁移退化，属于重要的 JEPA 目标边界研究，不是新的具体领域下游系统，因此只登记、不占主解读名额。
+- [*Multi-Horizon Consistency as Geometry: When Latent Dynamics Contract, and When They Do Not*](https://arxiv.org/abs/2607.21645) 研究多时域 latent consistency，并包含 WorldTest、MPC 等诊断，但论文没有建立对 I-JEPA/V-JEPA/A-JEPA 的实质复用链，也不是截止线后的新下游主稿，排除。
+- [*How Much MRI Preprocessing Is Enough?*](https://arxiv.org/abs/2606.08164) 在本轮以 replacement 进入列表；它确实比较 3D MRI 的 MAE 与 JEPA 并迁移到分类、脑龄和分割，但不是截止线后的新提交，留作版本审计，不与两篇严格新增混排。
+- `JEPA-VLA`、`VLA-JEPA` 是 LeapBot-WA 的历史基线，不是本轮新论文；未因出现在新稿表格中重复计作新增。
+- `seq-JEPA` 与 `JHU-VPT(JEPA)` 仍是高价值历史漏项，但今天已有两篇严格新增，不用历史回补凑数。
+- 本轮没有发现 A-JEPA/MJEPA 线在截止后出现同等可信的新下游主稿。
+
+### 3. 最新信号：predictor 正在成为 privileged training signal
+
+LeapBot-WA 与 τ 都把未来信息限制在训练期，但接口不同：
+
+1. LeapBot-WA 的未来分支看到语言意图和 proprioception，学习语义状态的生成轨迹；action branch 通过非对称 attention 读取它；
+2. τ 的 predictor 看到真实后续动作，用视觉未来 feature change 监督当前触觉表示；
+3. 部署时，两者都不再生成未来序列，只保留已经被预测目标塑形过的策略或当前语义 cache。
+
+这带来一个新的评测问题：当 predictor 被剪掉后，论文不能只报告“零额外推理开销”，还应证明被蒸馏的未来信息确实留在最终 action branch 中，并与更便宜的 auxiliary loss、knowledge distillation 或普通 temporal contrastive objective 比较。
+
+## 新增下游论文解读
+
+### 1. LeapBot-WA: World-Anchor Action Models via Predictive Latent Alignments
+
+#### 基本信息
+
+- 完整题目：*LeapBot-WA: World-Anchor Action Models via Predictive Latent Alignments*
+- 作者：Pei Liu、Nan Zheng、Lang Zhang、Daojie Peng、Yanan Zhang、Feilong Kong、Mingyue Feng、Jiachao Liu、Yaonong Wang、Qifeng Chen、Jun Ma
+- 机构：香港科技大学（广州）、香港科技大学、零跑汽车、东南大学
+- 时间与出处：arXiv:2607.23969 v1，2026-07-27 03:36:45 UTC 提交；当前为 `cs.RO` 预印本
+- 使用的 JEPA：以 V-JEPA 2.1 初始化并在机器人轨迹上 LoRA 适配的 Predictive Anchor
+- 下游任务：RoboTwin 2.0 双臂操作、LIBERO 多任务操作、LIBERO-Plus 零样本视觉扰动、UR5 真机 pick-and-place
+
+[arXiv 摘要与版本](https://arxiv.org/abs/2607.23969) · [原始 PDF](https://arxiv.org/pdf/2607.23969) · [论文声称的官方代码仓](https://github.com/LeapWM/leapbot-wa)
+
+#### 方法如何衔接 JEPA
+
+**可核对事实**
+
+LeapBot-WA 的表示入口不是通用 VLM feature，而是适配后的 V-JEPA 2.1：
+
+1. Predictive Anchor 先用机器人轨迹做 domain-adaptive LoRA fine-tuning；
+2. 冻结的 JEPA tokens 进入 Isotropic Semantic Autoencoder（ISAE），被压到 96 维 latent；
+3. ISAE 用 feature L2 + cosine reconstruction、KL 和 SIGReg，把高维、各向异性的 JEPA feature 整形成 diffusion-friendly Gaussian-like latent；
+4. Anchor DiT 在不读取低层动作 token 的条件下，根据语言与 proprioception 预测语义状态流；
+5. Action DiT 通过 asymmetric masked attention 读取 Anchor DiT 的语义 token，再生成动作；
+6. 推理时 Anchor DiT 被剪掉，系统只对当前观测计算一次语义 cache，Action DiT 从 cache 生成动作。
+
+<figure>
+  <img src="https://arxiv.org/html/2607.23969v1/Figures/main_wam2.jpg" alt="LeapBot-WA 的 V-JEPA 2.1 语义锚点、ISAE 与非对称双 DiT 架构" style="display:block;max-width:760px;width:100%;height:auto;margin:0 auto;" loading="lazy">
+  <figcaption>LeapBot-WA Figure 1：V-JEPA 2.1 先产生预测式语义 token，ISAE 再把它压到适合 diffusion 的 latent，训练期 Anchor DiT 把未来动态蒸馏给 Action DiT。图片来自 arXiv 官方 HTML 的压缩 JPEG，原图 1204×561、约 176 KiB；页面限制为 760 px 并 lazy-load，不在仓库重复保存。</figcaption>
+</figure>
+
+训练目标为 action velocity、semantic velocity 与可选 future latent Smooth L1 的加权和。两条 DiT 都有 30 个 Transformer block、隐藏维度 1664、24 个 attention head。[方法与实现见原始 PDF](https://arxiv.org/pdf/2607.23969)
+
+这里的 JEPA 使用强于“冻结 V-JEPA 2 做普通 feature extractor”：论文不但适配 backbone，还专门处理 predictive feature 与 diffusion prior 的分布失配，并在未来语义 latent 上训练 world branch。但最终动作收益来自 **V-JEPA 适配 + ISAE + SIGReg + Anchor/Action 双 DiT + asymmetric distillation** 的组合。
+
+#### 数据、指标、基线与关键结果
+
+**RoboTwin 2.0**
+
+- 50 个双臂任务；
+- 训练使用 27.5K 条 clean + randomized demonstrations；
+- 指标是 clean、randomized 与二者平均成功率；
+- 基线包括 π0/π0.5、X-VLA、ABot-M0、Qwen-VLA、Fast-WAM、Being-H0.7、Lingbot-VA 与 JEPA-VLA。
+
+| 方法 | Embodied 预训练 | Clean ↑ | Randomized ↑ | 平均 ↑ |
+|---|---:|---:|---:|---:|
+| JEPA-VLA | 否 | 73.50 | 17.70 | 45.60 |
+| Fast-WAM | 否 | 91.90 | 91.80 | **91.85** |
+| Lingbot-VA | 是 | 92.93 | 91.55 | 92.24 |
+| LeapBot-WA | 否 | 90.58 | **92.34** | 91.46 |
+
+LeapBot-WA 的 randomized 分数突出，但平均值略低于 Fast-WAM，也低于带 embodied pretraining 的 Lingbot-VA。论文把“无需大规模轨迹预训练”作为卖点，值得关注，但不同模型的预训练数据、骨干和策略 head 并不匹配。[Table 1](https://arxiv.org/pdf/2607.23969)
+
+**LIBERO**
+
+论文在 Spatial、Object、Goal、LIBERO-10 共 40 个任务上训练，并汇总 2,000 个 evaluation episodes：
+
+| 方法 | 类型 | 平均成功率 ↑ |
+|---|---|---:|
+| PALM | predictive | 94.5 |
+| VLA-JEPA | predictive | 96.1 |
+| JEPA-VLA | predictive | 96.4 |
+| LeapBot-WA | predictive | **97.3** |
+| ImageWAM | generative | 98.4 |
+| Being-H0.7 | generative | 99.2 |
+
+LeapBot-WA 是表内 predictive WAM 最好，但不是整体最好；相对 JEPA-VLA 只高 0.9 个百分点，不能在没有误差条的情况下写成稳定的大幅领先。[Table 2](https://arxiv.org/pdf/2607.23969)
+
+**LIBERO-Plus 零样本扰动**
+
+| 方法 | Camera | Robot | Language | Light | Background | Noise | Layout | Total |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| JEPA-VLA | 0.4 | 25.7 | 54.4 | 38.0 | 23.9 | 4.1 | 32.8 | 25.6 |
+| VLA-JEPA | 40.3 | 55.7 | 72.9 | 88.2 | 70.5 | 38.2 | 74.6 | 62.9 |
+| LeapBot-WA | 33.8 | **75.1** | **87.8** | 93.4 | **90.1** | 54.7 | 76.7 | **73.1** |
+| Cosmos-Policy | 75.8 | 63.3 | 81.7 | 96.5 | 88.9 | 92.7 | 82.2 | 82.2 |
+| ImageWAM | 80.8 | 50.3 | 91.4 | 98.1 | 85.5 | 93.8 | 80.5 | 83.1 |
+
+LeapBot-WA 显著缩小 predictive 与 generative WAM 的鲁棒性差距，特别是 robot/background 变化；但 camera 与 noise 仍明显落后 generative models，Total 也不是 SOTA。[Table 3](https://arxiv.org/pdf/2607.23969)
+
+**组件实验**
+
+- mixed-domain pretraining 将 dynamics probe MSE 从 `4.96×10⁻³` 降到 `3.08×10⁻³`，proprioception probe 从 `4.60×10⁻³` 降到 `3.29×10⁻³`；
+- 作者报告加入 SIGReg 后 latent rank 从 38.1 提至 92.3，multi-step drift 从 0.45 降至 0.21，interpolation jerk 从 5.1 降至 1.2；
+- 对应下游成功率从 base encoder 的 42.5%，经 unregularized adapter 的 58.2%，提高到 71.3%。
+
+这些实验支持 ISAE/SIGReg 的工程必要性，但论文没有提供“相同 Action DiT 下，V-JEPA 2.1 vs DINOv2/MAE/普通 VLM”“有无 Anchor DiT”“有无 future target”的完整正交消融。
+
+#### 事实、作者主张与我的判断
+
+**事实：**
+
+- 模型直接从 V-JEPA 2.1 初始化并做领域适配，不是只在 related work 提到 JEPA；
+- 三个机器人 benchmark 的主结果完整，LIBERO-Plus 对 predictive baselines 的优势较明显；
+- LIBERO 相对 JEPA-VLA 的平均提升只有 0.9 个百分点，且没有误差条；
+- 真机 UR5 只给了水果/容器 pick-and-place 的成功序列，没有 trials、成功率、失败类型或基线；
+- 训练使用 24 张 H200；论文没有报告总训练时长、FLOPs、推理延迟或能耗。
+
+**作者主张：**
+
+- 机器人策略不需要像素级 future rendering，预测语义 latent 已足以提供动作相关的世界动态；
+- ISAE 能解决非高斯 JEPA feature 与 diffusion prior 的分布失配；
+- asymmetric distillation 让部署时剪掉 world branch 而不损失其训练期动态知识。
+
+**我的判断：**
+
+- 最可信的结果是 LIBERO-Plus 中 background/robot 扰动的提升；它符合“减少纹理重建可降低外观依赖”的机制预期。
+- 但论文没有把“V-JEPA 语义”“ISAE 几何”“双 DiT 容量”“future supervision”四个变量拆开，不能用主表证明 predictive latent 天然优于 pixel world model。
+- “zero-overhead”只表示相对完整双分支不再运行 Anchor DiT，不等于整个策略没有额外成本。Action DiT 本身是 30 层、1664 hidden 的大模型，论文也没有给端到端时延对照。
+- camera/noise 扰动仍明显落后 ImageWAM/Cosmos-Policy，说明不重建像素减少了一类外观负担，却没有自动获得所有视觉鲁棒性。
+
+#### 相对已有工作的创新
+
+- 把 V-JEPA 2.1 从表示或 rollout backbone 改成 World Action Model 的语义锚点；
+- 显式建模 predictive feature 与 diffusion prior 的分布接口，而不是直接把 JEPA token 当条件；
+- 用 asymmetric attention 把世界动态只从 Anchor branch 流向 Action branch；
+- 训练时学习未来语义流，部署时缓存当前语义并剪掉世界分支；
+- 同时覆盖大规模双臂任务、标准 LIBERO、多种视觉扰动与定性真机迁移。
+
+#### 局限、复现条件与潜在风险
+
+- **系统归因不足。** 缺少同骨干/同容量的 encoder、ISAE、Anchor DiT、future loss 正交消融，也没有 pixel-vs-latent 在相同策略结构与数据预算下的比较。
+- **算力门槛高。** 24×H200、双 30-block DiT；论文未报告训练天数，难以估算成本。
+- **复现说明不完整。** 正文称完整训练细节和超参数位于 Appendix，但当前 v1 PDF 实际没有附录。
+- **代码仍是占位。** 截至本次核验，官方仓库虽为公开状态，但根目录只有一个 17-byte `README.md`，内容是拼写有误的 `comming soon...`，没有训练代码、配置、数据处理、checkpoint 或许可证可供复现。
+- **真机证据定性。** 没有 trials、成功率、对象清单、扰动协议或安全失败统计；“successful real-world transfer”不能写成稳定部署。
+- **基线预算不一致。** 有的模型使用 embodied pretraining，有的没有；参数量、训练数据与 head 不统一。
+- **推理效率未实测。** 剪枝 world branch 并不等于比 Fast-WAM、π0.5 或 VLA-JEPA 更快；需要 latency、memory 与控制频率。
+- **安全风险。** 论文没有报告碰撞、误抓、异常恢复、力控制或 OOD 拒绝；视觉鲁棒性分数不能替代操作安全验证。
+
+**复现判断：低。** benchmark 可获得，但代码仓为空、V-JEPA 领域适配数据与三阶段训练配置不完整，且硬件预算很高。
+
+#### 是否值得改写成原创技术博客
+
+**值得，中高优先级，但建议等待代码。** 最合适的原创主线是：
+
+> V-JEPA latent 为什么不能直接喂给 diffusion policy：从非高斯 feature 到可生成的世界锚点。
+
+文章应把三层接口拆开：predictive representation、diffusion-friendly geometry、privileged world-to-action distillation。若只复述 `97.3%/73.1%`，会把复杂系统的收益错误归因给 JEPA。
+
+---
+
+### 2. τ: Learning Touch-Augmented Vision-Language-Action Models from Future Visual Supervision
+
+#### 基本信息
+
+- 完整题目：*τ: Learning Touch-Augmented Vision-Language-Action Models from Future Visual Supervision*
+- 作者：Ning Cheng、Jinan Xu、Wanlin Li、Yangzhi Chen、Jing Gao、Yiqun Wang、Kelan Peng、Wenjuan Han
+- 机构：北京交通大学、北京通用人工智能研究院
+- 时间与出处：arXiv:2607.24485 v1，2026-07-27 14:25:15 UTC 提交；当前为 `cs.RO` 预印本
+- 使用的 JEPA：基于 JEPA 原始思想的 action-conditioned cross-modal latent predictor；不是 I-JEPA/V-JEPA/A-JEPA 预训练模型
+- 下游任务：触觉增强 VLA，在插头插入、USB 插入、盖章、白板擦除四项真实 Franka 接触操作中生成动作
+
+[arXiv 摘要与版本](https://arxiv.org/abs/2607.24485) · [原始 PDF](https://arxiv.org/pdf/2607.24485)
+
+#### 方法如何衔接 JEPA
+
+τ 以预训练 π0.5 为 VLA backbone，新增 touch encoder、touch adapter 与训练期 predictor：
+
+1. 左右 DM-Tac WS 的触觉图像先由 touch encoder 编码，再由 adapter 投影到 π0.5 的 multimodal token space；
+2. tactile token 与视觉、文本 token 一起进入 LLM 和 action expert，后者以 conditional flow matching 预测 action chunk；
+3. 训练期另取当前 tactile token 与**真实后续动作序列**，经三层 MLP predictor 预测多个时间偏移的未来视觉 latent；
+4. target 由 π0.5 vision encoder 编码未来 RGB，停止梯度；
+5. 模型实际预测的是 `future visual feature - current visual feature`，而不是绝对 feature；
+6. 每个时间偏移的损失权重由触觉变化幅度决定，最终用加权 cosine alignment 与 imitation loss 联合训练；
+7. 推理时删掉 action encoder 和 predictor，只保留触觉 token 对动作策略的影响。
+
+这确实实现了 JEPA 的关键原则：**在 latent 中预测另一个视图/时间的表示、target stop-gradient、不做像素重建**。但它与标准 I-JEPA/V-JEPA 仍有三点区别：
+
+- target encoder 是 π0.5 的现成视觉 encoder，不是 EMA teacher；
+- context/target 不是遮挡 patch，而是跨模态、跨时间的 tactile→vision；
+- 训练同时使用专家动作 imitation，未来动作还是 predictor 的显式条件。
+
+因此，论文的“self-supervised”准确含义是“未来视觉 target 不需要额外人工标签”，而不是策略训练不使用监督动作。
+
+#### 数据、指标、基线与关键结果
+
+**TacAura 数据**
+
+- Franka Research 3 + Franka Hand；
+- 两个 DM-Tac WS 视觉触觉传感器，`320×240`、约 40 FPS；
+- 两个固定 RealSense D435i 和一个腕部 D405，`640×480`、15 FPS；
+- 所有流经时间戳对齐后重采样到 10 Hz；
+- 四项任务各 100 条高质量 teleoperation demonstrations，共 400 条轨迹；
+- 每条轨迹包含视觉、触觉、proprioception、动作与自然语言指令。
+
+模型每项任务用 100 条示范训练 30,000 step，batch 32、action horizon 32、peak learning rate `5e-5`，硬件为 2×A800 80GB。评测在单张 RTX 4090 上完成。
+
+**真机主结果**
+
+每个模型每项任务做 20 次 moderate-randomization trials，指标为阶段成功率和完整任务成功率：
+
+| 方法 | Plug 完成 | USB 完成 | Stamp 完成 | Wipe 完成 | 四任务平均 |
+|---|---:|---:|---:|---:|---:|
+| π0 | 0 | 15 | 30 | 35 | 20.00 |
+| π0.5 | 20 | 20 | 35 | 40 | 28.75 |
+| ForceVLA† | 0 | 5 | 70 | 45 | **30.00** |
+| ForceFlow† | 0 | 0 | 45 | 50 | 23.75 |
+| τ-WristSup. | **60** | 40 | **90** | **95** | **71.25** |
+| τ-FrontSup. | 65 | **50** | 75 | 85 | 68.75 |
+| τ-DualViewSup. | 55 | 35 | 65 | 75 | 57.50 |
+
+`†` 表示作者为当前 DM-Tac 传感器设置适配了 ForceVLA/ForceFlow，并使用 τ 的 tactile encoder 提取输入 feature。这样减少了输入模态差异，但并非原作者发布的原生端到端实现。[Table 1](https://arxiv.org/pdf/2607.24485)
+
+**JEPA-style predictive SSL 的 matched ablation**
+
+| 设置 | Plug | USB | Stamp | Wipe | 平均 |
+|---|---:|---:|---:|---:|---:|
+| τ 完整版 | 60 | 40 | 90 | 95 | **71.25** |
+| 去掉 action-sequence condition | 55 | 30 | 75 | 75 | 58.75 |
+| 去掉 predictive SSL | 50 | 25 | 70 | 60 | 51.25 |
+| 去掉 tactile module | 20 | 20 | 35 | 40 | 28.75 |
+
+去掉 predictive SSL 后平均下降 20 个百分点，四项任务分别下降 10/15/20/35 个百分点；初始抓取、对齐或接触阶段变化较小，主要退化发生在完整执行阶段。这个对照比跨模型主表更能支持 latent future prediction 的作用。[Table 2](https://arxiv.org/pdf/2607.24485)
+
+**对象与场景泛化**
+
+- USB：seen object 为 40%；两个 unseen USB 为 25%/35%；两个 unseen distractor scenes 为 20%/25%；
+- 白板擦除：seen eraser 为 95%；两个 unseen eraser 均为 90%；两个 distractor scenes 均为 95%。
+
+这说明泛化强烈依赖任务。连续、大接触面的擦除较稳健；需要毫米级对准的 USB 插入在对象与场景变化下仍只有 20%–35%。[Figure 5 与 generalization discussion](https://arxiv.org/pdf/2607.24485)
+
+#### 事实、作者主张与我的判断
+
+**事实：**
+
+- τ 实现了 detached latent target 与 predictor，不是只在相关工作引用 JEPA；
+- `w/o SSL` 与完整模型共享 backbone、数据和策略结构，平均成功率相差 20 个百分点；
+- 触觉模块本身贡献更大：移除后从 71.25% 降至 28.75%；
+- 每个任务只有 20 trials，5 个百分点等于一次成败，没有置信区间或训练种子；
+- 论文承诺 infrastructure、TacAura 与工具将开源，但 arXiv 页面和正文截至本次核验没有可用官方仓库入口。
+
+**作者主张：**
+
+- 未来视觉 latent 为触觉表示提供了动作条件的动态监督；
+- 触觉变化加权会突出真正发生接触转换的未来时刻；
+- predictor 只在训练时使用，因此可以提高表示质量而不增加部署开销。
+
+**我的判断：**
+
+- 最可信的结论是“未来 latent 辅助目标在这四个任务中有用”，而不是“JEPA 已普遍解决触觉 VLA”。matched ablation 很强，但样本量小且所有任务来自同一平台。
+- predictor 读取专家后续动作，这是一种强条件信息。它学到的可能是“给定正确动作，触觉状态应对应什么视觉变化”，不等同于从触觉中自主发现可控因果结构。
+- wrist/front 监督各有所长，dual-view 反而更差，说明 target view 不是越多越好；多视图融合与遮挡可能比 JEPA objective 本身更影响结果。
+- USB 的 unseen-scene 成功率只有 20%–25%，直接反驳“加入触觉后视觉 distractor 问题已解决”的强叙事。
+- `w/o SSL` 仍比多数基线强，完整收益同时来自 touch encoder/adapter、π0.5、动作序列条件与 predictive loss。
+
+#### 相对已有工作的创新
+
+- 不用静态 touch–vision 对齐，而是让触觉表示预测**动作条件的未来视觉变化**；
+- 将 prediction target 定义为 feature delta，减少当前场景静态外观的影响；
+- 用触觉变化幅度为不同 horizon 加权，让强接触转换获得更大训练权重；
+- 将 JEPA-style predictor 作为 train-only auxiliary branch，部署不增加 predictor 计算；
+- 新建四项接触任务的同步 vision–touch–language–action 数据基础设施，并提供同任务真实机器人 ablation。
+
+#### 局限、复现条件与潜在风险
+
+- **JEPA 谱系较宽。** 只引用原始 JEPA 构想，不是 I-JEPA/V-JEPA/A-JEPA 的直接改造；不应与冻结/微调 JEPA foundation model 混称。
+- **数据小且单平台。** 400 条轨迹、单 Franka、单 DM-Tac 传感器、四个短任务；跨机器人、跨触觉硬件、跨任务迁移未验证。
+- **统计不足。** 20 trials/任务、无置信区间、无多训练种子；5–10 个百分点差异可能只对应 1–2 次试验。
+- **基线适配可能偏差。** ForceVLA/ForceFlow 使用作者提供的 tactile encoder，世界模型类触觉方法又因算力目标被排除；跨系统榜单不是完全原生公平比较。
+- **自监督边界。** target 无标签，但训练使用专家 action chunk 和 imitation loss；不能宣传为“只靠无标签触觉学会操作”。
+- **未来 target 可能编码相机偏差。** wrist/front/dual-view 差异很大，说明模型可能学到视角可预测性，而不只是接触动力学。
+- **精密插入仍脆弱。** USB 在 unseen object/scene 下只有 20%–35%；没有力阈值、损伤、卡滞、异常恢复或安全停机统计。
+- **数据格式仍有占位符。** 正文介绍 VLA-compatible trajectory 时，schema 名仍直接写作 `xxx`，说明 v1 的复现说明尚未完成。
+- **开源尚未兑现。** 论文写明工具与数据“will be open-sourced”，但当前没有仓库、数据下载、checkpoint 或许可证。
+
+**复现判断：中低。** 硬件预算仅 2×A800、训练步数与数据规格较清楚；但自建触觉硬件、teleoperation 装置、400 条未公开轨迹和缺少代码是主要障碍。
+
+#### 是否值得改写成原创技术博客
+
+**值得，高优先级。** 推荐主题：
+
+> 未来视觉如何教会机器人“摸懂”接触：JEPA-style latent prediction 在触觉 VLA 中到底监督了什么？
+
+原创文章可以围绕四个问题展开：
+
+1. 为什么静态 touch–vision alignment 不足以表达接触动态；
+2. 为什么 feature delta 比绝对 future feature 更合理；
+3. 专家后续动作作为条件，究竟提供了多少“隐形监督”；
+4. 为什么 dual-view 更差、USB 泛化脆弱，说明 target design 仍是瓶颈。
+
+## 横向比较
+
+| 维度 | LeapBot-WA | τ |
+|---|---|---|
+| 今日身份 | 严格新增；arXiv v1 | 严格新增；arXiv v1 |
+| JEPA 血缘 | 直接从 V-JEPA 2.1 初始化并适配 | 只继承 JEPA 原则；π0.5 target |
+| Predictor 输入 | 语言、proprioception、当前语义 latent | 当前触觉 latent、真实后续动作 |
+| 预测目标 | 未来语义 latent 流 | 多 horizon 未来视觉 feature delta |
+| Predictor 部署角色 | Anchor DiT 训练时指导，推理剪除 | auxiliary MLP 训练时存在，推理删除 |
+| 下游 | 多任务机器人操作与视觉扰动 | 四项接触丰富真机操作 |
+| 最强证据 | LIBERO-Plus 对 predictive baselines 的鲁棒性优势 | `w/o SSL` matched ablation，真机平均 `71.25→51.25` |
+| 最大反例 | camera/noise 仍落后 generative WAM；真机无定量 | USB unseen scene 仅 20%–25%；dual-view 更差 |
+| 数据/算力 | 27.5K RoboTwin demos；24×H200 | 400 demos；2×A800；单卡 4090 评测 |
+| 复现状态 | 仓库公开但只有 17-byte README | 承诺开源，当前无入口 |
+| 原创博客价值 | 中高：latent–diffusion 接口 | 高：未来视觉监督触觉表示 |
+
+两篇共同支持“训练期 predictor 可以改善最终策略”，却不能支持更强的普遍结论：
+
+- LeapBot-WA 没有隔离 V-JEPA、ISAE、SIGReg 与大 Action DiT 的独立贡献；
+- τ 虽有 `w/o SSL`，但它不是标准 I/V/A-JEPA，且只在 400 条同平台轨迹上验证；
+- 两篇都没有与同预算 temporal contrastive、feature distillation、MAE 或普通 future-feature regression 做足够完整的 matched comparison。
+
+因此，本日更准确的阶段性判断是：
+
+> JEPA predictor 正在成为机器人策略的训练期 privileged signal；这条路线已有真实任务证据，但“为什么必须是 JEPA，而不是一般未来特征蒸馏”仍未被完全回答。
+
+## 值得继续追的问题
+
+1. **训练期 predictor 的信息是否真的留在 action branch？** 需要 probing 或 causal intervention：固定当前 observation，扰动未来语义 guidance，测部署期 action feature 是否仍编码可预测后果。
+2. **LeapBot-WA 的收益来自哪一层？** 应做 `V-JEPA 2.1 vs DINOv2/MAE/VLM`、`raw feature vs ISAE`、`有无 SIGReg`、`有无 Anchor DiT`、`有无 future loss` 的正交消融。
+3. **LeapBot-WA 的“zero-overhead”有多快？** 需要在相同 GPU、控制频率与 action horizon 下报告 latency、VRAM、FLOPs、能耗，并与 Fast-WAM/VLA-JEPA 比较。
+4. **LIBERO-Plus 的鲁棒性是否来自数据随机化？** RoboTwin 训练混合 clean/randomized demonstrations；应在相同随机化预算下比较 pixel-generative 与 predictive-latent 系统。
+5. **τ 为什么预测 visual delta，而不是 tactile future？** 应比较 tactile→vision、tactile→tactile、vision+touch→joint latent，以及多模态 teacher 的 matched objective。
+6. **τ 的动作条件是否造成 shortcut？** 需要打乱后续动作、只给 action summary、用模型预测动作替代专家动作，并测试 representation 是否仍捕获接触动力学。
+7. **supervisory view 如何选择？** wrist/front 各有优势、dual-view 更差；应引入遮挡感知路由、view agreement 和 per-task adaptive target，而不是简单拼接。
+8. **20 次 trial 的优势是否稳定？** 应补多训练种子、bootstrap confidence interval、失败类型，以及统一的对象/位置/光照随机化脚本。
+9. **能否跨触觉硬件与机器人？** TacAura 需要 DM-Tac→GelSight/DIGIT、Franka→UR5/双臂的迁移实验，才能证明表示不是传感器纹理记忆。
+10. **训练期 JEPA 与部署期 planning 如何取舍？** 可在同一任务比较 train-only predictor、test-time latent MPC，以及二者组合的成功率—时延—安全性 Pareto front。
+11. **历史候选何时回补？** 若下一轮没有严格新增，优先完整深读 `seq-JEPA` 的 invariant/equivariant 权衡与 `JHU-VPT(JEPA)` 的多中心手术视频证据，不再只保留候选登记。
+
+## 博客价值判断
+
+### 首选：τ 的“未来视觉教触觉”
+
+**优先级：高。** 它有一条清楚、可讲透的机制链：触觉不是只描述当前接触，而是要在动作条件下预测接下来会发生的视觉变化。真实机器人 ablation 也给出了足够具体的正反结果。
+
+原创文章必须同时写清：
+
+- predictor 使用专家后续动作，因此不是无条件世界模型；
+- 触觉模块的贡献大于 predictive SSL；
+- USB 的 unseen-scene 结果仍低；
+- 这是 JEPA-style 原则应用，不是 I-JEPA/V-JEPA foundation model。
+
+这样可以与追踪日报形成明显区别：原创文讨论“跨模态 target design 与隐形监督”，而不是再逐表汇报。
+
+### 次选：LeapBot-WA 的“predictive latent 如何进入 diffusion”
+
+**优先级：中高，建议等代码。** ISAE/SIGReg 触及一个真实工程问题：V-JEPA feature 适合预测，不代表它的分布适合 diffusion flow matching。这个接口问题也能连接生成模型、world model 与机器人策略。
+
+但当前仓库仍为空，系统变量多、24×H200 门槛高、真机无定量；若现在写，主题应是“latent interface audit”，而不是“LeapBot-WA 已取代 pixel WAM”。
+
+### 暂不回补：seq-JEPA 与 JHU-VPT(JEPA)
+
+今天已有两篇严格新增，不用历史论文达到三篇上限。二者仍保留高优先级：
+
+- [seq-JEPA](https://proceedings.neurips.cc/paper_files/paper/2025/hash/2f63d2963526bdd9ff1b8bcc2dc9905a-Abstract-Conference.html)：适合讨论 invariant representation 与 equivariant dynamics 是否能统一；
+- [A Vision Foundation Model for Cataract Surgery Using JEPA](https://proceedings.mlr.press/v301/shah26b.html)：适合审计多中心手术视频中的 step recognition、feedback 与 skill assessment。
+
+本次只生成追踪日报，不自行创建上述主题化原创博客。
+
+## 来源链接
+
+### 今日两篇主稿
+
+- Liu et al., *LeapBot-WA: World-Anchor Action Models via Predictive Latent Alignments*：[arXiv 摘要与提交记录](https://arxiv.org/abs/2607.23969) · [原始 PDF](https://arxiv.org/pdf/2607.23969) · [官方代码仓](https://github.com/LeapWM/leapbot-wa)
+- Cheng et al., *τ: Learning Touch-Augmented Vision-Language-Action Models from Future Visual Supervision*：[arXiv 摘要与提交记录](https://arxiv.org/abs/2607.24485) · [原始 PDF](https://arxiv.org/pdf/2607.24485)
+
+### JEPA 来源与本轮检索入口
+
+- V-JEPA 2.1：[arXiv](https://arxiv.org/abs/2603.14482)
+- JEPA 原始构想：LeCun, *A Path Towards Autonomous Machine Intelligence*：[OpenReview](https://openreview.net/forum?id=BZ5a1r-kVsf)
+- arXiv 新论文列表：[cs.LG](https://arxiv.org/list/cs.LG/new) · [cs.CV](https://arxiv.org/list/cs.CV/new) · [cs.RO](https://arxiv.org/list/cs.RO/new) · [cs.AI](https://arxiv.org/list/cs.AI/new) · [eess.SP](https://arxiv.org/list/eess.SP/new) · [eess.IV](https://arxiv.org/list/eess.IV/new) · [cs.MM](https://arxiv.org/list/cs.MM/new) · [cs.SD](https://arxiv.org/list/cs.SD/new)
+
+### 排除与延后候选
+
+- *On the Identifiability of Controlled World Models*：[arXiv](https://arxiv.org/abs/2607.22430)——理论进展，昨日已记录，不重复。
+- *The JEPA Paradox in Language*：[arXiv](https://arxiv.org/abs/2607.23531)——本轮新公告但早于严格截止线，且属于目标几何诊断而非具体下游系统。
+- *Multi-Horizon Consistency as Geometry*：[arXiv](https://arxiv.org/abs/2607.21645)——未建立 I/V/A-JEPA 实际复用链，不纳入下游 JEPA 主解读。
+- *How Much MRI Preprocessing Is Enough?*：[arXiv](https://arxiv.org/abs/2606.08164)——本轮 replacement，留作版本审计。
+- `seq-JEPA`：[NeurIPS 2025 官方页面](https://proceedings.neurips.cc/paper_files/paper/2025/hash/2f63d2963526bdd9ff1b8bcc2dc9905a-Abstract-Conference.html) · [arXiv](https://arxiv.org/abs/2505.03176)
+- `JHU-VPT(JEPA)`：[PMLR/MIDL 页面](https://proceedings.mlr.press/v301/shah26b.html)
