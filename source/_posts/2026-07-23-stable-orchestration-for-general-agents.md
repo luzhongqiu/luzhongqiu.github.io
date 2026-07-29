@@ -1,7 +1,7 @@
 ---
 title: "在松散智能体中寻找稳定控制：调度与动态工作流方案追踪"
 date: 2026-07-23 10:30:00
-updated: 2026-07-27 10:41:40
+updated: 2026-07-29 10:38:34
 categories:
   - 智能体工程
 tags:
@@ -132,6 +132,10 @@ Anthropic 将完整试验记录称为 transcript/trace/trajectory，并区分“
 2026 年 7 月 24 日新上架的 GuardianAgentBench 在 580 个场景、6 个领域、3 个 agent framework 和 6 个模型上测试工具型 agent。作者报告：最佳配置总体准确率为 74.8%，工具集合扩大和顺序轮次加深都会单调降低表现；其执行期 guardrail 相比 system prompt 防御可恢复 19.9% 的失败，误报率为 0.5%。[一方主张；未同行评审预印本；来源：GuardianAgentBench](https://arxiv.org/abs/2607.20982)
 
 **本文推断：** 工具数和深度上限不只是成本预算，也是可靠性预算；guardrail 应尽量成为执行期的结构化干预，而不是只写在 system prompt 里。上述数值仍需在其他工具分布、框架和真实副作用任务上复现。
+
+2026 年 7 月 28 日上架的 OrchBench 进一步把“编排质量”和“worker 能力”拆开：planner 只需要为给定任务 DAG 指定 agent 分配、跨 agent 信息传递和保留比例，确定性模拟器不调用 worker，就计算结果质量、makespan 与 token 成本。作者报告其模拟总分与 Claude Code Dynamic Workflows 的真实质量在 6 个模型级样本上达到 Pearson \(r=0.816\)，只消耗 1.3% 的 token 和 10.3% 的墙钟时间；但真实耗时和 token 高度依赖框架，不能由该模拟可靠预测。[一方主张；未同行评审预印本；来源：OrchBench](https://arxiv.org/abs/2607.25656)
+
+**本文推断：** 多智能体评测至少应拆成两层：先用可复现模拟或静态检查筛查依赖、信息传递、并发和预算计划，再在目标框架中运行故障注入与 outcome eval。OrchBench 也支持一个重要判断：增加 agent 数不等于增加可靠性，任务关键信息是否完整跨越 handoff 才是更直接的控制变量；其相关性样本仍小，适合作为初筛证据而不是生产替代测试。
 
 ## 三、Claude Code 式动态工作流：它稳定在哪里，又没有稳定什么
 
@@ -295,7 +299,7 @@ Anthropic 的长时 coding harness 实验发现，仅靠 compaction 不足以让
 | LangGraph | 显式 graph/state + 条件边/函数式入口 | 中高 | 每步 checkpoint、interrupt、replay/fork；Graph API 在节点边界恢复 | interrupt/HITL，权限需应用层补齐 | LangSmith tracing/eval 生态 | 状态化 agent 图与可检查执行 |
 | Temporal | 确定性 Workflow + Activities + event history | 中；模型动态决策需封装为 Activity/数据 | 确定性 replay、默认 Activity retry、长时 timers/signals | 人工等待可建模；权限策略需应用层实现 | Event History、Visibility、OTel 集成 | 最强的业务级 durable execution 外壳 |
 | Google ADK 2.x | graph、语言原生 dynamic workflow、agent nodes | 高 | dynamic node 自动 checkpoint；恢复时跳过成功子节点；2.5 扩展节点级恢复 | human input、tool confirmation、callbacks | logging、tracing、eval | “代码控制流 + agent 节点”的新桥接层 |
-| OpenAI Agents SDK | Runner loop、handoffs、agents-as-tools、Sandbox Agents | 高 | session 保存对话；`RunState` 恢复 harness；sandbox session/snapshot 恢复或重建工作区 | tool approval、input/output/tool guardrails、sandbox 隔离 | 内建 tracing，与 eval 平台衔接 | 轻量多 agent loop、HITL 与可恢复执行工作区 |
+| OpenAI Agents SDK | Runner loop、handoffs、Programmatic Tool Calling、Sandbox Agents | 高 | session 保存对话；`RunState` 恢复 harness 与 program call；sandbox session/snapshot 恢复或重建工作区 | `allowed_callers`、tool approval、guardrails、sandbox 隔离 | task/turn/tool tracing，与 eval 平台衔接 | 动态 loop、受限脚本化工具编排、HITL 与可恢复执行工作区 |
 | AutoGen AgentChat/Core | 群聊、selector、swarm、event runtime | 高 | agent/team `save_state`/`load_state`；运行中保存可能不一致 | UserProxy/Handoff、终止条件 | logging、OpenTelemetry | 多 agent 协作实验与消息型运行时 |
 | Microsoft Agent Framework | 类型化 graph/functional/declarative workflow + agent | 中高 | 标准 checkpoint；Durable Extension 基于 Durable Task 跨 worker 恢复 | RequestPort、ToolApprovalMiddleware、HITL | workflow events、OTel、Durable Task dashboard | 微软技术栈中的状态化 agent 与 durable workflow |
 | Semantic Kernel | sequential/concurrent/handoff/group chat/magentic | 中高 | 旧 orchestration 不是 durable engine | callbacks/企业集成，具体策略自行实现 | OTel logs/metrics/traces | 既有 SK 项目；新项目应评估其继任者 |
@@ -317,6 +321,24 @@ GitHub Agentic Workflows（`gh-aw`）把 Markdown 中的触发条件、权限、
 2026-07-25 发布的 v0.83.3 预发布版又在 `gh aw update` 后加入 `actions-lock` 终态校验：检查 action 是否为 40 字符 commit SHA、map key 是否与 `repo@version` 一致、version 是否解析到已存 SHA、commit 是否真实存在，以及容器 pin 是否为合法 digest 且 `pinned_image` 自洽；不满足时让更新失败，而不是把畸形锁文件留到 Actions 执行期才暴露。网络或认证失败的在线核验会被跳过，因此它提高的是更新后的 fail-closed 完整性，不应被描述为离线可证明的供应链真实性。[官方事实；预发布；来源：gh-aw v0.83.3 release](https://github.com/github/gh-aw/releases/tag/v0.83.3)、[合并实现 #47959](https://github.com/github/gh-aw/pull/47959)
 
 **本文推断：** `gh-aw` 是“模型动态决策 + 确定性外壳”的一个非常完整的仓库级实例：自然语言负责判断，Actions 负责触发和阶段，编译器负责静态边界，SafeOutputs 负责副作用提交。但其公开文档没有把跨 run replay、外部副作用幂等或补偿定义成通用 durable execution 协议；`max`、标题去重和 PR 保护能缩小风险，不能替代业务幂等键与执行账本。
+
+### MCP 2026-07-28：无状态协议与显式 durable task 分层
+
+MCP 2026-07-28 规范把 core protocol 明确收缩为无状态、自包含请求：删除初始化握手与协议 session，每次请求携带自己的协议版本和能力；服务器必须实现 `server/discover`，需要状态的应用应把显式 handle 作为普通参数传递。它还删除了 SSE resume/redelivery：流在请求中途断开时，该请求丢失，客户端必须用新的 request ID 重新发起，而不是假设 transport 会续传原执行。[官方事实；来源：MCP 2026-07-28 规范与变更说明](https://modelcontextprotocol.io/specification/2026-07-28)、[Key Changes](https://modelcontextprotocol.io/specification/2026-07-28/changelog)
+
+长时操作被移到可独立协商的 Tasks 扩展。服务器先持久化 task，再返回稳定 `taskId`；客户端必须保存该 ID，可用 `tasks/get` 轮询，并通过 `input_required` 与 `tasks/update` 完成人机输入。`completed`、`failed`、`cancelled` 是不可变终态；对未知或已经满足的输入键，服务器忽略重复响应。取消仍是 cooperative：服务器确认取消意图，但不保证底层工作已经停止。[官方事实；来源：MCP Tasks](https://modelcontextprotocol.io/extensions/tasks/overview)
+
+**本文推断：** 这次拆分给出了一条很清晰的架构边界：协议负责能力发现和请求，durable extension 负责显式任务句柄，业务控制面仍负责幂等键、effect fencing、补偿和恢复决策。尤其在断线重发时，新的 request ID 不能替代稳定的业务 action ID；否则 transport 的“重新发起”会把同一个外部动作变成第二次执行。Tasks 也必须按客户端与 SDK 的实际协商结果渐进启用，不能仅凭规范版本假设端到端支持。
+
+### 自然语言工作流也可以先编译，再交给模型执行
+
+2026 年预印本 COVENANT 把 SOP、服务政策等自然语言工作流视为源程序：离线阶段先构造 workflow AST，再降级成带类型化节点、guard、显式读写集合和允许边的 workflow CFG；运行时 controller 持有唯一游标，只把当前节点、相关历史、约束和响应 schema 暴露给 agent。提议通过协议与语义检查后，controller 才提交状态并沿允许边前进；失败则保留上一个已提交状态，返回诊断并在预算内修复。[一方主张；未同行评审预印本；来源：COVENANT](https://arxiv.org/abs/2607.25400)
+
+作者在 3 个既有 benchmark 的 120 个 case、5 种 agent interface 和 5 个模型上报告，25 个配对单元都得到改善；最佳配置从 50.00% 提升到 83.33%，归因于 workflow misalignment 的失败率从 42.50% 降至 15.83%。消融中，显式 CFG traversal 的增益大于额外的语义 verifier，但完整系统的墙钟时间约为基线的 2.48 倍。[一方主张；来源同上](https://arxiv.org/abs/2607.25400)
+
+它的边界比结果更值得关注：论文没有证明自然语言到 AST/CFG 的语义编译端到端可靠，部分检查仍依赖 LLM verifier；controller 的“拒绝不提交”只保护 controller state。如果工具动作在事后检查前已经触达外部环境，被拒绝的 attempt 仍可能留下副作用。[作者限定；来源同上](https://arxiv.org/abs/2607.25400)
+
+**本文推断：** “自然语言规则 → 可审计 IR → controller-owned traversal → verify-repair-commit”是比“把完整 SOP 塞进 prompt”更强的控制模式，但编译产物必须版本化、审阅和回归测试；所有外部写动作仍应在执行前经过 policy/effect gate，不能把事后 verifier 当成事务回滚。
 
 ### LangGraph：agent-native 的显式状态与 checkpoint
 
@@ -344,6 +366,10 @@ Activity 默认按声明式 Retry Policy 指数退避重试，Workflow 默认不
 
 **本文推断：** durable execution 解决“运行时怎样重建进度”，effect barrier 解决“停止信号之后什么还能触达外部世界”，两者正交。审批、`cancel()`、timeout 和 checkpoint 只有在副作用提交点具备完整中介、稳定动作身份与 fencing 时，才能升级为可依赖的安全语义。
 
+PydanticAI `v2.19.0` 为“取消是一种状态，而不是一次事件”提供了更具体的实现：如果 hook、事件处理器或 Temporal Activity 吞掉了 `CancelledError`，runtime 会在 run step、hook、finalize 和事件流边界重查 `Task.cancelling()`，在已完成步骤的消息写入 history 后重新抛出取消。它由此维持“外部取消最终仍取消 run”与“已完成工作不会因取消丢失”两条不变量；Python 3.10 因缺少相应计数 API 只有 best-effort 行为。[官方事实；来源：PydanticAI v2.19.0](https://github.com/pydantic/pydantic-ai/releases/tag/v2.19.0)、[实现 PR #6496](https://github.com/pydantic/pydantic-ai/pull/6496)
+
+**本文推断：** agent runtime 应在每个可提交边界重新读取 level-triggered cancellation state，并先持久化已完成结果，再阻止正常成功路径继续推进。这个 backstop 能避免“异常被吃掉后假成功”，但仍不能召回已越过 effect gate 的远端动作；停止状态检查与副作用 fencing 仍需同时存在。
+
 ### Google ADK 2.x：当前最值得跟踪的桥接方案
 
 Google ADK 2.0 的 Dynamic Workflows 支持 Python 与 Go。它允许用 `while`、条件、递归、`async/await` 等普通语言结构组织 node，而不是把所有复杂路径硬塞进静态图；同时会跟踪每个 node 执行，恢复时自动跳过已成功子节点。[官方事实；来源：ADK Dynamic Workflows](https://adk.dev/graphs/dynamic/)
@@ -359,6 +385,14 @@ ADK 2.5.0 把恢复和输入边界又向前推进了一步：为 standalone node
 ### OpenAI Agents SDK：harness 与 sandbox 已分层，仍不是业务级 durable engine
 
 OpenAI Agents SDK 的 Runner 执行“模型调用—工具/交接—再调用”的循环，并通过 `max_turns` 停止过长 run；Agent 可声明 handoffs、structured `output_type` 和 guardrails。[官方事实；来源：Running agents](https://openai.github.io/openai-agents-python/running_agents/)、[Agents](https://openai.github.io/openai-agents-python/agents/)
+
+Programmatic Tool Calling 又增加了一条很接近 Claude Code Dynamic Workflows 的路径：受支持模型可生成 JavaScript，在 OpenAI 托管的全新隔离 V8 runtime 中并行、循环或条件调用合资格工具，并在 runtime 内缩减中间结果。runtime 没有 Node.js、包安装、直接网络、通用文件系统、子进程或跨 program 的持久 JavaScript 状态；应用通过每个工具的 `allowed_callers` 明确限制它只能 direct call、只能由 program 调用或两者皆可。[官方事实；来源：Programmatic Tool Calling](https://developers.openai.com/api/docs/guides/tools-programmatic-tool-calling)
+
+`program`、嵌套 `function_call` 与 `program_output` 是分离的 Responses item，`caller` 记录调用关系，opaque fingerprint 用于 resume/replay。OpenAI Agents JS `v0.14.0` 将这些 program call 接入 streaming、session、replay 和序列化 `RunState`；同一版本还把 run cancellation 传播到 function/MCP tool，并等待后台清理完成后再结束 stream。[官方事实；来源：OpenAI Agents JS v0.14.0 release](https://github.com/openai/openai-agents-js/releases/tag/v0.14.0)
+
+官方仍建议默认用 direct call 承担写入和审批敏感动作，并要求应用对每次 program 发出的调用重新检查参数、权限和高影响审批；工具应尽量幂等，因为 replay 或 retry 可能重复调用。[官方事实；来源：Programmatic Tool Calling](https://developers.openai.com/api/docs/guides/tools-programmatic-tool-calling)
+
+**本文推断：** Programmatic Tool Calling 把“模型生成脚本、确定性 runtime 执行受限工具集合”的模式下沉到了 Responses/Agents SDK，并让脚本执行关系进入可序列化状态；但 cooperative cancellation 只改善停止信号传播，不等于已提交副作用的 fencing。它也没有把 fresh V8 变成跨进程 durable engine，业务写操作仍需执行账本、幂等键和 effect gate。
 
 Sessions 负责跨 run 保存对话历史，不是通用 workflow checkpoint。HITL 的 `RunState` 则可序列化到数据库或队列，在工具审批后恢复，是一个明确但范围有限的 durable pause/resume 边界。[官方事实；来源：Sessions](https://openai.github.io/openai-agents-python/sessions/)、[Human-in-the-loop](https://openai.github.io/openai-agents-python/human_in_the_loop/)
 
@@ -384,7 +418,9 @@ Microsoft Agent Framework 同时提供 graph、functional 和 declarative workfl
 
 2026-07-21 的 Python 1.12.0 将 declarative workflows、`ToolApprovalMiddleware`、harness agent 的 mode/todo provider 提升为 stable，并为 Durable Task workflow 内部产生的 HITL 请求加入 response URL；同一版本还修复了 checkpoint 编码一致性，并将 harness 的文件访问改为 opt-in。[官方事实；来源：Microsoft Agent Framework Python 1.12.0 release](https://github.com/microsoft/agent-framework/releases/tag/python-1.12.0)
 
-**本文推断：** 这使先前“新项目应评估 Agent Framework”的建议变得更具体：它已经不是 Semantic Kernel 的概念性继任路线，而是一个将类型化 agent graph、审批中间件、声明式工作流和 Durable Task 分层组合的生产候选。仍要确认 Activity/工具副作用的幂等、版本迁移和 Durable Task 后端运维边界，不能因为“completed steps 不重跑”就推导出外部 exactly-once。
+其 .NET 实验性 MCP Skills API 又把 skill 从本地包变成集中控制面：agent 通过认证 MCP 连接读取 `skill://index.json`，再按需加载 `SKILL.md`/资源或归档；服务器更新后，下次 discovery 即可生效。远程归档受下载大小、解压后大小和文件数上限约束，归档中的脚本永不执行，`load_skill`、`read_skill_resource`、`run_skill_script` 等 skill tools 默认仍需审批。[官方事实；实验性 API；来源：Microsoft《Discover Agent Skills from MCP servers in .NET》](https://devblogs.microsoft.com/agent-framework/discover-agent-skills-from-mcp-servers-in-net/)
+
+**本文推断：** 这使先前“新项目应评估 Agent Framework”的建议变得更具体：它已经不是 Semantic Kernel 的概念性继任路线，而是一个将类型化 agent graph、审批中间件、声明式工作流和 Durable Task 分层组合的生产候选。集中分发 skill 能消除副本漂移，却也会让同一个 workflow version 在不重新部署时读到不同规则；生产 run 应记录并尽可能固定 skill source、版本与内容摘要。仍要确认 Activity/工具副作用的幂等、版本迁移和 Durable Task 后端运维边界，不能因为“completed steps 不重跑”就推导出外部 exactly-once。
 
 ### Semantic Kernel：需要把历史能力与当前产品路线分开
 
@@ -488,6 +524,7 @@ checkpoint 至少携带：
 - workflow/graph version；
 - state schema version；
 - prompt、tool schema、policy version；
+- skill source、版本与内容摘要；
 - model family 与关键参数；
 - code artifact/commit；
 - migration function 或“不支持恢复”的明确标志。
@@ -700,8 +737,21 @@ AutoGen 的 selector、swarm、GraphFlow 很有表达力，但应把生产恢复
 11. GitHub Agentic Workflows 的 SafeOutputs 在 Actions job 被取消、写出结果未知或 workflow rerun 时，哪些操作具备稳定去重语义？
 12. Agent Framework 标准 checkpoint 与 Durable Extension 嵌套时，哪一层拥有重试权，如何避免 agent/tool 的重试放大？
 13. 对包含网络、文件、IPC、共享内存与多阶段 API 的真实工具，怎样证明 complete mediation，而不是只靠 wrapper 约定？effect gate 的高可用、决策认证和跨阶段补偿应由哪一层承担？
+14. Programmatic Tool Calling 在 client-owned tool 已成功但 `function_call_output` 尚未写回时，`RunState`/stateless replay 如何与业务幂等键共同避免重复副作用？
+15. 远程 MCP skill 在长时 run 中更新时，应按 run、step 还是 session 固定版本，如何在紧急策略更新与可重放性之间取舍？
+16. MCP Tasks 在断线重发、重复 `tasks/update` 与 cooperative cancellation 交错时，各 SDK 是否保持终态不可变和输入去重；底层工具的迟到副作用由哪一层 fencing？
 
 ## 十、更新记录
+
+### 2026-07-29：补入无状态任务协议、脚本化编排与工作流编译
+
+- 纳入 OpenAI Programmatic Tool Calling 与 Agents JS v0.14.0：模型生成 JavaScript，但只能在 fresh V8 中调用 `allowed_callers` 允许的工具；program call 可进入 session/replay/`RunState`，取消信号也开始传播到 function/MCP tool。
+- 明确其边界：写入与审批敏感动作仍应走 direct call 和应用级审批；fresh V8、cooperative cancellation 与可序列化 program item 都不等于业务级 durable execution 或副作用 fencing。
+- 纳入 COVENANT：把自然语言 SOP 编译为 AST/CFG，由 controller 持有游标并执行 verify-repair-commit；同时保留编译语义、LLM verifier 和事后检查无法撤销外部副作用的限制。
+- 纳入 OrchBench：用确定性模拟把 planner 的依赖、handoff 和预算质量从 worker 噪声中分离，支持“先初筛编排，再做真实 outcome/fault eval”的两层测试。
+- 补入 Agent Framework 的实验性远程 MCP Skills：集中分发与归档安全边界更清晰，但 run 仍需固定 skill source、版本和摘要，避免热更新破坏恢复一致性。
+- 纳入 MCP 2026-07-28：core protocol 改为无状态自包含请求，长时恢复移入显式 Tasks 扩展；明确断线重发仍须稳定业务 action ID，cooperative cancellation 也不等于 effect fencing。
+- 补入 PydanticAI 2.19.0 的 level-triggered cancellation backstop：在稳定边界重查取消状态并保留已完成 history，避免被 hook/Activity 吞掉的取消转成假成功。
 
 ### 2026-07-27：补齐 OpenAI Agents SDK 的双层恢复边界
 
@@ -741,6 +791,8 @@ AutoGen 的 selector、swarm、GraphFlow 很有表达力，但应把生产恢复
 - [Stop Means Stop: Measuring and Repairing the Enforcement Gap in Agent-Framework Control Primitives](https://arxiv.org/abs/2607.14166)
 - [Delivery, Not Storage: Cue-Anchored Working Memory as a Harness Property for Coding Agents](https://arxiv.org/abs/2607.20972)
 - [GuardianAgentBench: Where Agents Fail and How to Guard Them](https://arxiv.org/abs/2607.20982)
+- [COVENANT: Natural-Language Workflow Compilation for Aligned Agent Execution](https://arxiv.org/abs/2607.25400)
+- [OrchBench: Evaluating Multi-Agent Orchestration Plans in Isolation via Deterministic Simulation](https://arxiv.org/abs/2607.25656)
 
 ### Anthropic / Claude Code
 
@@ -786,6 +838,12 @@ AutoGen 的 selector、swarm、GraphFlow 很有表达力，但应把生产恢复
 - [Activities](https://docs.temporal.io/activities)
 - [Saga Pattern guide](https://pages.temporal.io/rs/250-WIU-007/images/tech-guide-saga-pattern-made-easy.pdf)
 
+### Model Context Protocol
+
+- [MCP 2026-07-28 specification](https://modelcontextprotocol.io/specification/2026-07-28)
+- [MCP 2026-07-28 key changes](https://modelcontextprotocol.io/specification/2026-07-28/changelog)
+- [MCP Tasks extension](https://modelcontextprotocol.io/extensions/tasks/overview)
+
 ### Google ADK
 
 - [Dynamic Workflows](https://adk.dev/graphs/dynamic/)
@@ -801,7 +859,9 @@ AutoGen 的 selector、swarm、GraphFlow 很有表达力，但应把生产恢复
 - [Agents SDK Python](https://openai.github.io/openai-agents-python/)
 - [The next evolution of the Agents SDK](https://openai.com/index/the-next-evolution-of-the-agents-sdk/)
 - [Sandbox Agents](https://developers.openai.com/api/docs/guides/agents/sandboxes)
+- [Programmatic Tool Calling](https://developers.openai.com/api/docs/guides/tools-programmatic-tool-calling)
 - [OpenAI Agents SDK Python 0.14.0 release](https://github.com/openai/openai-agents-python/releases/tag/v0.14.0)
+- [OpenAI Agents SDK JavaScript 0.14.0 release](https://github.com/openai/openai-agents-js/releases/tag/v0.14.0)
 - [Running agents](https://openai.github.io/openai-agents-python/running_agents/)
 - [Agents and structured outputs](https://openai.github.io/openai-agents-python/agents/)
 - [Human-in-the-loop and RunState](https://openai.github.io/openai-agents-python/human_in_the_loop/)
@@ -819,6 +879,12 @@ AutoGen 的 selector、swarm、GraphFlow 很有表达力，但应把生产恢复
 - [Microsoft Agent Framework Durable Extension](https://learn.microsoft.com/en-us/agent-framework/integrations/durable-extension)
 - [Declarative Workflows](https://learn.microsoft.com/en-us/agent-framework/workflows/declarative)
 - [Microsoft Agent Framework Python 1.12.0 release](https://github.com/microsoft/agent-framework/releases/tag/python-1.12.0)
+- [Discover Agent Skills from MCP servers in .NET](https://devblogs.microsoft.com/agent-framework/discover-agent-skills-from-mcp-servers-in-net/)
 - [Semantic Kernel Agent Orchestration](https://learn.microsoft.com/en-us/semantic-kernel/frameworks/agent/agent-orchestration/)
 - [Semantic Kernel Observability](https://learn.microsoft.com/en-us/semantic-kernel/concepts/enterprise-readiness/observability/)
 - [Semantic Kernel official repository](https://github.com/microsoft/semantic-kernel)
+
+### PydanticAI
+
+- [PydanticAI v2.19.0 release](https://github.com/pydantic/pydantic-ai/releases/tag/v2.19.0)
+- [PydanticAI level-triggered cancellation implementation](https://github.com/pydantic/pydantic-ai/pull/6496)
