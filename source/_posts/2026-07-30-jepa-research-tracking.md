@@ -1,0 +1,412 @@
+---
+title: JEPA 下游研究追踪 · 2026-07-30
+date: 2026-07-30 10:00:00
+categories:
+  - JEPA研究追踪
+tags:
+  - JEPA
+  - JEPA追踪
+---
+
+> 本文属于「JEPA追踪」系列，记录每日论文检索、原文核验与阶段性判断；它保留研究日志的证据密度，与经过主题化重写的原创博客区分。
+
+# JEPA 下游研究追踪（2026-07-30）
+
+> 检索窗口：自上次运行 `2026-07-29T03:01:23.483Z` 起，至 2026-07-30 本次运行。
+>
+> 去重范围：automation memory，以及 `research/jepa/` 中 2026-07-15 至 2026-07-29 的全部既有记录；昨日已深读 Temporal-Distance JEPA 与 INTACT，本日不重复汇报。
+>
+> 纳入标准：论文必须实际复用、改造或直接评估 JEPA，并进入明确下游任务；只在 related work 中引用 JEPA、仅使用 “latent prediction” 一般性术语的工作不算。arXiv API、OpenAlex 与搜索索引只用于发现候选，实质性结论均回到论文原文、arXiv 提交记录、作者官方仓库或项目页核验。
+>
+> 时间口径：JEPADepth 与 TC-LeWM 的 v1 提交时间晚于上次运行，属于严格的截止后新增；Rad-JEPA 3D 的 v1 时间戳为 2026-07-28 19:00:17 UTC，早于上次运行约 8 小时，但错过 arXiv 当日提交 cutoff，直到本轮公告批次才首次可见，因此记为“本轮首次上榜新增”，不写成“截止后新投稿”。
+
+## 今日结论
+
+1. **今天确认 3 篇真正把 JEPA 用于具体下游任务的新增论文。** [TC-LeWM](https://arxiv.org/abs/2607.26924) 修改 LeWorldModel 的防坍塌正则并进入 LIBERO 多任务机器人操作；[JEPADepth](https://arxiv.org/abs/2607.26600) 把 I-JEPA 式 masked latent prediction 作为单目深度训练的辅助目标；[Rad-JEPA 3D](https://arxiv.org/abs/2607.26196) 用 3D masked JEPA 预训练 CT encoder，再接入医学 VQA 与空间推理。三者都不是仅在相关工作中顺带引用。
+2. **TC-LeWM 是今天机制证据最强、也最值得优先关注的一篇。** Raw LeWM 与 TC-LeWM 使用相同 encoder、action-conditioned predictor、数据、优化目标主体和下游 flow-matching policy，只把 SIGReg 的输入从完整 latent 改成局部时间去中心后的 residual。LIBERO 四套件 10-task 联合训练平均成功率从 `53.2%` 升到 `73.6%`；统一 40-task 训练从 `44.4%` 升到 `73.5%`，三次完整训练并报告标准差。[论文 Tables 1–3](https://arxiv.org/html/2607.26924v1#S5)
+3. **TC-LeWM 给出一个重要反例：防坍塌约束本身也可能破坏下游需要的结构。** Raw SIGReg 把整体 latent marginal 拉向各向同性高斯；作者的混合分布分析与 LIBERO 表征审计表明，这会压缩任务/场景 cluster center 相对类内变化的距离。对时间 residual 做同一正则，可以保留防坍塌压力，又不直接挤压慢变任务结构。[方法与分析](https://arxiv.org/html/2607.26924v1#S3)
+4. **JEPADepth 的收益不大，但归因相对干净。** 在同一 DINOv3 ViT-S/16、同一 FPN decoder 和同一 photometric pipeline 下，加入 JEPA 后 KITTI Eigen 的 AbsRel 从 `0.105` 降到 `0.101`、SqRel 从 `0.861` 降到 `0.782`；Make3D zero-shot matched baseline 的 AbsRel 从 `0.284` 降到 `0.275`。代价是训练时间从 `7.4` 增至 `8.6` 小时，推理模型仍为 24M 参数。[matched ablation](https://arxiv.org/html/2607.26600v1#S4.SS7)｜[实现与开销](https://arxiv.org/html/2607.26600v1#S4.SS3)
+5. **Rad-JEPA 3D 的任务规模和 headline 最亮眼，但“提升来自 JEPA”这一归因最弱。** 约 120,000 个 CT volume 预训练后，4.0B VLM 在 M3D-VQA closed-ended mean 为 `81.66%`，高于 Med3DVLM 的 `79.75%`；SpatialMed 平均为 `58.16%`，高于 `55.59%`。然而系统同时改变了 H-Mamba、GQA router、HSOR、视觉 encoder 与语言模型，论文没有同架构的 no-JEPA/MAE 对照；这些数字证明“完整系统有效”，尚不能单独证明 JEPA 是主因。[主结果 Tables 1–3](https://arxiv.org/html/2607.26196v1#Sx5)
+6. **今日共同趋势是：JEPA 正从“选哪种 predictor”推进到“怎样把预测约束嵌入完整下游训练系统”。** TC-LeWM 改正则施加的统计对象，JEPADepth 把 JEPA 作为训练期正则，Rad-JEPA 3D 把 JEPA encoder 作为医学 VLM 的视觉入口。真正决定证据强弱的，不再只是有没有 context–target predictor，而是是否提供 matched no-JEPA 对照、下游协议和独立复现入口。
+
+| 论文 | JEPA 使用方式 | 下游任务 | 最强证据 | 主要边界 |
+|---|---|---|---|---|
+| TC-LeWM | 保留 LeWM latent prediction，把 SIGReg 从完整 latent 改到时间 residual | LIBERO 10/40-task 行为克隆 | Raw/TC 全管线 matched；3 训练 seed；40-task `44.4→73.5%` | 仅仿真；下游仍用动作示范与 task ID；无代码/算力记录 |
+| JEPADepth | DINOv3 context encoder + EMA target + I-JEPA masked latent auxiliary | KITTI 单目深度、Cityscapes/Make3D zero-shot | 同 backbone/decoder 的 no-JEPA 对照；代码公开；单卡预算 | 单次结果无误差条；median scaling；Cityscapes 缺 matched no-JEPA |
+| Rad-JEPA 3D | 3D cube masking + student/EMA teacher latent prediction + HSOR | CT kNN、医学 VQA、空间推理 | 120K CT；patient-disjoint；多种下游任务与组件消融 | JEPA/H-Mamba/HSOR/LLM 混杂；单一数据家族；无代码，项目页失效 |
+
+## JEPA 方向最新进展
+
+### 1. LeWM 的瓶颈从“防不防坍塌”转向“防坍塌时保留什么”
+
+过去一周记录的 LeWM 下游工作主要修改 planning cost、rollout geometry 或 intent-to-action 接口。TC-LeWM 则回到训练目标本身：SIGReg 虽能阻止所有 latent 收缩成常数，却不保证多任务 cluster 保持可分。[LeWM 原论文](https://arxiv.org/abs/2603.19312)｜[TC-LeWM 原文](https://arxiv.org/abs/2607.26924)
+
+它将每个 latent 写成局部时间均值与 residual：
+
+`z_t = mean(z_s, s∈W_t) + r_t`
+
+Raw LeWM 对 `z_t` 做 SIGReg；TC-LeWM 对 `r_t` 做完全相同的 SIGReg。慢变的任务、场景与进度结构主要留在局部均值中，因此不再被直接拉向单一高斯；若时间窗口内表示坍塌，`r_t=0` 仍会被 Epps–Pulley normality statistic 惩罚。[TC-SIGReg 方法](https://arxiv.org/html/2607.26924v1#S4)
+
+这使 JEPA 的防坍塌问题出现更细的三层区分：
+
+1. **全局非坍塌**：表示不是常数；
+2. **条件可分**：不同任务、场景与进度没有被正则挤在一起；
+3. **下游可读**：冻结表示能支持 policy、planner 或 probe。
+
+TC-LeWM 的结果说明第一层成立并不自动推出第二、第三层。
+
+### 2. I-JEPA 目标正在成为下游训练期插件
+
+JEPADepth 并没有从头训练一个通用 I-JEPA foundation model，而是把 I-JEPA 式 context encoder、EMA target encoder、structured masks 与 latent regression 直接放进 Monodepth2 风格的 photometric training。预测器和 target encoder 在部署时删除，只留下 DINOv3 encoder 与 depth decoder。[方法原文](https://arxiv.org/html/2607.26600v1#S3.SS2)
+
+这种“训练期加 JEPA、推理期裁掉 predictor”的路线与 7 月 28 日记录的触觉 VLA 论文 τ 相似，但监督结构不同：
+
+- τ 用触觉 latent 与动作预测未来视觉 latent；
+- JEPADepth 在同一图像上做 masked region latent prediction，并与跨帧 photometric view synthesis 联合。
+
+它们共同表明，JEPA 下游价值未必来自部署时显式 rollout；也可能来自训练时限制 encoder 不要被单一任务损失带离可迁移表示空间。
+
+### 3. 3D 医学 JEPA 开始连接视觉语言推理，而不只做 linear probe
+
+此前追踪的 US-JEPA、COJEPA、Neuro-JEPA、IQ-JEPA 多数聚焦分类、分割、反演或临床风险预测。Rad-JEPA 3D 把 masked volumetric encoder 接入 Qwen2.5-3B/Qwen3-4B，用于 closed/open-ended VQA 和 SpatialMed 空间推理，扩展了 JEPA 医学下游的接口范围。[Rad-JEPA 3D 原文](https://arxiv.org/abs/2607.26196)
+
+但它也暴露新的评测问题：当视觉 encoder、projector、instruction tuning、语言模型和解码协议同时变化时，VQA 的系统级提升无法自动归因给预训练目标。后续医学 JEPA 论文至少需要同一 VLM backbone 下的 `JEPA vs MAE/DINO/no-SSL` 对照。
+
+### 4. 严格区分实际 JEPA、仅引用与相邻 predictive latent 工作
+
+**实际复用或改造 JEPA：**
+
+- TC-LeWM 保留 LeWM encoder–predictor 与 latent next-state prediction，直接更换 SIGReg 的统计对象；
+- JEPADepth 真实训练 context/EMA target/predictor，并把 latent loss 回传到下游 depth encoder；
+- Rad-JEPA 3D 用 masked student、完整 EMA teacher 与 latent predictor 预训练 CT encoder。
+
+**未纳入主解读：**
+
+- [Recast: Forecasting Trajectory-Level Safety Risks in Black-Box Multi-Turn Interactions](https://arxiv.org/abs/2607.26820) 出现在 `predictive latent` 扩展查询中，但方法是 LLM 对话风险检索与 causal temporal encoder，没有 JEPA context–target–predictor 训练链，也没有实际复用 I/V/A-JEPA 或 LeWM，故排除。
+- [INTACT](https://arxiv.org/abs/2607.26056) 仍出现在本轮 API 时间窗中，但已于 2026-07-29 完整解读，严格去重。
+- OpenAlex 的 I-JEPA 引用链在极新论文上尚有索引延迟；本轮没有用“尚未入库”推断论文不存在，而是以 arXiv 官方 API、分类新列表和全文术语交叉补查。
+- 本轮没有发现新的 A-JEPA 或 MJEPA 主干下游论文；V-JEPA/V-JEPA 2 的新出现主要是 Rad-JEPA 3D 的 related-work 引用，而非直接复用视频 checkpoint。
+
+## 新增下游论文解读
+
+### 1. Temporally Centered SIGReg Improves Multi-Task LeWorldModel Learning: From Analysis to Method
+
+#### 基本信息
+
+- 完整题目：*Temporally Centered SIGReg Improves Multi-Task LeWorldModel Learning: From Analysis to Method*
+- 作者：Chang Liu、Fei Suo、Yanzhou Jin、Yusuke Iwasawa、Yutaka Matsuo、Yaonan Zhu
+- 机构：The University of Tokyo, Graduate School of Engineering
+- 时间与出处：arXiv:2607.26924 v1，2026-07-29 13:54:52 UTC；当前为 `cs.LG / cs.RO` 预印本，未在原文声明正式录用
+- 使用的 JEPA：LeWorldModel（LeWM）encoder + action-conditioned latent predictor + SIGReg
+- 下游任务：LIBERO 四套件的 10-task 与统一 40-task 视觉机器人操作；冻结 encoder 后训练 task-conditioned flow-matching behavior-cloning policy
+- 代码状态：arXiv 页面与正文未提供 TC-LeWM 代码仓、checkpoint 或 release
+
+[arXiv 摘要与提交记录](https://arxiv.org/abs/2607.26924) · [arXiv HTML 全文](https://arxiv.org/html/2607.26924v1) · [原始 PDF](https://arxiv.org/pdf/2607.26924)
+
+#### 方法如何衔接 JEPA
+
+**可核对事实**
+
+Raw LeWM 的损失由 action-conditioned next-latent prediction 与 SIGReg 组成。TC-LeWM 保留 encoder、predictor、prediction loss、两相机处理和下游 policy，只对每个相机、每条序列计算局部时间均值 `z̄_t`，再把 SIGReg 从 `z_t` 改施加到 `r_t=z_t-z̄_t`。默认窗口 `W=8`，约 1.4 秒。[方法公式 5–6](https://arxiv.org/html/2607.26924v1#S4.SS1)
+
+冻结 encoder 后，policy 消费两路相机的 CLS token 和 `4×4` pooled patch tokens，不使用 proprioception；79.3M 的 DiT 用 rectified flow matching 生成 8-step action chunk，执行 8 步后重新观测。[下游 policy 细节](https://arxiv.org/html/2607.26924v1#A1.SS1)
+
+**作者主张**
+
+SIGReg 的 Epps–Pulley objective 会对多峰 latent marginal 的 cluster-center spread 产生收缩梯度，即使表示没有全局坍塌，也可能让不同任务/状态发生 aliasing。时间去中心使 residual normality 与低频 cluster center 的间距解耦，因此能保留任务结构。
+
+**本研究判断**
+
+这是一条可信且容易迁移的机制改动，因为最重要的 Raw/TC 对照只改变一个目标位置。它同时提醒：把 latent 强行做成“好看的标准分布”并不等于得到适合控制的几何。
+
+不过 Monte Carlo 分析使用 balanced、homoscedastic Gaussian mixture，是解释性模型，不是对真实神经表示的严格定理；LIBERO 中更大的 cluster spread、PCA 结构与成功率相互一致，但仍不能证明“收缩压力”是全部因果机制。
+
+#### 数据、指标、基线与关键结果
+
+LIBERO 包含 Spatial、Object、Goal、Long 四个 suite，每套 10 个 manipulation task。论文比较单任务、suite 内 10-task 和统一 40-task 三种聚合设置；所有主结果为 3 次完整 pipeline training seed，每个 checkpoint 再用 3 个 evaluation seed、每任务每个 seed 50 次 rollout，指标为 closed-loop success rate。[实验协议](https://arxiv.org/html/2607.26924v1#S5.SS1)
+
+| 设置 | Raw LeWM | TC-LeWM | 差值 |
+|---|---:|---:|---:|
+| 10-task Spatial | 61.6±4.3 | 68.6±1.8 | +7.0 |
+| 10-task Object | 46.4±12.8 | 87.8±3.2 | +41.4 |
+| 10-task Goal | 74.8±6.2 | 86.0±1.1 | +11.2 |
+| 10-task Long | 29.9±8.3 | 51.8±9.2 | +21.9 |
+| 10-task 四套件平均 | 53.2 | 73.6 | +20.4 |
+| 统一 40-task 平均 | 44.4 | 73.5 | +29.1 |
+
+统一 40-task 时，Raw LeWM 相对 suite-wise 10-task 下降 `8.8` 点，TC-LeWM 只下降 `0.1` 点。LIBERO-Long 中 Raw LeWM 从单任务 `40.0%` 降到联合 `29.9%`，TC-LeWM 则从 `49.6%` 升到 `51.8%`。[Table 2–3](https://arxiv.org/html/2607.26924v1#S5.SS2)
+
+作为非 matched 背景，TC-LeWM 的 `73.6%` 略高于论文引用的 from-scratch Diffusion Policy `72.4%`，低于 fine-tuned Octo `75.1%` 与 OpenVLA `76.5%`。作者明确说明这些 published numbers 的 pipeline 不同，不能当作公平胜负。
+
+#### 相对已有工作的创新
+
+1. 把多任务负迁移定位到 anti-collapse regularizer 的统计对象，而不是简单增加网络容量；
+2. 只用时间去中心改变 SIGReg target，不新增 teacher、reconstruction、reward 或外部预训练；
+3. 从单任务、10-task 到 40-task 逐级检查 scaling；
+4. 将 mixture-gradient 分析、latent cluster/progress PCA 与真实 closed-loop policy 结果连接；
+5. 用 8 类视觉扰动检查 frozen representation 的相对位移，而不只报告 clean success。
+
+#### 局限、复现条件与潜在风险
+
+- **仍是 LIBERO 仿真。** 没有真机、相机漂移、动作延迟、安全失败或跨机器人验证。
+- **下游不是无监督。** world-model stage 不用 reward，但 policy stage 使用动作示范与 task ID。
+- **没有替代 anti-collapse 基线。** 论文主要比较 Raw SIGReg 与 TC-SIGReg，尚未同协议对比 EMA teacher、VICReg、LeJEPA/SIGReg 其它变体。
+- **外部 policy 比较不 matched。** Diffusion Policy、Octo、OpenVLA 只应作为量级背景。
+- **理论模型简化。** balanced/homoscedastic mixture 不能覆盖真实 latent 的非平稳、非高斯与任务不平衡。
+- **窗口依赖虽不敏感但非零。** `W=1` 会让 residual 恒为零并坍塌；`W=4/8/32/episode` 都有效，但最佳均值来自 episode centering `53.4%`，不是默认 `W=8` 的 `51.8%`。[window ablation](https://arxiv.org/html/2607.26924v1#A1.SS5)
+- **复现入口不完整。** 有架构和评测口径，却缺训练代码、checkpoint、optimizer/训练步数总表、GPU 型号、训练时长与能耗。
+
+**复现判断：中低。** matched protocol 描述充分，但完整流水线规模大且无实现发布。
+
+#### 是否值得改写成原创技术博客
+
+**非常值得，今日最高优先级。** 推荐主题：
+
+> 防止 JEPA 坍塌的高斯先验，为什么反而压坏多任务世界模型？
+
+它可以从“非坍塌不等于可控制”切入，解释 marginal regularization、conditional structure 与下游可读性的差别；比单纯汇总 LIBERO 分数更有长期价值。
+
+---
+
+### 2. JEPADepth: Masked Predictive Representation Learning for Self-Supervised Monocular Depth Estimation
+
+#### 基本信息
+
+- 完整题目：*JEPADepth: Masked Predictive Representation Learning for Self-Supervised Monocular Depth Estimation*
+- 作者：Ionuț Grigore、Călin-Adrian Popa
+- 机构：Politehnica University of Timișoara, Romania
+- 时间与出处：arXiv:2607.26600 v1，2026-07-29 08:23:46 UTC；当前为 `cs.CV` 预印本
+- 使用的 JEPA：I-JEPA 式 context encoder、EMA target encoder、structured masking 与 latent regression；backbone 从 DINOv3 ViT-S/16 初始化
+- 下游任务：KITTI 自监督单目深度估计，以及 Cityscapes、Make3D zero-shot transfer
+- 官方代码：[ionut-grigore99/JEPADepth](https://github.com/ionut-grigore99/JEPADepth)，提供训练、三数据集评测、配置与数据准备说明；截至本次核验未见 checkpoint release，仓库也未声明 license
+
+[arXiv 摘要与提交记录](https://arxiv.org/abs/2607.26600) · [arXiv HTML 全文](https://arxiv.org/html/2607.26600v1) · [官方代码仓](https://github.com/ionut-grigore99/JEPADepth)
+
+#### 方法如何衔接 JEPA
+
+**可核对事实**
+
+JEPADepth 以 Monodepth2 的 photometric view synthesis 为主体：depth network 与 pose network 用相邻帧重建目标视图。并行的 JEPA branch 从同一目标图像的 DINOv3 patch tokens 中取 85–100% context，采样 4 个互不重叠、各覆盖 15–20% patch 的 target block；12-layer predictor 预测 EMA target encoder 的 stop-gradient embedding。[mask 与模型配置](https://arxiv.org/html/2607.26600v1#S4.SS3)
+
+总损失为 photometric、disparity smoothness 与 JEPA latent loss 之和。训练后删除约 21M predictor 与 target encoder，部署时只保留约 22M encoder + 2M FPN decoder。
+
+**作者主张**
+
+Photometric loss 容易受亮度、纹理、反光与非刚体运动影响；masked latent prediction 能在 DINOv3 表示空间中保留对象边界与布局结构，从而提高跨域迁移。
+
+**本研究判断**
+
+它属于“实际使用 I-JEPA 目标”的严格下游论文，但不是 I-JEPA checkpoint 的直接迁移，也不是一个独立 JEPA foundation model。更准确的描述是：DINOv3 初始化的 depth encoder 在 photometric fine-tuning 时，额外受到 I-JEPA 式在线正则。
+
+#### 数据、指标、基线与关键结果
+
+- KITTI Eigen：训练 20 epoch，`192×640`，batch 12，单张 RTX 4090；测试使用 monocular median scaling；
+- Cityscapes：KITTI 训练后直接在 1,525 张测试图像评估；
+- Make3D：KITTI 训练后直接在 134 张测试图像评估；
+- 指标：AbsRel、SqRel、RMSE、RMSElog、`δ<1.25^i`；
+- 主基线：Monodepth2、DIFFNet、Lite-Mono、MonoViT，以及同一 DINOv3 pipeline 的 no-JEPA 版本。[数据与协议](https://arxiv.org/html/2607.26600v1#S4.SS2)
+
+最关键的 matched ablation：
+
+| KITTI Eigen | AbsRel↓ | SqRel↓ | RMSE↓ | RMSElog↓ | δ1↑ |
+|---|---:|---:|---:|---:|---:|
+| DINOv3 fine-tuned，无 JEPA | 0.105 | 0.861 | 4.710 | 0.186 | 0.891 |
+| DINOv3 fine-tuned + JEPA | **0.101** | **0.782** | **4.563** | **0.180** | **0.898** |
+
+Make3D matched no-JEPA/JEPADepth 为：AbsRel `0.284→0.275`、SqRel `3.135→2.825`、RMSE `6.903→6.625`、RMSElog `0.147→0.143`。Cityscapes 的 JEPADepth AbsRel 为 `0.143`、RMSE `7.766`，但主表没有同一 DINOv3 no-JEPA 行，因此只能与外部 published baselines 比较。[KITTI/Make3D tables](https://arxiv.org/html/2607.26600v1#S4.SS3)
+
+表示空间预测优于像素重建，但差距很小：AbsRel `0.103→0.101`。随机初始化 + JEPA 的 AbsRel 为 `0.157`，远差于 DINOv3 预训练 + JEPA 的 `0.101`，说明效果高度依赖强预训练 target。[ablation Tables 8–10](https://arxiv.org/html/2607.26600v1#S4.SS7)
+
+#### 相对已有工作的创新
+
+1. 将 I-JEPA masked latent objective 作为 photometric self-supervised depth 的在线辅助目标；
+2. 与跨帧 feature warping 不同，JEPA branch 只依赖单帧 structured masking；
+3. 给出同 backbone、同 decoder、同推理结构的 no-JEPA 对照；
+4. predictor 只增加约 16% 训练时长，不增加部署参数；
+5. 同时检查 KITTI 域内和两个 zero-shot 数据集。
+
+#### 局限、复现条件与潜在风险
+
+- **收益较小且无统计误差。** 论文只报单点数值，没有训练 seed、置信区间或显著性。
+- **单目尺度仍靠 median scaling。** 测试时使用 ground-truth median 对齐，不能直接代表真实车辆可用的绝对尺度深度。
+- **Cityscapes 缺 matched baseline。** 跨域 headline 中最完整的同管线归因只在 Make3D 成立。
+- **预训练贡献占主导。** 随机初始化 + JEPA 很差，尚缺 random-init no-JEPA 对照来分离 JEPA 独立作用。
+- **超参选择口径不清。** `λ_JEPA=1` 的 sensitivity 直接报告在 KITTI Eigen split，正文没有清楚说明是否只用独立 validation 选取。
+- **环境假设有限。** photometric pipeline 仍依赖刚体场景、相机标定与亮度一致性；没有夜间、恶劣天气、移动物体分层结果。
+- **复现数据成本不低。** 训练约 175 GB KITTI；Cityscapes 原始下载约 324 GB。代码公开但无权重、无 license。
+
+**复现判断：中高。** 单卡 8.6 小时、训练和评测代码齐全；主要缺口是 checkpoint、license 与多种子统计。
+
+#### 是否值得改写成原创技术博客
+
+**值得，中等优先级。** 推荐主题：
+
+> 一个训练时才存在的 JEPA predictor，能否让单目深度跨城市泛化？
+
+最好围绕“小幅 matched gain、无推理成本、但尺度与统计证据仍有限”展开，而不是写成 SOTA 宣传。
+
+---
+
+### 3. Rad-JEPA 3D: Radiology Joint-Embedding Predictive Model for 3D Computed Tomography
+
+#### 基本信息
+
+- 完整题目：*Rad-JEPA 3D: Radiology Joint-Embedding Predictive Model for 3D Computed Tomography*
+- 作者：Quoc-Huy Trinh、Minh-Van Nguyen、Ulas Bagci
+- 机构：Northwestern University、Technical University of Denmark
+- 时间与出处：arXiv:2607.26196 v1，2026-07-28 19:00:17 UTC；当前为 `cs.CV` 预印本。PDF 使用 AAAI 模板/版权脚注，但 arXiv 元数据与正文没有正式接收声明，不据此写成 AAAI 录用
+- 使用的 JEPA：3D cube masking、masked student、完整视图 EMA teacher、latent predictor；另加 H-Mamba 与 HSOR
+- 下游任务：冻结 encoder 的 CT plane/contrast phase/organ kNN，M3D-VQA closed/open-ended VQA，SpatialMed 多选空间推理
+- 代码状态：论文给出的 `https://huyquoctrinh.github.io/radjepa3d/` 本次核验返回 404；未发现官方代码、权重或可用项目页
+
+[arXiv 摘要与提交记录](https://arxiv.org/abs/2607.26196) · [arXiv HTML 全文](https://arxiv.org/html/2607.26196v1) · [原始 PDF](https://arxiv.org/pdf/2607.26196)
+
+#### 方法如何衔接 JEPA
+
+**可核对事实**
+
+每个 CT volume 被重采样为 `128×256×256`，再切成不重叠的 `8×8×8` cubes；student 随机遮挡 75% token，EMA teacher 读取完整 volume，4-layer MLP predictor 用 L1 对齐 masked position 的 teacher latent。[方法与实现](https://arxiv.org/html/2607.26196v1#Sx3)
+
+19M visual encoder 同时使用 Mamba-2 分支建模 slice continuity、GQA 分支建模 cross-plane context，并由 per-token router 选择分支。HSOR 在中间层加入 student–teacher cross-correlation alignment 与 weight orthogonality；总损失还含 router load balancing。
+
+<figure>
+  <img src="https://arxiv.org/html/2607.26196v1/x1.png" alt="Rad-JEPA 3D 的 masked student、EMA teacher、latent predictor、HSOR 与 H-Mamba 架构" style="display:block;max-width:820px;width:100%;height:auto;margin:0 auto;" loading="lazy">
+  <figcaption>Rad-JEPA 3D Figure 1：3D cube masking 后，student 预测完整视图 EMA teacher 的 masked latent；H-Mamba 将 Mamba 与 GQA 分支路由融合。图片来自 arXiv 官方 HTML，原图 1105×535、约 230 KiB；页面限制为 820 px 并 lazy-load，不在仓库重复保存。</figcaption>
+</figure>
+
+**作者主张**
+
+3D 医学任务的关键不是单纯增大语言模型，而是让视觉 encoder 保留 inter-slice continuity 与 cross-plane geometry；HSOR 减少中间表示冗余后，小语言模型也能支持强空间推理。
+
+**本研究判断**
+
+Rad-JEPA 3D 是真实的 JEPA 核心预训练，而不是只引用 V-JEPA。但完整系统收益混合了 JEPA、H-Mamba、GQA router、HSOR、cube size、LLM 与 instruction tuning；现有消融主要分解 H-Mamba/HSOR，没有同架构 no-JEPA 或 MAE，因此不能把 VQA 全部增益归给 latent prediction。
+
+#### 数据、指标、基线与关键结果
+
+- M3D-Cap：约 120,000 个 CT volume 用于 SSL；
+- M3D-VQA：约 662,000 条 instruction-response pairs；
+- patient-disjoint `115,000/3,000/2,000` train/validation/test，论文称 validation/test patient 不进入 SSL 或 instruction tuning；
+- SSL：10 epoch、8×NVIDIA A6000、global batch 256、AdamW，19M encoder；
+- 下游 VLM：Qwen2.5-3B 或 Qwen3-4B，使用 LLaVA-style instruction tuning 与 LoRA。[数据和实现](https://arxiv.org/html/2607.26196v1#Sx4)
+
+冻结 kNN probe 中，Rad-JEPA 3D 的 Plane/Phase/Organ 为 `98.1/48.3/19.6%`；最强 VoCo-B 为 `95.5/47.4/17.0%`，分别高 `2.6/0.9/2.6` 点。
+
+| 下游系统 | 关键结果 | 最强表内基线 |
+|---|---:|---:|
+| M3D-VQA closed-ended mean | 81.66% | Med3DVLM 79.75% |
+| Open-ended BLEU-1 / METEOR | 86.16 / 60.81 | Med3DVLM 52.38 / 36.76 |
+| SpatialMed mean | 58.16% | Med3DVLM 55.59% |
+| SpatialMed VOL | 50.84% | Med3DVLM 41.37% |
+| SpatialMed DIR | 64.62% | **Med3DVLM 71.10%** |
+
+组件消融的 Plane/Phase/Organ mean：纯 Mamba/no-HSOR `50.7%`，只加 HSOR `52.6%`，只加 hybrid `52.3%`，两者都加 `55.3%`。75% mask ratio 与 `8×8×8` cube size 最佳。[ablation Tables 4–6](https://arxiv.org/html/2607.26196v1#Sx5.SSx2)
+
+#### 相对已有工作的创新
+
+1. 把 masked latent prediction 从 2D/视频移植到完整 3D CT cube sequence；
+2. 用 Mamba + GQA router 同时处理 slice continuity 与全局 cross-plane retrieval；
+3. HSOR 将 student–teacher 对齐与去冗余扩展到中间层；
+4. 不只做 probe，还把 encoder 接到医学 VLM 和空间推理；
+5. 明确使用 patient-disjoint split，并报告 3B/4B 两种语言模型。
+
+#### 局限、复现条件与潜在风险
+
+- **核心归因混杂。** 缺少同 H-Mamba 下 `JEPA vs no-SSL/MAE/DINO` 的 matched 对照。
+- **VLM 比较并不只改变视觉 encoder。** 各基线的 LLM、视觉 backbone、数据和训练协议不同。
+- **单一数据家族。** SSL、instruction tuning 与多数 evaluation 都围绕 M3D；没有外部医院、不同扫描仪/人群或真实临床工作流。
+- **医学风险指标缺失。** 没有校准、置信度、幻觉、亚组、公平性、敏感度/特异度或放射科医师评测。
+- **SpatialMed 仍有明显短板。** DIR `64.62%` 低于 Med3DVLM `71.10%`，不能写成全维度最优。
+- **统计不透明。** 主表和组件消融没有 seed 误差条或显著性。
+- **压缩与重采样风险。** 所有 volume 固定为 `128×256×256`，可能损失原始 voxel spacing 与微小病灶细节；论文没有分病灶尺度审计。
+- **复现入口弱。** 8×A6000 的规模、无训练时长、无代码/权重，且论文项目页当前 404。
+
+**复现判断：低。** 数据协议可读，但实现、权重、资源时长和独立外部数据均缺失。
+
+#### 是否值得改写成原创技术博客
+
+**值得，中高优先级，但需以评测归因为主线。** 推荐主题：
+
+> 120K 个 CT 预训练之后，医学 VQA 的提升到底来自 JEPA、3D encoder，还是更换了整套 VLM？
+
+这能连接医学 foundation model 的 patient-disjoint、外部验证和 matched ablation，比复述排行榜更有原创价值。
+
+## 横向比较
+
+| 维度 | TC-LeWM | JEPADepth | Rad-JEPA 3D |
+|---|---|---|---|
+| JEPA 在系统中的位置 | 世界模型核心目标与防坍塌正则 | 下游训练期辅助正则 | 医学 VLM 的视觉预训练核心 |
+| 预测轴 | 时间 future latent | 单帧 masked spatial latent | 3D masked volumetric latent |
+| 下游接口 | 冻结表示 → flow policy | encoder → depth decoder | encoder → kNN / LLM |
+| 最干净对照 | Raw vs TC 只换 SIGReg target | 同 DINOv3/FPN no-JEPA | H-Mamba/HSOR 组件消融，缺 no-JEPA |
+| 统计质量 | 3 完整训练 seed + 多 rollout | 单次，无误差条 | 单次，无误差条 |
+| 部署开销 | predictor 不进入 policy，但需另训 79.3M policy | predictor/target 删除，无额外推理成本 | 3B/4B VLM 全量部署 |
+| 复现可用性 | 无代码 | 代码公开 | 无代码，项目页 404 |
+| 最重要反例 | 非坍塌仍会多任务 aliasing | latent gain 小且依赖 DINOv3 | 系统提升不能归因给 JEPA |
+
+三篇放在一起形成一个清楚的证据梯度：
+
+1. **TC-LeWM**：同架构同协议，只改正则对象，最适合回答“机制是否有效”；
+2. **JEPADepth**：同下游 pipeline 加/减 JEPA，适合回答“训练期插件是否增益”；
+3. **Rad-JEPA 3D**：完整系统规模最大，适合回答“能做什么”，但不适合单独回答“为什么有效”。
+
+阶段性判断是：
+
+> 下游 JEPA 研究已经不缺“把 predictor 接上去”的案例，真正稀缺的是能够把 JEPA 贡献从强预训练 backbone、领域结构、语言模型与下游 head 中分离出来的 matched evidence。
+
+## 值得继续追的问题
+
+1. **TC-SIGReg 能否跨出 LIBERO？** 应在真实机器人、非平稳视觉、长视频与不平衡任务采样下比较 Raw/TC，同时加入 EMA teacher、VICReg、LeJEPA 等 anti-collapse 对照。
+2. **时间去中心保留的究竟是任务身份还是可控状态？** 需要 task-ID shuffle、跨任务同状态检索、action-conditioned counterfactual probe，避免 cluster separation 只是在编码场景外观。
+3. **JEPADepth 的 zero-shot gain 是否稳定？** 至少需要 3–5 个训练 seed、无 median scaling 的 metric-depth 评测，以及夜间、雨雾、动态物体和相机变化分层。
+4. **JEPA 正则是在保住 DINOv3，还是学到新的几何？** 可比较 frozen DINOv3 feature distillation、L2 anchor、EMA self-distillation 与真正 context–target prediction。
+5. **Rad-JEPA 3D 的 JEPA 独立贡献多大？** 同一 H-Mamba、同一 19M encoder、同一 Qwen backbone 下，必须比较 no-SSL、MAE、DINO/VoCo、JEPA、JEPA+HSOR。
+6. **医学空间推理是否能跨医院？** 需要外部 CT、原始 voxel spacing、病灶尺度分层、放射科医师评测与 hallucination/calibration 审计。
+7. **代码与权重会不会补齐？** TC-LeWM 与 Rad-JEPA 3D 都应持续检查官方 release；JEPADepth 则应关注 checkpoint、license 与多种子复现实验。
+
+## 博客价值判断
+
+### 最值得优先主题化重写：TC-LeWM
+
+原创博客不应复述三个 suite 表格，而应围绕：
+
+> “表示不坍塌”为什么仍可能让多任务 policy 读不懂？
+
+可以用“全局非坍塌 → 条件结构 → 下游可读”三层框架解释，并把 `40-task 44.4→73.5%` 作为机制后果，而不是标题党。
+
+### 第二优先：Rad-JEPA 3D 的归因审计
+
+适合写成医学 AI 评测方法文：
+
+> 当视觉 encoder、预训练目标和 LLM 同时变化时，怎样判断 JEPA 是否真的有效？
+
+它可以与 Neuro-JEPA、COJEPA、US-JEPA 做横向比较，强调 patient-disjoint 不等于外部有效、系统 SOTA 不等于预训练目标 SOTA。
+
+### 第三优先：训练期 JEPA 插件
+
+把 JEPADepth 与触觉 VLA τ、Latent Imagination 等“推理时删除 predictor”的工作放在一起，讨论：
+
+> JEPA 作为 representation regularizer，是否比 JEPA 作为部署世界模型更容易产生稳定收益？
+
+这比单篇深度估计论文摘要更有原创区分度。
+
+## 来源链接
+
+### 今日三篇主论文
+
+- Liu et al., *Temporally Centered SIGReg Improves Multi-Task LeWorldModel Learning: From Analysis to Method*：[arXiv](https://arxiv.org/abs/2607.26924) · [HTML](https://arxiv.org/html/2607.26924v1) · [PDF](https://arxiv.org/pdf/2607.26924)
+- Grigore & Popa, *JEPADepth: Masked Predictive Representation Learning for Self-Supervised Monocular Depth Estimation*：[arXiv](https://arxiv.org/abs/2607.26600) · [HTML](https://arxiv.org/html/2607.26600v1) · [官方代码](https://github.com/ionut-grigore99/JEPADepth)
+- Trinh, Nguyen & Bagci, *Rad-JEPA 3D: Radiology Joint-Embedding Predictive Model for 3D Computed Tomography*：[arXiv](https://arxiv.org/abs/2607.26196) · [HTML](https://arxiv.org/html/2607.26196v1) · [PDF](https://arxiv.org/pdf/2607.26196)
+
+### 核心谱系与对照
+
+- I-JEPA：[CVPR 2023 官方论文](https://openaccess.thecvf.com/content/CVPR2023/html/Assran_Self-Supervised_Learning_From_Images_With_a_Joint-Embedding_Predictive_Architecture_CVPR_2023_paper.html)
+- V-JEPA 2：[arXiv](https://arxiv.org/abs/2506.09985)
+- LeWorldModel：[arXiv](https://arxiv.org/abs/2603.19312)
+- SIGReg / LeJEPA：[arXiv](https://arxiv.org/abs/2511.08544)
+
+### 排除与去重
+
+- Recast（相邻 predictive latent、非 JEPA）：[arXiv](https://arxiv.org/abs/2607.26820)
+- INTACT（昨日已完整解读）：[arXiv](https://arxiv.org/abs/2607.26056)
+- 2026-07-29 既有追踪：[本地研究记录](./2026-07-29.md)
