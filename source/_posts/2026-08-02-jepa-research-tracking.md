@@ -1,0 +1,359 @@
+---
+title: JEPA 下游研究追踪 · 2026-08-02
+date: 2026-08-02 10:00:00
+categories:
+  - JEPA研究追踪
+tags:
+  - JEPA
+  - JEPA追踪
+---
+
+> 本文属于「JEPA追踪」系列，记录每日论文检索、原文核验与阶段性判断；它保留研究日志的证据密度，与经过主题化重写的原创博客区分。
+
+# JEPA 下游研究追踪（2026-08-02）
+
+> 检索窗口：自上次运行 `2026-08-01T03:10:01.844Z` 起，至 2026-08-02 本次运行。
+>
+> 去重范围：automation memory，以及 `research/jepa/` 中 2026-07-15 至 2026-07-31 的全部既有记录。最近已深读 CS-JEPA、TC-LeWM、JEPADepth、Rad-JEPA 3D、Temporal-Distance JEPA、INTACT 与 LeapBot-WA，本日不重复汇报。
+>
+> 纳入标准：论文必须实际复用、改造或直接评估 JEPA，并进入明确下游任务；只在 related work 中引用 JEPA、只使用一般性的 latent prediction 术语、或没有可核对实验协议的工作不算。arXiv、OpenAlex、Crossref 与搜索索引只用于发现候选，实质性结论均回到论文原文、正式会议页面、arXiv 提交记录或作者官方项目页核验。
+>
+> 时间口径：本轮处于周末，arXiv 的 `JEPA` 最新排序仍以 7 月 30 日提交、已在 7 月 31 日记录中解读的 CS-JEPA 为首；OpenAlex/Crossref 的 8 月 1 日后题名检索也没有找到可由一手全文确认的 JEPA 下游新论文。因此今天明确记录“无高可信严格新增”。为推进此前连续登记但尚未逐表审计的候选，本日完整回补 DynaWM 与 seq-JEPA；二者均是历史论文，不冒充截止后新发。
+
+## 今日结论
+
+1. **今日无高可信严格新增，不用低质量结果凑数。** 截止线后没有新的 I-JEPA、V-JEPA/V-JEPA 2、A-JEPA、MJEPA 或 LeWM 下游论文可由论文原文核实。最新 arXiv JEPA 题名仍是 [CS-JEPA](https://arxiv.org/abs/2607.28443)，它已在工作区现有的 2026-07-31 记录中完整解读。
+2. **今天首次完整回补 2 篇高价值历史漏项。** [DynaWM](https://arxiv.org/abs/2607.02604) 直接加载并继续训练 V-JEPA 2.1 ViT-L/300M，把三路、每路 5 帧的视频 history 编成 dense motion tokens，用于移动物体抓取的动作再生成；[seq-JEPA](https://proceedings.neurips.cc/paper_files/paper/2025/hash/2f63d2963526bdd9ff1b8bcc2dc9905a-Abstract-Conference.html) 则真实训练 EMA target、action-conditioned predictor 与 sequence aggregator，在视觉分类、变换解码和 path integration 上评测。这两篇都属于“实际复用/改造 JEPA”，不是只在 related work 引用。
+3. **DynaWM 的系统级结果很强，但 JEPA 独立归因有限。** 同一 frozen base-VLA checkpoint 加入 DynaWM 后，SmolVLA、X-VLA、π0、π0.5 的 fine/coarse 两类共 8 组 32-task 平均全部提高；8 组均值由 `50.36%` 升至 `76.15%`。但完整系统同时加入 Mamba-3 action encoder、V-JEPA 2.1、state encoder 与 flow-matching DiT，且没有 DINO/MAE/随机初始化等替代视频 encoder 对照，所以这些提升证明“DynaWM 完整管线有效”，不能全部写成“V-JEPA 带来”。[Table 2](https://arxiv.org/html/2607.02604v1#S4.T2)
+4. **DynaWM 展示了一条与 V-JEPA 世界模型不同的下游接口：只消费表示，不做未来 rollout。** V-JEPA 2.1 读取观察历史，输出 dense spatiotemporal tokens；DynaWM 不预测未来图像或未来 latent，而是让 action DiT cross-attend 这些 motion tokens，直接重生成动作 chunk。[方法原文](https://arxiv.org/html/2607.02604v1#S3.SS4)
+5. **seq-JEPA 的最强证据是“把 invariant 与 equivariant 信息分到两个接口”，不是全面刷新分类精度。** 在 3DIEBench 上，`M_train=3, M_test=5` 的 aggregate representation 达到 top-1 `87.41%`，单视图 encoder 的 relative-rotation `R²=0.71`；去掉 action conditioning 后分类仍为 `87.36%`，但 rotation `R²` 降到 `0.29`。这支持 action-conditioned predictor 促使 encoder 保留变换信息，而 sequence aggregation 消解变换后支持分类。[主表](https://arxiv.org/html/2505.03176v3#S4.T1)｜[消融](https://arxiv.org/html/2505.03176v3#S4.T4)
+6. **seq-JEPA 的关键反例同样重要。** 未见旋转范围上，所有方法的 OOD rotation decoding 都失败，seq-JEPA `(3,3)` 的 relative-rotation `R²=-0.71`；在 CIFAR-100/Tiny ImageNet 上，seq-JEPA 虽有更强的 augmentation-parameter decoding，却常低于 BYOL/SimCLR/Conditional BYOL 的分类精度。因此“消除 invariant–equivariant trade-off”只在已知 transformation family、短序列和所测协议内成立。[OOD Table 9](https://arxiv.org/html/2505.03176v3#A2.T9)｜[CIFAR/Tiny ImageNet Table 2](https://arxiv.org/html/2505.03176v3#S4.T2)
+7. **今天的阶段性判断：JEPA 下游已出现两种必须分开的“使用强度”。** DynaWM 是“复用 V-JEPA checkpoint/特征接口”，下游阶段没有 JEPA prediction loss；seq-JEPA 是“把预测式 JEPA 本身改造成任务模型”。两者都应纳入谱系，但对因果归因和原创博客的措辞不能相同。
+
+| 论文 | 时间性质 | JEPA 使用强度 | 下游任务 | 最强证据 | 主要边界 |
+|---|---|---|---|---|---|
+| DynaWM | 2026-07-01 arXiv 历史回补 | 直接加载并微调 V-JEPA 2.1 300M encoder；不做未来 rollout | Isaac Sim 移动物体抓取/放置 | 同一 frozen base VLA 的加/不加 DynaWM；8 组均值 `50.36→76.15%` | 完整系统混杂；纯仿真；无 alternative encoder、代码、种子误差 |
+| seq-JEPA | NeurIPS 2025 Main 历史回补 | EMA target + action-conditioned next-view latent prediction + sequence aggregator | 分类、变换解码、saccade/path integration | 3DIEBench matched baselines；action ablation；代码/模型公开 | 已知人工 transformation；短序列；真实控制未验证；OOD equivariance 失败 |
+
+## JEPA 方向最新进展
+
+### 1. 周末严格增量为空，但“最新排序”不能代替提交时间
+
+本轮先检查 arXiv `JEPA` 最新排序、核心分类列表和 OpenAlex/Crossref 日期窗口。结果中仍反复出现 CS-JEPA、JEPADepth、Rad-JEPA 3D、INTACT 与 Temporal-Distance JEPA，但它们已在 7 月 29–31 日记录覆盖。没有 8 月 1 日 03:10 UTC 后的新主稿；搜索索引返回的未来日期或全文命中也没有形成“实际 JEPA + 明确下游 + 可核对实验”的一手证据链。
+
+因此今天不把“搜索结果刚出现”写成“论文刚投稿”，也不把 Research Square 上只声称使用 checkpoint、但缺少足够实验与复现证据的候选升格为主解读。
+
+### 2. V-JEPA 的下游角色开始从“预测未来”分化为“提供运动特征”
+
+DynaWM 使用 V-JEPA 2.1 的方式与 LeapBot-WA、V-JEPA 2-AC 或 LeWM 不同：
+
+- 输入是三路同步相机、每路 5 帧的短历史；
+- 共享 V-JEPA 2.1 ViT-L/300M 输出未池化的 dense tokens；
+- token 经 cross-attention 进入 action DiT；
+- 模型不 rollout future image/latent，也不在 DynaWM 阶段训练 JEPA prediction loss；
+- V-JEPA encoder 属于可训练的 DynaWM，而 frozen 的只是 base VLA。
+
+[DynaWM multi-view dynamics](https://arxiv.org/html/2607.02604v1#S3.SS4)
+
+这意味着“用了 V-JEPA”至少要继续拆成三类：冻结特征抽取、下游微调特征抽取、继续使用 predictor/world-model objective。DynaWM 属于第二类；把它称为“V-JEPA 世界模型”会夸大其预测接口。
+
+### 3. seq-JEPA 把 action-conditioned prediction 与 invariant aggregation 分成两个 readout
+
+seq-JEPA 对一串 view–action pair 做处理：ResNet-18 编码每个 view，已知的相对 transformation 经线性层成为 action embedding，3-layer transformer aggregator 输出 `z_AGG`，predictor 再用下一步 action 预测 EMA target encoder 的下一 view 表示。损失只有预测 cosine similarity，没有额外 equivariance loss。[架构与目标](https://arxiv.org/html/2505.03176v3#S2.SS2)
+
+下游接口被刻意分开：
+
+- 变换解码从单 view encoder representation 读取，检查 equivariance；
+- 分类从 aggregate representation 读取，检查 invariance；
+- path integration 从 aggregate representation 与下一 action 读取累计位移。
+
+这不是同一个 embedding 同时“既不变又等变”，而是同一训练系统产生两个性质不同的 readout。这个措辞比“彻底解决不变/等变矛盾”更准确。
+
+### 4. 实际使用、仅引用与本轮排除
+
+**实际复用/改造并进入下游：**
+
+- DynaWM 直接采用 V-JEPA 2.1 300M 的 dense video encoder，并让下游动态抓取 loss 继续更新它；
+- seq-JEPA 真实训练 stop-gradient EMA target 与 action-conditioned latent predictor，并在多项视觉任务中冻结 probe 评估。
+
+**未纳入为今日主论文：**
+
+- CS-JEPA、JEPADepth、Rad-JEPA 3D、INTACT、Temporal-Distance JEPA：已在既有记录完整解读，去重；
+- Research Square 7 月 31 日的 *Semantics-Aware Three-Layer…* 候选：检索摘要声称使用官方 VLA-JEPA checkpoint，但当前证据不足以核对 checkpoint 版本、训练/测试切分、基线公平性、代码与复现条件，不满足本系列的主解读门槛；
+- OpenAlex 8 月 1 日后的 `joint embedding predictive architecture` 全文命中多为词面碰撞或 related-work 引用，没有发现新的实际 JEPA 下游系统；
+- JHU-VPT(JEPA) 的 [PMLR 正式页面](https://proceedings.mlr.press/v301/shah26b.html) 可确认 2,591 个多中心白内障视频与步骤识别/反馈/技能评估，但本轮公开 PDF 下载入口不稳定，未能逐表复核关键数字，因此继续保留候选，不用摘要数字凑成第三篇。
+
+## 新增下游论文解读
+
+> 本节“新增”指首次进入完整逐表解读；两篇均为历史回补，不是截止线后的新投稿。
+
+### 1. DynaWM: A Base-VLA-Guided World Foundation Model for Moving-Object Manipulation
+
+#### 基本信息
+
+- **完整题目**：*DynaWM: A Base-VLA-Guided World Foundation Model for Moving-Object Manipulation*
+- **作者**：Chongkei Chang、Zhidong Deng
+- **机构**：Department of Computer Science and Technology, THUAI, Tsinghua University
+- **时间与出处**：arXiv:2607.02604 v1，2026-07-01 13:16:44 UTC；`cs.CV / cs.RO` 预印本，原文未声明正式录用
+- **使用的 JEPA**：V-JEPA 2.1 ViT-L/300M dense video encoder，作为可训练的视觉分支；辅助消融另含 80M 版本
+- **下游任务**：Isaac Sim 中 independently moving object 的动态拦截、抓取、放置、多对象顺序执行
+- **代码/数据状态**：arXiv 页面与论文没有官方代码、DynaGrasp-32 资产、DynaGrasp-1600 下载或 checkpoint 链接
+
+[arXiv 摘要与提交记录](https://arxiv.org/abs/2607.02604) · [HTML 全文](https://arxiv.org/html/2607.02604v1) · [PDF](https://arxiv.org/pdf/2607.02604)
+
+#### 方法如何衔接 JEPA
+
+**可核对事实**
+
+每个 frozen base VLA（SmolVLA、X-VLA、π0、π0.5）先对当前图像、指令和 9D robot state 生成 `10×7` base action chunk。DynaWM 不读取 base VLA 的 language/vision/action tokens 或梯度，而是把这个物理 action sequence 经 Mamba-3 编成 condition。[系统接口](https://arxiv.org/html/2607.02604v1#S3.SS1)
+
+三路相机各取最近 5 帧，统一送入 V-JEPA 2.1 ViT-L/300M；未池化 dense tokens 作为 visual motion evidence。state MLP 与 action representation 经 AdaLN 调制 8-block DiT，视觉 token 经 cross-attention 参与从高斯噪声到 demonstration action chunk 的 flow matching。V-JEPA encoder 随 DynaWM 一起训练，只有 base VLA 冻结。[内部架构](https://arxiv.org/html/2607.02604v1#S3.SS4)｜[trajectory regeneration](https://arxiv.org/html/2607.02604v1#S3.SS5)
+
+<figure>
+  <img src="https://arxiv.org/html/2607.02604v1/x2.png" alt="DynaWM 内部架构：Mamba-3 动作条件、V-JEPA 2.1 多视角运动 token 与 flow-matching DiT" style="display:block;max-width:820px;width:100%;height:auto;margin:0 auto;" loading="lazy">
+  <figcaption>DynaWM Figure 2：V-JEPA 2.1 只提供多视角短历史的 dense motion tokens，不生成未来图像；动作 chunk 与 state 调制 DiT，视觉 token 通过 cross-attention 参与动作再生成。图片来自 arXiv 官方 HTML，原图 777×397、142,113 bytes（约 139 KiB）；限制显示宽度并 lazy-load，不在仓库保存副本。</figcaption>
+</figure>
+
+**作者主张**
+
+base action chunk 已编码任务语义、接近方向和 gripper phase；V-JEPA 短历史补充物体方向、速度、反弹与遮挡信息。二者合并后，同一架构可以补偿多种 frozen base VLA 缺少的动态操作能力。
+
+**本研究判断**
+
+论文确实复用了 V-JEPA 2.1 checkpoint 并把它用于闭环控制，但 DynaWM 不是在下游阶段继续训练 JEPA predictor，也不预测未来 latent。更准确的描述是“V-JEPA-initialized video feature backbone + action-conditioned flow policy adapter”。它证明 V-JEPA dense features 可作为有用的 motion interface，却没有隔离这些特征相对其他视频 backbone 的独立优势。
+
+#### 数据集、指标、主要基线与关键实验结果
+
+**数据与协议（事实）**
+
+- DynaGrasp-32：32 个 Isaac Sim 任务、6 类动态难度（Base、Objects、Obstacle、Environment、Amount、Speed）；Franka Panda、3 个 `256×256` RGB 相机、30 Hz；
+- DynaGrasp-1600：每任务 50 条 human-teleoperated demonstrations，共 1,600 条 trajectory、约 510K control steps、1.53M RGB images；
+- 每个 model–task 组合 50 个闭环 episode，32-task 平均等价于 1,600 episodes 的 pooled success rate；
+- 四种 base VLA 各有 fine-tuned 与约 0.5 epoch coarse-tuned checkpoint；加/不加 DynaWM 使用同一个 frozen base checkpoint；
+- DynaWM 架构/优化 recipe 固定，但每个 base VLA 单独训练一组 DynaWM weights；实验硬件为单张 RTX PRO 6000 96GB。
+
+[实验协议](https://arxiv.org/html/2607.02604v1#S4.SS1)
+
+**主结果（作者报告）**
+
+| Checkpoint | Base VLA | Base SR | +DynaWM | 差值 | 任务 Up/Tie/Down |
+|---|---|---:|---:|---:|---:|
+| Fine-tuned | SmolVLA | 62.50 | 69.69 | +7.19 | 23/1/8 |
+| Fine-tuned | X-VLA | 36.56 | 81.88 | +45.31 | 32/0/0 |
+| Fine-tuned | π0 | 72.56 | 74.44 | +1.88 | 14/4/14 |
+| Fine-tuned | π0.5 | 64.63 | 75.56 | +10.94 | 21/5/6 |
+| Coarse-tuned | SmolVLA | 40.63 | 75.75 | +35.13 | 32/0/0 |
+| Coarse-tuned | X-VLA | 37.69 | 81.75 | +44.06 | 32/0/0 |
+| Coarse-tuned | π0 | 39.88 | 75.56 | +35.69 | 31/1/0 |
+| Coarse-tuned | π0.5 | 48.44 | 74.56 | +26.13 | 31/0/1 |
+
+Fine-tuned 四模型等权均值 `59.06→75.39%`，coarse-tuned `41.66→76.91%`，八组合整体 `50.36→76.15%`。[Table 2](https://arxiv.org/html/2607.02604v1#S4.T2)
+
+最强的 JEPA-adjacent 消融是无 base-action conditioning 的 Qwen reference：Qwen3.5-0.8B 为 `39.94%`，加入 V-JEPA 2.1 80M 为 `55.00%`，300M 为 `67.44%`。但这个消融同时改变视觉容量，且不属于主 DynaWM action-conditioned pipeline；它不能回答同容量的 V-JEPA vs DINO/MAE。[Table 4](https://arxiv.org/html/2607.02604v1#S4.T4)
+
+移除 Mamba action encoder、把 base action chunk 只当 flow 初值时，π0 setting 从 DynaWM 的 `74.44%` 降至 `29.00%`，甚至低于 frozen π0 的 `72.56%`。这说明最强系统证据更多指向“持续 action conditioning”，而非仅靠视觉 encoder。[Table 5](https://arxiv.org/html/2607.02604v1#S4.T5)
+
+#### 相对已有工作的创新
+
+1. 将不同架构 VLA 的物理 action chunk 作为统一接口，不访问内部 token 或继续训练 base VLA；
+2. 将 V-JEPA 2.1 dense short-history token 与 Mamba action condition 分开注入 action DiT；
+3. 直接重生成完整 action chunk，而不是 residual correction 或 future-image rollout；
+4. 新建 DynaGrasp-32/1600，把速度、反弹、多对象顺序与视觉变化拆成 6 类诊断；
+5. 用同一 base checkpoint 的加/不加 adapter 比较 8 种 checkpoint 组合。
+
+#### 局限、复现条件与潜在风险
+
+1. **纯仿真。** 没有真实相机、真实传送带、控制延迟、抓取安全或 sim-to-real；原文只把仿真称为后续 hardware validation 的基础。
+2. **JEPA 归因不隔离。** 没有同架构 DINO、VideoMAE、随机初始化、冻结 V-JEPA 或不训练 V-JEPA 对照。
+3. **不是一个共享 checkpoint。** 四种 base VLA 使用相同架构/recipe，但分别训练 DynaWM weights；“适配任意 base VLA”不是 zero-shot plug-and-play。
+4. **强 base policy 会退化。** Fine-tuned π0 在 32 个任务里 14 个上升、14 个下降；Amount 顺序/绑定任务最容易被局部动态修正破坏。
+5. **统计不足。** 每配置虽有 50 episode/task，但没有训练 seed、置信区间或显著性；同一 simulator 的 episode 重复不能替代独立训练重复。
+6. **复现入口缺失。** 没有代码、场景资产、数据、checkpoint、optimizer 全表、训练时长与能耗；只报告 RTX PRO 6000 96GB。
+7. **“foundation model”表述偏强。** 数据只有一个仿真平台、一个 Franka embodiment 和 32 个任务，且每种 VLA 单独训练 adapter。
+
+**复现判断：低。** 任务和架构文字较清楚，但核心资产与训练实现未公开。
+
+#### 是否值得改写成原创技术博客
+
+**值得，中高优先级。** 推荐主题：
+
+> V-JEPA 不预测未来也能帮机器人抓运动物体吗？从 video feature interface 到动作再生成
+
+文章应把“V-JEPA 作为 backbone”与“JEPA 作为 world-model objective”分开，并把 `50.36→76.15%` 与“无 alternative encoder、纯仿真、强 π0 有 14 个任务退化”并列呈现。
+
+---
+
+### 2. seq-JEPA: Autoregressive Predictive Learning of Invariant-Equivariant World Models
+
+#### 基本信息
+
+- **完整题目**：*seq-JEPA: Autoregressive Predictive Learning of Invariant-Equivariant World Models*
+- **作者**：Hafez Ghaemi、Eilif B. Muller、Shahab Bakhtiari
+- **机构**：Université de Montréal、Mila – Quebec AI Institute、CHU Sainte-Justine
+- **时间与出处**：NeurIPS 2025 Main Conference Track，*Advances in Neural Information Processing Systems 38*；arXiv v1 2025-05-06，v3 2026-01-08
+- **使用的 JEPA**：从头训练的 action-conditioned sequential JEPA，不加载 I-JEPA/V-JEPA checkpoint
+- **下游任务**：3D object classification 与 rotation decoding；CIFAR-100/Tiny ImageNet classification 与 augmentation-parameter decoding；STL-10 saccade classification、position decoding 与 path integration
+- **复现入口**：[官方代码](https://github.com/hafezgh/seq-jepa)、[项目页](https://hafezgh.github.io/seq-jepa/)、[模型](https://huggingface.co/Hafez/seq-JEPA) 与 OOD/saliency 数据均由作者公开
+
+[NeurIPS 官方页面](https://proceedings.neurips.cc/paper_files/paper/2025/hash/2f63d2963526bdd9ff1b8bcc2dc9905a-Abstract-Conference.html) · [arXiv](https://arxiv.org/abs/2505.03176) · [HTML 全文](https://arxiv.org/html/2505.03176v3)
+
+#### 方法如何衔接 JEPA
+
+**可核对事实**
+
+模型从一串 transformed views 中取前 `M` 个 view。ResNet-18 产生各自 representation；除最后一个 context view 外，每个 representation 与把当前 view 变到下一 view 的已知 action embedding 拼接，再交给 3-layer/4-head transformer aggregator。2-layer MLP predictor 读取 aggregate representation 与 upcoming action，预测下一 view 的 EMA target representation；target stop-gradient，损失为 cosine distance。[方法公式与架构](https://arxiv.org/html/2505.03176v3#S2.SS2)
+
+**作者主张**
+
+action-conditioned prediction 让单-view encoder 保留 transformation-sensitive/equivariant 信息，sequence aggregation 则消除多 view 的 transformation variability，产生适合 invariant classification 的 aggregate representation；无需单独的 equivariance loss 或双 predictor。
+
+**本研究判断**
+
+它真实改造了 JEPA，但“两个表示解决矛盾”与“一个 embedding 同时 invariant/equivariant”不是一回事。机制最可信之处是 readout 和消融都明确；外推最弱之处是 action 就是已知的旋转/裁剪/颜色/模糊/patch 坐标，不是真实机器人中的未知动力学。
+
+#### 数据集、指标、主要基线与关键实验结果
+
+**协议（事实）**
+
+- 数据：3DIEBench、CIFAR-100、Tiny ImageNet、STL-10；另在 ImageNet-1K 做初步 linear transfer；
+- backbone：所有主比较均用 ResNet-18，从头训练；3DIEBench 1,000 epochs，其余 2,000 epochs，batch 512；
+- invariance proxy：冻结 aggregate representation 上的 linear-probe top-1；
+- equivariance proxy：冻结 single-view encoder representation 上回归 relative transformation，报告 `R²`，另报 MRR/Hit@k；
+- baselines：SimCLR、BYOL、VICReg、VICRegTraj、SEN、EquiMod、SIE、ContextSSL，以及同构 Conditional BYOL、Conv-JEPA；
+- 主结果通常 3 个随机 seed；3DIEBench `M_train=3` 预训练约 15.1 A100-40GB GPU-hours，BYOL 为 11.1、SimCLR 11.4。[训练协议](https://arxiv.org/html/2505.03176v3#S3)｜[compute table](https://arxiv.org/html/2505.03176v3#A1.T5)
+
+**关键结果（作者报告）**
+
+3DIEBench：
+
+| 方法 | Top-1↑ | Relative rotation R²↑ |
+|---|---:|---:|
+| BYOL | 82.90 | 0.12 |
+| SimCLR | 81.13 | 0.35 |
+| SIE | 77.49 | 0.58 |
+| ContextSSL | 80.40 | **0.74** |
+| seq-JEPA `(1,1)` | 84.08 | 0.65 |
+| seq-JEPA `(3,5)` | **87.41** | 0.71 |
+
+seq-JEPA 没有单项赢过所有方法的 rotation decoding（ContextSSL 为 0.74），但在保持高 `R²` 的同时取得最高分类。[Table 1](https://arxiv.org/html/2505.03176v3#S4.T1)
+
+STL-10 saccade setting 中，seq-JEPA 为 `83.44% / position R² 0.80`，M_test=6 时 `84.12% / 0.80`；Conv-JEPA 为 `80.04% / 0.80`，而 full-image strong-augmentation SimCLR 分类为 `85.23%`、position `R²=-0.06`。[Table 3](https://arxiv.org/html/2505.03176v3#S4.T3)
+
+action-conditioning 消融最能支持机制：3DIEBench action 关闭后 top-1 只从 `87.41±0.5` 到 `87.36±0.7`，rotation `R²` 却从 `0.71±0.02` 到 `0.29±0.04`；只去 predictor conditioning 为 `0.37`，只去 transformer conditioning为 `0.53`。[Table 4](https://arxiv.org/html/2505.03176v3#S4.T4)
+
+**关键反证**
+
+- CIFAR-100 上，BYOL top-1 `62.17%`，seq-JEPA 最好表内组合约 `60.17%`；Tiny ImageNet 中多项 seq-JEPA 约 `34.85–35.97%`，低于部分 equivariant/conditional baselines 的 `37%+`。它的优势主要是 transformation decoding，而非分类全面领先。[Table 2](https://arxiv.org/html/2505.03176v3#S4.T2)
+- 未见旋转范围 `(-π,-π/2)∪(π/2,π)` 上，所有模型 OOD `R²` 为负；seq-JEPA `(3,3)` relative rotation `R²=-0.71`，并没有 learned group extrapolation。[OOD Table 9](https://arxiv.org/html/2505.03176v3#A2.T9)
+- path integration 时去掉 visual representation 只小幅下降、去掉 action 则失败，说明该任务的大部分信号可能来自显式 action accumulation，而不是视觉世界模型。[path-integration analysis](https://arxiv.org/html/2505.03176v3#A2.SS9)
+
+#### 相对已有工作的创新
+
+1. 从 two-view JEPA 扩展到 action–observation sequence 与 learned working memory；
+2. 不增加显式 equivariance objective，却通过 action-conditioned prediction 让 encoder 保留 transformation；
+3. 用独立 aggregate token 为 invariant downstream 提供另一接口；
+4. 在 simulated saccades 中用 saliency + inhibition of return 从局部 patch 学习；
+5. 公开代码、模型、OOD rotation 数据和 saliency maps，并给出 matched compute。
+
+#### 局限、复现条件与潜在风险
+
+1. **不是物理控制实验。** 所有主任务都在静态图像的人工 transformation 上，论文只把真实 control 列为未来方向。
+2. **需要 transformation/action 参数。** 旋转 quaternion、augmentation 参数和 patch 坐标训练时明确已知；真实系统中这些量常需估计。
+3. **OOD equivariance 失败。** 对未见旋转区间没有外推，负 `R²` 直接限制“world model geometry”叙事。
+4. **分类优势不普遍。** CIFAR/Tiny ImageNet 的 trade-off 仍存在，只是在 3DIEBench 和 saccade 多视角设置更好。
+5. **两种表示承担两种任务。** 下游必须知道该读 encoder 还是 aggregator；不是单一通用 embedding。
+6. **上下文很短且计算随 view 增加。** 主序列多为 1–5 view；3-view 已从约 12.3 增至 15.1 A100 GPU-hours，推理 FLOPs 也随 view 增长。
+7. **ImageNet-1K 证据只是初步迁移。** 论文只报告 STL-10 预训练后的 preliminary linear transfer，没有与同算力大型 SSL 做完整公平对照。
+
+**复现判断：高。** 代码、模型与补充数据公开，主模型单 A100 可训练；但复现实验总数多、部分设置为 2,000 epochs。
+
+#### 是否值得改写成原创技术博客
+
+**值得，中高优先级。** 推荐主题：
+
+> JEPA 的表示应该对变化不敏感，还是记住变化？seq-JEPA 用两个 readout 回答同一个矛盾
+
+最有价值的写法不是“全面超过 SSL”，而是用 `87.41/0.71`、action ablation 与 OOD `-0.71` 三组证据说明：已知动作可以把 equivariance 写进 encoder，但这种结构不会自动外推到未见 transformation。
+
+## 横向比较
+
+| 维度 | DynaWM | seq-JEPA |
+|---|---|---|
+| JEPA 血缘 | 直接复用/微调 V-JEPA 2.1 checkpoint | 从头训练预测式 JEPA 变体 |
+| JEPA predictor 是否在下游存在 | 否 | 是，训练核心 |
+| 预测对象 | 不预测 future；video token 条件化 action generation | upcoming transformed-view latent |
+| 下游 | 动态机器人抓取/放置 | 分类、变换解码、path integration |
+| 最强证据 | 同 frozen base VLA 加/不加 DynaWM；8 组合均值提升 | 同 ResNet-18 baselines；action-conditioning 消融 |
+| JEPA 独立归因 | 弱：无 alternative video encoder | 中高：目标/架构直接作用，但任务人工 |
+| 最重要反例 | 强 π0 14 个任务升、14 个降；纯仿真 | OOD rotation `R²=-0.71`；CIFAR/Tiny 分类非最优 |
+| 复现性 | 低，无代码/数据 | 高，代码/模型/补充数据公开 |
+
+两篇放在一起给出一个重要分类框架：
+
+1. **checkpoint reuse** 回答“JEPA 预训练表征能否成为下游输入”；
+2. **objective reuse** 回答“JEPA predictive bias 能否改变下游所需几何”；
+3. 系统级 success gain 只有在 alternative encoder、冻结/微调与 no-predictor 对照齐全时，才能向 JEPA 本身归因。
+
+DynaWM 的任务真实性更接近控制，但归因弱；seq-JEPA 的机制归因更清楚，但任务离真实动力学更远。两者互补，也说明“应用具体”与“机制可信”是两条不同轴。
+
+## 值得继续追的问题
+
+1. **DynaWM 的增益有多少来自 V-JEPA 2.1？** 固定 DiT/Mamba/数据，比较 V-JEPA 2.1、DINOv3、VideoMAE、随机初始化、frozen V-JEPA 与 trainable V-JEPA。
+2. **DynaWM 能否成为真正共享 adapter？** 目前每个 base VLA 单独训练 weights；应测试单一 DynaWM 跨 SmolVLA/X-VLA/π 系列 zero-shot 或少量校准迁移。
+3. **真实动态抓取是否保留提升？** 加入相机延迟、传送带/碰撞噪声、遮挡、机械臂 latency 与 sim-to-real，并报告失败安全性和硬件控制频率。
+4. **为什么强 base policy 会退化？** 按 action confidence、candidate disagreement、Amount 任务的 object binding 与 sequence completion 分层，设计保留 base action 的 gating/verification。
+5. **seq-JEPA 能否学未知 action？** 将显式 transformation 参数替换为 learned inverse-dynamics token、optical flow 或 proprioception，审计 action estimation error。
+6. **OOD rotation 为什么全面失败？** 比较 SO(3)-equivariant encoder、group representation、continuous-time action integration 与当前 learned MLP action embedding。
+7. **两个 readout 能否在真实下游自动选择？** 需要 task-conditioned readout、mixture/gating，避免用户事先知道“分类读 aggregator、几何读 encoder”。
+8. **短 view sequence 能否扩展到视频/机器人长程？** 测试 Ego4D、真实 camera motion、遮挡与非可逆 action，并报告 memory、latency 与 error accumulation。
+9. **JHU-VPT(JEPA) 的逐表证据能否补齐？** 下一轮优先通过稳定 PMLR PDF/作者仓核对多中心 split、step recognition、feedback、skill assessment 的基线与指标。
+10. **Research Square 候选是否会公开可核验证据？** 等正式 PDF/代码/checkpoint manifest 与独立 split 后再决定是否纳入，不依据摘要中的 “official VLA-JEPA” 字样提前升格。
+
+## 博客价值判断
+
+### 首选：从“预测目标”到“特征接口”的 JEPA 使用强度
+
+建议把 DynaWM 与 seq-JEPA 合写为一篇方法论文章：
+
+> 论文说“用了 JEPA”时，它到底用了什么：checkpoint、predictor，还是完整世界模型？
+
+可建立三层审计：
+
+1. 是否只加载 encoder；
+2. 下游训练是否保留 JEPA objective；
+3. 部署时是否真正 rollout 或 query predictor。
+
+DynaWM 与 seq-JEPA 正好处于不同层级，能给读者一个比论文命名更可靠的判断框架。
+
+### 单篇优先级：DynaWM 中高，seq-JEPA 中高
+
+- DynaWM 适合机器人读者，重点是 `8 组合均提升` 与 `强 π0 仍有 14 个任务退化` 的并置；等代码/真实机器人结果后再写复现教程。
+- seq-JEPA 适合表征学习读者，重点是“两种 readout”而不是“一种 embedding 万能”；代码齐全，适合后续做小规模复现实验。
+
+### 今天不建议为低证据新候选单独成文
+
+截止后没有高可信新增。Research Square 候选和仅 related-work 引用者都不值得为了“每日必须有新论文”而独立成文；保留排除理由比转述无法核验的 headline 更有价值。
+
+## 来源链接
+
+### 今日严格增量与去重入口
+
+- arXiv `JEPA` 最新排序：[检索页](https://arxiv.org/search/?query=JEPA&searchtype=all&abstracts=show&order=-announced_date_first&size=100)
+- CS-JEPA（已于 2026-07-31 解读）：[arXiv](https://arxiv.org/abs/2607.28443)
+- 既有近期论文： [JEPADepth](https://arxiv.org/abs/2607.26600) · [Rad-JEPA 3D](https://arxiv.org/abs/2607.26196) · [INTACT](https://arxiv.org/abs/2607.26056) · [Temporal-Distance JEPA](https://arxiv.org/abs/2607.25337)
+
+### DynaWM 一手来源
+
+- Chang & Deng, *DynaWM: A Base-VLA-Guided World Foundation Model for Moving-Object Manipulation*：[arXiv 摘要/提交记录](https://arxiv.org/abs/2607.02604) · [HTML 全文](https://arxiv.org/html/2607.02604v1) · [PDF](https://arxiv.org/pdf/2607.02604)
+- 关键方法：[系统接口](https://arxiv.org/html/2607.02604v1#S3.SS1) · [V-JEPA multi-view encoder](https://arxiv.org/html/2607.02604v1#S3.SS4) · [flow action regeneration](https://arxiv.org/html/2607.02604v1#S3.SS5)
+- 关键实验：[协议](https://arxiv.org/html/2607.02604v1#S4.SS1) · [主结果 Table 2](https://arxiv.org/html/2607.02604v1#S4.T2) · [V-JEPA 消融 Table 4](https://arxiv.org/html/2607.02604v1#S4.T4) · [action condition Table 5](https://arxiv.org/html/2607.02604v1#S4.T5)
+
+### seq-JEPA 一手来源
+
+- Ghaemi, Muller & Bakhtiari, *seq-JEPA: Autoregressive Predictive Learning of Invariant-Equivariant World Models*：[NeurIPS 2025 Main 官方页面](https://proceedings.neurips.cc/paper_files/paper/2025/hash/2f63d2963526bdd9ff1b8bcc2dc9905a-Abstract-Conference.html) · [arXiv](https://arxiv.org/abs/2505.03176) · [HTML v3](https://arxiv.org/html/2505.03176v3)
+- 作者资源：[项目页](https://hafezgh.github.io/seq-jepa/) · [官方代码](https://github.com/hafezgh/seq-jepa) · [模型](https://huggingface.co/Hafez/seq-JEPA) · [3DIEBench-OOD](https://huggingface.co/datasets/Hafez/3DIEBench-OOD)
+- 关键实验：[3DIEBench](https://arxiv.org/html/2505.03176v3#S4.SS1) · [saccade/path integration](https://arxiv.org/html/2505.03176v3#S4.SS4) · [action 消融](https://arxiv.org/html/2505.03176v3#S4.SS5) · [OOD rotation](https://arxiv.org/html/2505.03176v3#A2.SS3)
+
+### 保留候选
+
+- JHU-VPT(JEPA), *A Vision Foundation Model for Cataract Surgery Using Joint-Embedding Predictive Architecture*：[PMLR / MIDL 正式页面](https://proceedings.mlr.press/v301/shah26b.html) · [OpenReview](https://openreview.net/forum?id=QbBPeAIdrk)
