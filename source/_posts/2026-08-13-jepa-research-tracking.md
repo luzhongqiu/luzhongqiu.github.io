@@ -1,0 +1,217 @@
+---
+title: JEPA 下游研究追踪 · 2026-08-13
+date: 2026-08-13 10:00:00
+categories:
+  - JEPA研究追踪
+tags:
+  - JEPA
+  - JEPA追踪
+---
+
+本文属于「JEPA追踪」系列，记录每日论文检索、原文核验与阶段性判断；它保留研究日志的证据密度，与经过主题化重写的原创博客区分。
+
+# JEPA 下游研究追踪（2026-08-13）
+
+> 检索截止：2026-08-13 14:52（Asia/Shanghai，约 06:52 UTC）
+>
+> 严格增量起点：2026-08-12T03:01:14.463Z
+>
+> 去重范围：`/Users/nic/.codex/automations/jepa/memory.md` 与 `research/jepa/` 全部既有记录、候选池和排除项。
+>
+> 证据口径：检索索引只负责发现；题目、版本、方法、实验和发表状态均回到 arXiv 原文或第一方元数据核验。本文严格区分“实际训练/改造 JEPA”“实际加载 JEPA checkpoint 做外部评估”与“仅在相关工作引用 JEPA”。
+
+## 今日结论
+
+1. **今日确认 1 篇严格截止线后新增、且真正把 JEPA 用进具体下游任务的论文：FS-JEPA。** *Predicting Functions, Not Features: KANs with Function-Space Joint-Embedding Predictive Learning for Medical Image Segmentation*（arXiv:2608.12050 v1）提交于 2026-08-12 13:32:20 UTC。它在 KAN 医学分割网络上训练 masked online branch、全上下文 EMA target branch 和 signature predictor，预测聚合前 KAN edge function 的多半径签名；属于 **method direct-use**，不是 related-work-only。[arXiv 元数据](https://export.arxiv.org/api/query?id_list=2608.12050) · [HTML 原文](https://arxiv.org/html/2608.12050v1)
+2. **最可信的独立边际是平均 Dice `82.52%→83.37%`（`+0.85 pp`），不是摘要醒目的 `+2.25 pp`。** `+0.85 pp` 来自相同分割 scaffold、相同推理参数量的 matched comparison；`+2.25 pp` 是完整 FS-JEPA 相对另一套 UUEKAN 架构的差距，混有 scaffold 差异，不能全部归因于 function-space predictive objective。[Table 1 与作者归因](https://arxiv.org/html/2608.12050v1#Sx3.T1)
+3. **FS-JEPA 的强机制证据是“预测什么”比“是否挂一个 JEPA 分支”更重要。** BUSI 同 scaffold、同 300-epoch budget 下，无 predictive objective / Token-JEPA / Node-JEPA / single-response Edge-JEPA / multi-radius FS-JEPA 的 Dice 为 `0.7808 / 0.7808 / 0.7845 / 0.7771 / 0.7926`；单点 edge response 反而退化，多半径函数签名才提升。[Table 2](https://arxiv.org/html/2608.12050v1#Sx3.T2)
+4. **这不是无监督预训练后再迁移，而是监督分割与 JEPA 辅助目标从随机初始化联合训练。** 因而它证明的是“training-only predictive regularizer 对 KAN 分割的增量价值”，不是“JEPA foundation model 的标签效率或跨域迁移”。五个数据集均全监督训练，论文没有低标签曲线、跨医院外部验证或独立预训练阶段。[训练与推理协议](https://arxiv.org/html/2608.12050v1#Sx3.SSx6) · [实验设置](https://arxiv.org/html/2608.12050v1#Sx4)
+5. **今日没有用旧稿或弱证据凑第二、第三篇。** MAJEPPA v1、VIScore v1 均在严格起点前提交；VIScore v2 虽在窗口内更新且修正了 VISReg 公式与一个渐近阶，但它不是新的下游论文，故只登记版本审计。World Action Models tutorial v5 是教程更新；OpenAlex 三条核心引用链、bioRxiv/medRxiv 当日列表没有补出另一篇日期合格且原文可闭环的 direct-use 稿件。
+
+## JEPA 方向最新进展
+
+### 1. 预测对象从 feature token 扩展到“可学习函数”本身
+
+I-JEPA/V-JEPA 通常让 context representation 预测 target feature embedding；FS-JEPA 把目标放到 KAN 聚合之前。KAN 的每条边不是一个标量权重，而是可学习一元函数。论文指出，不同 edge-function 组合可能在求和后产生相近 node output，因此只用分割 loss 约束聚合结果，会留下边级函数行为的多解性。[动机与方法](https://arxiv.org/html/2608.12050v1#Sx1)
+
+FS-JEPA 对随机采样的 edge `(i,j)`，在输入 anchor 周围的 `{-0.10, -0.05, -0.025, +0.025, +0.05, +0.10}` 六个偏移处求值，形成 multi-radius signature；online 与 target branch 共享 edge indices，再用确定性的 source/target coordinates 保持对应。这样 target 不再是一个 feature token，而是局部函数形状的离散描述。[函数签名](https://arxiv.org/html/2608.12050v1#Sx3.SSx3) · [对应机制](https://arxiv.org/html/2608.12050v1#Sx3.SSx4)
+
+这拓展了 JEPA 的“J”所对齐的对象，但也使方法强依赖 KAN 的显式 edge-function 参数化；它不是可直接搬到普通 ConvNet/Transformer 的通用替换件。
+
+### 2. 下游监督和 JEPA 目标正在出现“同阶段联合训练”路线
+
+FS-JEPA 不先做大规模自监督预训练。完整图像的 segmentation stream 直接学习 Dice/IoU 对应的监督任务；masked online branch 与 full-context EMA branch 同时学习 SmoothL1 function-signature prediction。总目标为 segmentation loss、decoder deep supervision 和四个 KAN block 的 signature loss之和；训练结束后移除 EMA branch 与 predictor。[联合目标](https://arxiv.org/html/2608.12050v1#Sx3.SSx6)
+
+因此更准确的分类是：
+
+- **method direct-use / joint-training auxiliary objective**：实际训练 online–EMA target–predictor 管线，但 JEPA 目标与有标签下游监督同时存在；FS-JEPA 属于此类。
+- **pretrain-then-transfer direct-use**：先用 JEPA objective 学 encoder，再冻结或微调到下游任务；I-JEPA 的典型 probe、近期医学 foundation model 属于此类。
+- **evaluation-only direct-use**：加载现成 JEPA checkpoint 做新任务评估，但作者方法本身不是 JEPA；昨日 SAR2Agri 属于此类。
+- **related-work-only**：JEPA 只出现在背景或参考文献。
+
+这层细分可以防止把 `+0.85 pp` 的辅助正则收益外推成无标签预训练或 foundation-model 迁移能力。
+
+### 3. 新论文开始提供 matched scaffold，但统计与复现信息仍不完整
+
+FS-JEPA 的相对优点是明确给出 matched scaffold，并在主 benchmark 使用三个独立 seeds；论文还报告跨 U-KAN、UUEKAN、KMUNet 的九个 backbone–dataset 组合中八个改善，平均 `+0.47 pp`。[机制与跨骨干分析](https://arxiv.org/html/2608.12050v1#Sx4)
+
+但原文没有给五个数据集的精确 split 样本数/比例、patient-level 切分审计、optimizer/learning rate/batch size、mask 比例、EMA momentum、edge sample 数 `K`、loss weights 或代码仓库。正文说完整模块和配置在 supplementary Section A，当前 9 页 arXiv HTML/PDF入口却没有可见 supplement。因而“同 split、同 optimization settings”目前只能作为作者报告，独立复现尚未闭环。
+
+### 4. 严格窗口内的版本更新不等于新论文
+
+[VIScore](https://arxiv.org/abs/2608.11174) v1 实际发表于 2026-08-11 17:34:10 UTC，早于本轮严格起点；v2 于 2026-08-12 16:51:58 UTC 更新。官方源码差异显示，v2 把 VISReg 总目标从 `(1-λ)L_pred + λL_reg` 修正为 `L_pred + λL_reg`，并把一个有限样本 loss floor 从 `log B / B` 修正为 `log log B / B`，另重写 veracity 解释；主实验表未变。这是值得以后引用时遵循的 **实质公式勘误**，但不是今日新下游论文，故不重复占主解读名额。[v2 原文](https://arxiv.org/html/2608.11174v2)
+
+## 新增下游论文解读
+
+### FS-JEPA：在 KAN 聚合前预测 edge-function signature，用于医学图像分割
+
+#### 基本信息
+
+- **完整题目**：[*Predicting Functions, Not Features: KANs with Function-Space Joint-Embedding Predictive Learning for Medical Image Segmentation*](https://arxiv.org/abs/2608.12050)
+- **作者**：Yungeng Liu、Xuanzi Fang、Yuge Zhang、Shuqi Ren、Haijin Zeng、Yongyong Chen。
+- **机构**：Harbin Institute of Technology, Shenzhen（哈尔滨工业大学〔深圳〕）与 The University of Hong Kong（香港大学）；机构信息以 arXiv 官方 PDF 题名页为准。[PDF](https://arxiv.org/pdf/2608.12050v1)
+- **时间与出处**：arXiv:2608.12050 v1，2026-08-12 13:32:20 UTC；`cs.CV` 预印本，9 页、5 图，当前没有可核验的会议/期刊接收声明。[提交记录](https://arxiv.org/abs/2608.12050)
+- **JEPA 血缘**：明确引用 I-JEPA、V-JEPA 与 MC-JEPA；方法继承 masked online branch、full-context EMA target、stop-gradient target 与 latent predictor，但从 feature embedding 改为 KAN edge-function signature。
+- **下游任务**：乳腺/甲状腺超声病灶分割、结肠镜息肉分割、组织病理腺体分割。
+
+#### 方法如何衔接 JEPA
+
+**事实：** 主干是带 Attention KAN Blocks 和 Boundary-Guided Skip Fusion 的 U-shaped segmentation network。完整图像走分割 stream；训练期另挂四个 function-space JEPA branches。online branch 读取部分遮挡的 token sequence，target branch 读取完整上下文且由 EMA 更新。[架构原文](https://arxiv.org/html/2608.12050v1#Sx3.SSx1)
+
+每个 KAN edge function 在 anchor 邻域六个位置求值，得到 raw multi-point signature。为避免枚举全部 `d_in × d_out` edges 带来的激活开销，作者随机采样 `K` 个 edge pairs，使辅助激活复杂度从 `O(BN d_in d_out)` 降到 `O(BNK)`。online predictor 输入 masked edge response、anchor 与归一化 edge coordinates，用 SmoothL1 对齐同一 edge 的 EMA signature。[edge sampling](https://arxiv.org/html/2608.12050v1#Sx3.SSx2) · [预测目标](https://arxiv.org/html/2608.12050v1#Sx3.SSx5)
+
+**作者主张：** 聚合后的 node feature 存在多对一关系，无法明确约束单条 KAN edge 的局部函数行为；multi-radius signature 既区分相同单点响应但邻域形状不同的函数，又避免手工 derivative constraint。
+
+**本研究推断：** FS-JEPA 更像针对 KAN 参数几何的结构化辅助正则，而不是常见的通用表征预训练器。它的可迁移单元是“如何把可学习算子转成可预测签名”，而不是这六个固定 offsets 或当前 U-shaped scaffold 本身。
+
+#### 数据集、指标、基线与实验协议
+
+**数据与任务（事实）：**
+
+- BUSI：乳腺超声病灶分割。
+- DDTI：甲状腺超声结节分割。
+- TN3K：甲状腺区域/结节分割。
+- CVC-ClinicDB：结肠镜息肉分割。
+- GlaS：组织病理腺体分割。
+- 评价指标：image-level Dice 与 IoU；论文称所有方法使用相同 data partition，但没有在可见正文给出各集合的 split 数量/比例或 patient-level 切分说明。[实验设置](https://arxiv.org/html/2608.12050v1#Sx4)
+
+**基线（事实）：** CNN/MLP 分割器 UNet++、UNeXt、Rolling-UNet-S、PBE-UNet；KAN 方法 U-KAN、MM-UKAN++、KMUNet、Implicit U-KAN2.0、UUEKAN；另有与完整架构完全一致、只去掉 FS-JEPA branch 的 Matched Scaffold。模型从随机初始化训练 300 epochs；主表为三个独立 seeds，controlled ablation 与 cross-backbone study 用两个 shared seeds；服务器为 8×RTX 4090。[Table 1](https://arxiv.org/html/2608.12050v1#Sx3.T1)
+
+#### 关键实验结果
+
+| 方法 | BUSI Dice | DDTI Dice | TN3K Dice | CVC Dice | GlaS Dice | 平均 Dice | 平均 IoU | 推理参数量 |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| UUEKAN | 0.7569 | **0.7447** | 0.8206 | 0.8346 | 0.8992 | 0.8112 | 0.7274 | 35.02M |
+| Matched Scaffold | 0.7808 | 0.7289 | 0.8217 | 0.8798 | 0.9149 | 0.8252 | 0.7424 | 7.74M |
+| FS-JEPA | **0.7926** | 0.7432 | **0.8258** | **0.8852** | **0.9215** | **0.8337** | **0.7504** | 7.74M |
+
+[完整五数据集结果](https://arxiv.org/html/2608.12050v1#Sx3.T1)
+
+- 相对 matched scaffold，FS-JEPA 五项 Dice 全部提高：`+1.18 / +1.43 / +0.41 / +0.54 / +0.66 pp`，平均 `+0.85 pp`。同推理参数量使这个比较最接近 function-space objective 的独立贡献。
+- 相对 strongest listed KAN competitor UUEKAN，平均 Dice 为 `83.37% vs 81.12%`，差 `+2.25 pp`；但这不是 matched architecture，不能作为 JEPA objective 的纯因果边际。
+- BUSI target-space ablation（均值±seed variation）：无 prediction `0.7808±0.0093`；Token-JEPA `0.7808±0.0097`；Node-JEPA `0.7845±0.0145`；single-response Edge-JEPA `0.7771±0.0123`；multi-radius `0.7926±0.0049`。[Table 2](https://arxiv.org/html/2608.12050v1#Sx3.T2)
+- Function prediction diagnostic 中，single response→raw multi-point 的 Relative MAE `0.9910→0.9175`、NRMSE `0.9893→0.8999`、Pearson `0.3139→0.4622`。不过 absolute prediction errors 仍高，不能把 `r=0.4622` 写成“准确恢复了真实函数”。[Table 3](https://arxiv.org/html/2608.12050v1#Sx3.T3)
+- 多种归一化并不稳定提升：Centered/ZCA Dice 为 `0.7786/0.7810`；Diagonal 为 `0.7897` 且 seed variation 更大；最朴素 raw multi-point 的 Dice 最高 `0.7926`。[Table 4](https://arxiv.org/html/2608.12050v1#Sx3.T4)
+- 跨三个 KAN backbones、三个数据集共九格，FS-JEPA 八格提升、平均 `+0.47 pp`。这支持它不只依赖单一 scaffold，但测试域仍局限于医学分割。[机制分析](https://arxiv.org/html/2608.12050v1#Sx4)
+
+#### 相对已有工作的创新
+
+1. 把 JEPA target 从 image/token/node feature 移到 KAN pre-aggregation edge-function space。
+2. 用同一函数在多个邻域 offsets 的响应表示局部函数形状，而不是预测单点 response 或手工约束导数。
+3. 通过 shared sampled edge indices 与确定性 `(source, target)` coordinates 解决 online/target branch 的 edge identity 对应。
+4. prediction branch 只在训练期存在；matched scaffold 与 FS-JEPA 推理参数量同为 7.74M，使部署成本比较较清楚。
+
+#### 事实、作者主张与本研究推断
+
+- **事实**：FS-JEPA 是真实 online/EMA target/predictor 训练；五数据集平均 matched gain 为 `+0.85 pp`；Token-JEPA 没有提升，single-response Edge-JEPA 还退化。
+- **作者主张**：multi-radius target 直接重塑 edge-function representation，从而在边界模糊、外观变化大的医学分割中得到更有效函数表示。
+- **本研究推断**：论文最有价值的不是“JEPA 又赢了医学分割”，而是给出反例链：target space 选错时，JEPA branch 等于无效甚至有害；只有把目标对齐 KAN 的结构单元，收益才出现。
+- **归因边界**：`+0.85 pp` 可较合理归因于完整 FS-JEPA auxiliary objective；但它同时包含 masking、EMA、edge coordinates、multi-radius sampling 和 SmoothL1，现有消融没有拆出“EMA/JEPA 框架”与“局部函数平滑正则”各自的边际。
+
+#### 局限、复现条件与潜在风险
+
+1. **不是标签效率实验**：所有模型在有标签分割任务上从随机初始化联合训练；没有 unlabeled pretraining、few-shot/linear probe 或跨域迁移。
+2. **临床外推不足**：五项都是公开二维 benchmark；没有跨医院、跨设备、时间外或 prospective validation，也没有公平性、失败病例与医生一致性分析。
+3. **切分披露不足**：只声明 same partition，没有逐数据集样本数、patient-level grouping 与重复图像审计；医学影像若 image-level 随机切分，可能高估泛化。
+4. **关键超参缺失**：当前可见正文未给 optimizer、learning rate、batch、mask ratio、EMA momentum、edge sample `K`、loss weights 和 wall-clock；正文声称的 supplementary Section A 未随当前入口可见。
+5. **代码/权重缺口**：arXiv 页面与正文没有官方仓库、checkpoint 或环境锁；无法核对是否所有文献基线都由作者在统一 split/recipe 重训。
+6. **统计报告不完整**：主表正文展示点估计，缺逐格标准差、paired confidence interval 与 multiple-comparison correction；Table 2–4 的 seeds 只有两次，误差条稳定性有限。
+7. **方法域受限**：需要显式 KAN edge functions；对普通 ConvNet/ViT 的普适性尚未验证。固定六个 offsets 是否跨 layer scale 稳健，也没有 sensitivity sweep。
+8. **计算披露不足**：训练服务器为 8×RTX 4090，但没有 GPU-hours、峰值显存、能耗或相对 matched scaffold 的训练 overhead；“推理免费”不等于训练成本低。
+9. **预印本状态**：当前只能称 arXiv 预印本，不能把排版文件名或模板当作正式会议接收证据。
+
+#### 是否值得写成区别于追踪日报的原创技术博客
+
+**中高，值得，但建议先等代码或补充材料后再做复现型长文。** 当前最合适的原创角度不是医学 SOTA 汇总，而是《JEPA 预测什么，比是否使用 JEPA 更重要：从 Token 到 KAN Function Space》。Table 2 的失败—成功序列非常适合讲 target design；若要写临床价值或可复现教程，应等 exact splits、配置和代码公开。
+
+## 横向比较
+
+| 维度 | FS-JEPA（今日） | Stage-Level JEPA-WAM（昨日） | SAR2Agri / SAR-JEPA（昨日） |
+|---|---|---|---|
+| 使用类型 | method direct-use；有标签联合训练 auxiliary objective | method direct-use；冻结 V-JEPA 2 encoder、训练 stage predictor | evaluation-only direct-use；实际加载 SAR-JEPA checkpoint |
+| JEPA target | KAN 聚合前 edge-function multi-radius signature | 下一语义阶段 latent | SAR-JEPA checkpoint 的遥感表征 |
+| 下游任务 | 五项医学图像分割 | RoboTwin 2.0 机器人操作 | SICKLE 六项农业监测 |
+| 最强 matched 证据 | 平均 Dice `82.52→83.37%` | w/o JEPA `87.23→90.25%`，但 w/o Stage-I 已 `89.98%` | 统一 decoder/schedule 下六任务外部审计 |
+| 关键反证 | Token-JEPA 不增益；single-response Edge-JEPA 退化 | 新 Stage-I objective 独立边际约 `+0.27 pp` | harvest MAPE 是 SAR-JEPA 略优 |
+| 标签/预训练口径 | 全监督联合训练，不证明无标签迁移 | 复用 V-JEPA 2 预训练 | 外部 checkpoint 迁移评估 |
+| 复现状态 | 无代码、关键配置/split 缺失 | 无代码，单 seed，8×A800 | 有公开 SAR-JEPA checkpoint；新 pipeline 仍需审计 |
+
+三者说明“actual-use”内部仍有巨大差异：FS-JEPA 是训练期正则，Stage-Level JEPA-WAM 是机器人条件模块，SAR2Agri 则是外部 checkpoint benchmark。后续横向汇总不能只按“用了 JEPA”合并数字；至少要标清 predictor 是否部署、是否单独预训练、是否使用标签，以及 matched ablation 对应哪个组件。
+
+## 值得继续追的问题
+
+1. **FS-JEPA 的 exact recipe 能否公开并复现 `+0.85 pp`？** 优先索取逐数据集 split、patient IDs、optimizer、mask、EMA、`K`、loss weights、训练时长、代码与 seeds。
+2. **收益来自 JEPA dynamics 还是局部函数正则？** 应加入 matched controls：同 multi-radius target 但不用 EMA、固定 teacher、直接 Jacobian/smoothness penalty、随机 edge identity、去掉 coordinates。
+3. **为什么 single-response Edge-JEPA 比无 objective 更差？** 需要分析 collapse、target variance、gradient conflict 和 signature prediction error随 layer/epoch 的变化；它可能是最能解释方法的负结果。
+4. **六个固定 offsets 是否与 KAN layer scale 匹配？** 应做 layer-adaptive radius、offset 数量、edge sample `K` 和输入归一化 sensitivity sweep。
+5. **matched gain 在 patient-level、external-site split 上是否保持？** 医学落地需要跨中心/设备验证、置信区间、校准、边界指标和 failure-case review，而不只 Dice/IoU。
+6. **能否先无标签预训练 edge-function signature，再迁移到少标签分割？** 这是把当前辅助正则升级为真正 JEPA representation learning 的关键测试。
+7. **VIScore v2 公式勘误是否影响已发布代码或旧 checkpoint 解释？** 后续若深读该论文，应以 v2 `L_pred + λL_reg` 为准，并核对 v1 实际训练代码使用哪一式。
+8. **MAJEPPA 是否值得历史回补？** 它实际做 score→performance latent prediction，但同时使用 autoregressive、InfoNCE 和 supervised contrastive objectives；若补读，重点要审计 JEPA loss 的独立消融，而不能只因题名含 JEPA 纳入。
+9. **A-JEPA 与标准 V-JEPA 家族今日仍无严格新增。** 后续继续检查音频、音乐、语音和跨模态方向，但保持“索引发现、原文定性、实验闭环”的门槛。
+
+## 博客价值判断
+
+### 当日追踪博客
+
+**应按「JEPA追踪」系列完整发布。** 今天有一篇严格新增，且它把 JEPA target 从 feature embedding 扩到 neural function signature。正文应把 `+0.85 pp matched gain` 放在 `+2.25 pp competitor gap` 之前，并明确它是有标签联合训练辅助目标。
+
+### 区别于追踪日报的原创博客
+
+**推荐主题：**《预测特征还是预测函数？FS-JEPA 的 target-space 归因审计》。核心材料是 Table 2 的 Token→Node→single Edge→multi-radius Edge 序列，能形成清楚的机制故事。写成复现型或临床型原创博客则应暂缓，等待代码、supplement、patient-level split 和外部验证。
+
+### 配图判断
+
+本日最适合引用 [FS-JEPA Figure 1 官方动机图](https://arxiv.org/html/2608.12050v1/aaai-figure1.png)：它直接比较 feature-level prediction 与 function-space prediction，比约 1.6 MiB 的 Figure 2 更轻，也比总览图更适合日报首屏。官方 PNG 为 3146×1977、479,688 bytes（约 468 KiB）；追踪博客可直接外链、限制 `max-width:760px` 并 `loading="lazy"`，不新增本地图片文件。若以后写原创博客，建议转为约 1400 px 宽的 WebP（目标低于 150 KiB）后再入库。
+
+<figure style="margin:1.5em auto;text-align:center;">
+  <img src="https://arxiv.org/html/2608.12050v1/aaai-figure1.png" alt="FS-JEPA 将 JEPA 从特征级预测扩展到 KAN 函数空间的动机图" style="display:block;max-width:760px;width:100%;height:auto;margin:0 auto;" loading="lazy">
+  <figcaption>FS-JEPA：从 feature-level prediction 到 KAN function-space prediction；图片来自 arXiv 原文 Figure 1。</figcaption>
+</figure>
+
+## 来源链接
+
+### 第一方严格增量与引用链
+
+- [arXiv 严格提交窗口：JEPA / joint-embedding predictive](https://export.arxiv.org/api/query?search_query=submittedDate%3A%5B202608120301%20TO%20202608132359%5D%20AND%20%28all%3AJEPA%20OR%20all%3A%22joint-embedding%20predictive%22%20OR%20all%3A%22joint%20embedding%20predictive%22%29&start=0&max_results=100&sortBy=submittedDate&sortOrder=descending)
+- [arXiv 家族严格窗口：I-JEPA / V-JEPA / V-JEPA 2 / A-JEPA / SAR-JEPA](https://export.arxiv.org/api/query?search_query=submittedDate%3A%5B202608120301%20TO%20202608132359%5D%20AND%20%28all%3A%22I-JEPA%22%20OR%20all%3A%22V-JEPA%22%20OR%20all%3A%22V-JEPA%202%22%20OR%20all%3A%22A-JEPA%22%20OR%20all%3A%22SAR-JEPA%22%20OR%20all%3A%22Joint-Embedding%20Predictive%20Architecture%22%29&start=0&max_results=100&sortBy=submittedDate&sortOrder=descending)
+- [arXiv 按 lastUpdatedDate 排序](https://export.arxiv.org/api/query?search_query=all%3AJEPA%20OR%20all%3A%22joint-embedding%20predictive%22&start=0&max_results=100&sortBy=lastUpdatedDate&sortOrder=descending)
+- OpenAlex：[I-JEPA 日期引用链](https://api.openalex.org/works?filter=cites%3AW4386076428%2Cfrom_publication_date%3A2026-08-12&sort=publication_date%3Adesc&per-page=100) · [V-JEPA 日期引用链](https://api.openalex.org/works?filter=cites%3AW4394861491%2Cfrom_publication_date%3A2026-08-12&sort=publication_date%3Adesc&per-page=100) · [V-JEPA 2 日期引用链](https://api.openalex.org/works?filter=cites%3AW4417261359%2Cfrom_publication_date%3A2026-08-12&sort=publication_date%3Adesc&per-page=100)
+- [bioRxiv 2026-08-12 至 2026-08-13 官方列表](https://api.biorxiv.org/details/biorxiv/2026-08-12/2026-08-13/0/json) · [medRxiv 同期列表](https://api.biorxiv.org/details/medrxiv/2026-08-12/2026-08-13/0/json)
+
+### FS-JEPA 一手来源
+
+- [arXiv 摘要与提交历史](https://arxiv.org/abs/2608.12050)
+- [arXiv 官方元数据 API](https://export.arxiv.org/api/query?id_list=2608.12050)
+- [arXiv HTML 全文](https://arxiv.org/html/2608.12050v1) · [PDF](https://arxiv.org/pdf/2608.12050v1)
+- [Figure 1 官方动机图](https://arxiv.org/html/2608.12050v1/aaai-figure1.png)
+- [Table 1：五数据集主结果](https://arxiv.org/html/2608.12050v1#Sx3.T1)
+- [Table 2：prediction target space 消融](https://arxiv.org/html/2608.12050v1#Sx3.T2)
+- [Table 3：function-prediction diagnostics](https://arxiv.org/html/2608.12050v1#Sx3.T3)
+- [Table 4：signature design 消融](https://arxiv.org/html/2608.12050v1#Sx3.T4)
+
+### 未纳入主解读的候选与版本项
+
+- [VIScore arXiv 提交与版本历史](https://arxiv.org/abs/2608.11174) · [v2 HTML 原文](https://arxiv.org/html/2608.11174v2)
+- [MAJEPPA arXiv](https://arxiv.org/abs/2608.11026) · [HTML 原文](https://arxiv.org/html/2608.11026v1)
+- [World Action Models tutorial v5](https://arxiv.org/abs/2607.00836)
