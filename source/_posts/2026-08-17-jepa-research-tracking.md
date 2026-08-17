@@ -1,0 +1,244 @@
+---
+title: JEPA 下游研究追踪 · 2026-08-17
+date: 2026-08-17 10:00:00
+categories:
+  - JEPA研究追踪
+tags:
+  - JEPA
+  - JEPA追踪
+---
+
+本文属于「JEPA追踪」系列，记录每日论文检索、原文核验与阶段性判断；它保留研究日志的证据密度，与经过主题化重写的原创博客区分。
+
+# JEPA 下游研究追踪（2026-08-17）
+
+> 检索截止：2026-08-17 11:12（Asia/Shanghai，03:12 UTC）。
+>
+> 增量边界：自动化元数据给出的上次唤醒时间是 `2026-08-16T03:04:55.438Z`；但仓库里的 8 月 16 日研究稿实际已检索到 `2026-08-16T14:04Z`，并完整解读 Landslide MAE–JEPA。为避免重复认领，本轮以较晚的 `2026-08-16T14:04Z` 作为有效严格起点，同时复核从自动化时间戳到该起点之间没有遗留候选。
+>
+> 证据口径：arXiv、OpenAlex、Semantic Scholar、Crossref 等只用于发现和日期筛选；论文方法、数据、实验和局限均回到论文原文、官方代码/数据页或 DOI 记录核验。本文严格区分 actual-use 与 related-work-only，并分开陈述论文事实、作者主张和本研究推断。
+
+## 今日结论
+
+1. **今日无高可信严格新增。** arXiv 在有效窗口 `2026-08-16 14:04 UTC` 至 `2026-08-17 03:04 UTC` 对 `JEPA` 和 `joint-embedding predictive` 的提交检索返回 0 项；按 `lastUpdatedDate` 排序时，最新 JEPA 命中仍停留在 2026-08-14。OpenAlex 的 I-JEPA、V-JEPA、V-JEPA 2 引用链在 `publication_date >= 2026-08-16` 时均为 0，Crossref 的同日创建记录也没有 JEPA 命中。周末与索引时延意味着这些空结果只能描述当前可见索引，不能外推为“绝对没有新论文”。[arXiv 严格窗口](https://export.arxiv.org/api/query?search_query=%28all%3AJEPA%20OR%20all%3A%22joint-embedding%20predictive%22%29%20AND%20submittedDate%3A%5B202608161404%20TO%20202608170304%5D&start=0&max_results=100&sortBy=submittedDate&sortOrder=descending) · [arXiv 按更新时间排序](https://export.arxiv.org/api/query?search_query=all%3AJEPA%20OR%20all%3A%22joint-embedding%20predictive%22&start=0&max_results=100&sortBy=lastUpdatedDate&sortOrder=descending) · [Crossref 窗口检索](https://api.crossref.org/works?query.bibliographic=JEPA&filter=from-created-date%3A2026-08-16%2Cuntil-created-date%3A2026-08-17&rows=100)
+2. **不重复 8 月 16 日 Landslide MAE–JEPA。** EarthArXiv 的 matched MAE/JEPA 滑坡分割负结果已在 `research/jepa/2026-08-16.md` 逐表解读，今天只把它作为横向参照，不占用新增或回补名额。
+3. **历史回补 1：ProtJEPA，证据强度由“摘要候选”升级为“全文可核验”。** 这篇 2026-08-09 的 bioRxiv 预印本此前因官方全文限流而只被登记；本轮已能读取官方 HTML/PDF。它把结构、知识图谱、PPI、文献、定位、GO 等十个冻结教师融合成 joint target，再用 SALT-JEPA 式 masked latent prediction 蒸馏给只看氨基酸序列的学生，属于 **privileged multimodal distillation direct-use**，不是只在相关工作引用 JEPA。[官方全文](https://www.biorxiv.org/content/10.64898/2026.08.03.742606v1.full) · [官方 PDF](https://www.biorxiv.org/content/10.64898/2026.08.03.742606v1.full.pdf)
+4. **今天的主信号不是“又一种通用 JEPA”，而是 JEPA 正在变成任务定制的知识传递接口。** ProtJEPA 用多教师特权模态定义 target，弱化了“仅从未标注观测预测抽象世界状态”的经典叙事，强化了“用 latent prediction 把特定监督搬进共享表示”的工程角色。
+
+## JEPA 方向最新进展
+
+### 1. 从自监督预测器转向“训练期监督搬运器”
+
+ProtJEPA 保留了 online/student、target、predictor 与 masked latent target 这些 JEPA 核心部件，但 target 不再只来自输入的另一个视图，而由十个冻结生物学教师共同定义。它应归类为 **actual-use**，更精确地说是 privileged multimodal distillation；不应包装成无标签、自发发现蛋白功能的证据。[ProtJEPA 全文](https://www.biorxiv.org/content/10.64898/2026.08.03.742606v1.full)
+
+- **论文事实**：ProtJEPA 直接训练 JEPA 式 predictor，而非仅加载一个通用 encoder 或在相关工作提及 JEPA。
+- **作者主张**：跨模态教师能把功能知识迁移给 sequence-only student，并服务缺少实验注释的 dark proteins。
+- **本研究推断**：这里的 JEPA 更接近“结构化蒸馏协议”。优势的上限与偏差都取决于教师覆盖、图谱时间、target whitening 与 split，而不只取决于 predictive architecture。
+
+### 2. 生物学 JEPA 的最大风险是“教师知识迁移”与“评测泄漏”边界
+
+ProtJEPA 的结果同时包含很强的正迁移和清晰反例：GO、enzyme、localization、DTI 与 disorder 多项任务优于 ESMC-600M；但 SCOPe-40 fold retrieval 的 Recall@1 为 `21.5%`，显著低于 ESMC 的 `50.4%`。移除 GO 教师后，GO retrieval Hit@10 又从 `58.07%` 降到 `48.79%`，低于 ESMC 的 `55.27%`。这说明部分 headline 的确来自直接教师知识，而不是统一 latent 自动产生的普适生物结构。[官方全文，主表与教师消融](https://www.biorxiv.org/content/10.64898/2026.08.03.742606v1.full)
+
+### 3. 今日没有新的 V-JEPA/V-JEPA 2、A-JEPA 专项落地
+
+本轮严格窗口内未发现 V-JEPA/V-JEPA 2 或 A-JEPA 的新 direct-use 论文或实质版本更新。OpenAlex 三条核心引用链在当前日期筛选下均为空；这与 arXiv 周末窗口一致，但仍需在工作日索引更新后复查。[I-JEPA 引用链](https://api.openalex.org/works?filter=cites%3AW4386076428%2Cfrom_publication_date%3A2026-08-16&sort=publication_date%3Adesc&per-page=100) · [V-JEPA 引用链](https://api.openalex.org/works?filter=cites%3AW4394861491%2Cfrom_publication_date%3A2026-08-16&sort=publication_date%3Adesc&per-page=100) · [V-JEPA 2 引用链](https://api.openalex.org/works?filter=cites%3AW4417261359%2Cfrom_publication_date%3A2026-08-16&sort=publication_date%3Adesc&per-page=100)
+
+## 新增下游论文解读
+
+> 本节论文为**历史回补**，不是 2026-08-16 14:04 UTC 之后的新投稿。它此前因官方全文限流只能登记摘要；本轮官方 HTML/PDF 已可逐表核验，因此完成证据闭环。
+
+### 历史回补：ProtJEPA: A Multimodal Joint-Embedding Predictive Architecture for Protein Biological World Modeling with Multi-Teacher Modality-Attentive Fusion
+
+#### 基本信息
+
+- **完整题目**：[*ProtJEPA: A Multimodal Joint-Embedding Predictive Architecture for Protein Biological World Modeling with Multi-Teacher Modality-Attentive Fusion*](https://www.biorxiv.org/content/10.64898/2026.08.03.742606v1.full)。
+- **作者与机构**：Vaibhava Lakshmi Ravideshik、Jinha Kim、Manolis Kellis；MIT Computer Science and Artificial Intelligence Laboratory（CSAIL）。
+- **时间与出处**：bioRxiv v1，2026-08-09，未同行评审，CC BY-NC 4.0；DOI [`10.64898/2026.08.03.742606`](https://doi.org/10.64898/2026.08.03.742606)。
+- **使用的 JEPA**：作者明确沿用 SALT-JEPA 式 student–predictor–target latent pipeline，将多教师 joint profile 蒸馏到 sequence-only student；属于 method direct-use，更精确地说是 privileged multimodal distillation JEPA。
+- **下游任务与场景**：dark-protein 检索、GO/function retrieval、enzyme classification、GO-BP 分类、亚细胞定位、drug–target interaction、intrinsic disorder 预测，以及结构 fold retrieval。
+
+#### 方法如何衔接 JEPA
+
+1. 十个冻结教师分别提供序列（ESMC-6B）、结构（ESMFold2）、PrimeKG 知识图谱 HGT、PPI GATv2、生物医学文本 BioMedBERT、亚细胞定位、HPA 组织表达、GO、解剖和无序特征。
+2. 第一阶段以 masked-teacher reconstruction 训练约 `19.2M` 参数的 modality-attentive aggregator，把存在/缺失不一的教师表示融合成 joint biological profile。
+3. joint profile 按维度 whitening，作为第二阶段的 latent target。ESMC-600M sequence student 只读取氨基酸序列，使用 Pfam span masking；三层 predictor 从未遮挡 token 与位置上下文预测 masked joint latent。
+4. 目标包含 SmoothL1 latent prediction、MLM 与 variance penalty。因而它没有显式 covariance regularizer，但不能写成“完全没有防坍塌正则”。
+5. 部署和下游评测只保留 sequence-only student；十个教师不进入推理路径。[方法与训练流程](https://www.biorxiv.org/content/10.64898/2026.08.03.742606v1.full)
+
+#### 十个教师分别提供什么
+
+| 教师/模态 | 代表模型或数据 | 写入 joint target 的信息 | 主要风险 |
+|---|---|---|---|
+| T1：序列 | ESMC-6B | 蛋白序列上下文 | 与 student 同源，可能主导低层特征 |
+| T2：结构 | ESMFold2 | 预测三维结构 | 结构误差也会被蒸馏 |
+| T3：知识图谱 | PrimeKG HGT | 疾病、药物、蛋白关系 | 与 DTI 下游处于同一图谱 |
+| T4：PPI | GATv2 | 蛋白相互作用邻域 | 图谱覆盖偏向热门蛋白 |
+| T5：文献 | BioMedBERT | 文献描述中的功能语义 | 文献时间与标注泄漏需审计 |
+| T6：定位 | 定位教师 | 亚细胞 compartment | 与 localization 下游标签邻近 |
+| T7：组织表达 | HPA | 组织/细胞表达谱 | human-only，覆盖并不均匀 |
+| T8：功能 | GO 教师 | Gene Ontology 注释 | 与 GO retrieval/classification 直接邻近 |
+| T9：解剖 | 解剖教师 | 解剖部位关联 | 依赖数据库标注质量 |
+| T10：无序 | disorder 教师 | intrinsic disorder | 与 disorder 下游直接邻近 |
+
+这张清单决定了归因口径：sequence-only student 的部署接口确实简单，但其预训练监督并不“只来自序列”。尤其 T3、T6、T8、T10 与 DTI、定位、GO、无序四类下游存在语义邻接，必须通过移除教师、外部图谱和时间切分判断迁移与标签复述的边界。[官方全文，Methods 与 teacher ablation](https://www.biorxiv.org/content/10.64898/2026.08.03.742606v1.full)
+
+<figure style="text-align:center; margin:1.5em auto;">
+  <img src="https://www.biorxiv.org/content/biorxiv/early/2026/08/08/2026.08.03.742606/F1.large.jpg" alt="ProtJEPA 的十教师融合、序列学生蒸馏与 dark-protein 评测流程" loading="lazy" style="max-width:760px; width:100%; height:auto;">
+  <figcaption>ProtJEPA Figure 1：十个冻结教师先形成 joint biological profile，再蒸馏到只看序列的 student。官方 JPEG 为 1280×1000、约 131 KiB。</figcaption>
+</figure>
+
+#### 数据集、指标、主要基线与关键结果
+
+- **预训练/划分**：PrimeKG 中 `19,971` 个人类蛋白，`18,143` 进入训练，`1,828` 作为 dark holdout；holdout 只保证 primary Pfam family 与训练集零重叠，不等于完全同源隔离。
+- **主要基线**：ESMC-600M sequence encoder、教师特征 concatenation、逐项移除教师的 ProtJEPA 变体，以及结构增强的 ProTrek reference。
+- **指标**：retrieval 用 Hit@K/Recall@1；分类用 accuracy；DTI 用 AUPRC；无序预测用 Spearman `ρ`。
+
+| 下游 | ProtJEPA | 关键基线/对照 | 读法 |
+|---|---:|---:|---|
+| GO retrieval，1,574 proteins，Hit@10 | `58.07%` | ESMC `55.27%` | `+2.80 pp`，`p=0.020` |
+| 7-class enzyme classification，923 proteins | `69.99%` | ESMC `60.35%` | 明显正迁移 |
+| GO-BP 50-class，1% / 100% probe | `11.88 / 25.00%` | ESMC `8.85 / 15.66%` | 低标签与全标签均提高 |
+| Localization 256-class，1% / 100% probe | `38.04 / 48.51%` | ESMC `26.17 / 45.49%` | 1% 标签收益更大 |
+| DTI AUPRC | `0.478` | ESMC `0.450` | 但边与 PrimeKG teacher 同图谱 |
+| 15 个 disorder feature，平均 Spearman `ρ` | `0.865` | ESMC `0.778` | 连续性质预测正迁移 |
+| SCOPe-40 fold retrieval，Recall@1 | `21.5%` | ESMC `50.4%` | 重要负结果 |
+
+[官方全文，全部主表和消融](https://www.biorxiv.org/content/10.64898/2026.08.03.742606v1.full)
+
+结构增强的 ProTrek reference 在 GO Hit@10 / enzyme accuracy 达 `79.29% / 81.26%`，高于 ProtJEPA 的 `58.07% / 69.99%`。因此 ProtJEPA 的证据是“多模态教师能改善同规模 sequence student”，不是全面 SOTA。
+
+#### 关键结果应如何逐项解释
+
+**GO retrieval。** `58.07%` 对 `55.27%` 的 Hit@10 提升只有 `+2.80 pp`，论文给出 `p=0.020`；它是有统计支持但幅度有限的正结果。由于 GO 本身就是一个 teacher modality，不能把这项结果当成完全未见功能知识上的发现。
+
+**酶分类。** `69.99%` 对 `60.35%` 的差距更大，但结构增强 ProTrek reference 达 `81.26%`。ProtJEPA 更适合被定位为 ESMC-600M 的多教师增强，而不是酶功能的最佳通用模型。
+
+**低标签 probe。** GO-BP 和 localization 在 1% 标签下分别提高 `3.03 pp` 与 `11.87 pp`，说明 joint latent 可能在标签稀缺时更有价值；但预训练教师已经接触同类功能/定位知识，所谓“低标签”只描述 probe 阶段，不描述整个训练链条的监督量。
+
+**DTI。** `0.478` 对 `0.450` AUPRC 是正结果，但评测边与 PrimeKG teacher 位于同一图谱。它能支持 within-graph link generalization，不能支持对新数据库、新药物或新靶点的独立外部迁移。
+
+**无序预测。** 15 个连续 feature 的平均 Spearman `0.865` 高于 `0.778`；移除 disorder teacher 后仍为 `0.849`，说明并非全部增益都来自直接复制 T10，但直接 teacher 仍贡献了一部分。
+
+**结构 fold retrieval。** Recall@1 的 `21.5%` 远低于 ESMC 的 `50.4%`，是最重要的反例。多教师 joint target 可能强化功能/关系特征，却牺牲细粒度结构 fold 邻域；“表示更丰富”不等于所有生物学相似度都更好。
+
+#### 教师移除与缺失模态对照
+
+- **NoT8（移除 GO teacher）**：GO Hit@10 降至 `48.79%`，不只低于完整 ProtJEPA，也低于 ESMC 的 `55.27%`。GO headline 对直接 GO 教师高度依赖。
+- **NoT6（移除 localization teacher）**：1% 标签 localization 为 `35.52%`，仍高于 ESMC 的 `26.17%`，说明其他教师存在一定跨模态补偿。
+- **NoT10（移除 disorder teacher）**：平均 disorder Spearman `ρ=0.849`，低于完整模型 `0.865` 但高于 ESMC `0.778`，同样呈现“直接教师 + 间接迁移”并存。
+- **移除 PPI 时**：feature concatenation 的 GO `11.92` 与 ProtJEPA `11.88` 基本相当，localization `41.16` 还高于 ProtJEPA `38.04`。
+- **同时移除 PPI/KG/GO 时**：ProtJEPA 只在 GO 上胜出，localization 仍落后于 concatenation。因而论文摘要中的 missing-modality 优势必须限定到具体任务与缺失组合。[官方全文，Table 4](https://www.biorxiv.org/content/10.64898/2026.08.03.742606v1.full)
+
+这些消融比最终排行榜更有价值：它们表明 JEPA predictor 能在部分教师缺失时整合剩余模态，却没有证明 prediction 必然优于直接拼接。下一步需要同参数量、同 target normalization、同 missing pattern 的 concat/MLP/JEPA matched comparison。
+
+#### 相对已有工作的创新
+
+1. 不要求单个蛋白同时具备全部模态，用 modality-attentive fusion 和 masked-teacher reconstruction 处理缺失教师视图。
+2. 把十种异构教师压成统一 latent target，再以 JEPA predictor 搬运到 sequence-only backbone，推理时不依赖图谱、结构或文本教师。
+3. 用 teacher-removal 和 missing-modality comparison 部分审计哪类知识真正被迁移，而不是只给最终排行榜。
+
+#### 事实、作者主张与本研究推断
+
+- **论文事实**：ProtJEPA 在多项功能与表型任务优于 ESMC-600M，但在 SCOPe-40 fold retrieval 显著更差；移除 GO 教师后 GO Hit@10 为 `48.79%`，反低于 ESMC。
+- **作者主张**：联合生物学 latent 能把训练期多模态知识迁移给只看序列的学生，并改善 dark-protein/function transfer。
+- **本研究推断**：论文证明的是“特权教师知识可被 JEPA 式蒸馏”，不是“序列自监督自然发现十种模态知识”。GO headline 对 GO teacher 的依赖尤其强。
+- **归因边界**：Table 4 中只移除 PPI 时，feature concatenation 的 GO `11.92` 与 ProtJEPA `11.88` 接近，localization `41.16` 还高于 ProtJEPA `38.04`；去掉 PPI/KG/GO 时，ProtJEPA 只在 GO 上胜出。摘要中的 missing-modality 优势不能扩写成全面优于 concatenation。
+
+#### 局限、复现条件与潜在风险
+
+1. **评测与教师图谱相交。** DTI 的 `51,306` 条边来自与 PrimeKG teacher 同一图谱，论文自己将其界定为 within-graph held-out，而非真正外部迁移。
+2. **dark split 不够严格。** primary Pfam family 零重叠不等于序列同源完全隔离，也没有 temporal annotation split。
+3. **只覆盖 human proteins。** 不能外推到其他物种或跨物种泛化。
+4. **预训练方差未知。** 10/20 seeds 主要用于下游 probe；只有一套固定预训练模型，未覆盖 student/aggregator 的 run-to-run variance。
+5. **关键组件未完全拆分。** whitening 与 `λvar=5` 没有独立消融；无法判断各自对稳定性和迁移的贡献。
+6. **资源与开放性。** 约单张 A100 80GB：Phase 1 `3 h`、cache `0.5 h`、Phase 2 `24.5 h`；教师生成约 `20 GPUh`，总计约 `48 GPUh`，ESMC-6B teacher 约需 80GB 显存。代码、checkpoint、精确 split 和 teacher embeddings 均只承诺 upon acceptance；当前未找到官方代码仓。
+
+#### 最小复现清单
+
+若后续代码开放，至少需要同时拿到以下材料，才能复核论文主张：
+
+1. `19,971` 个蛋白的稳定 accession、`18,143/1,828` 切分和 primary Pfam family 映射；
+2. 十个教师的精确版本、权重、输入预处理、缺失值规则与生成时间；
+3. PrimeKG、PPI、GO、HPA 和 DTI 的数据快照日期，以及训练/评测边的交集审计脚本；
+4. modality-attentive aggregator 的 mask 分布、各教师投影维度和 `19.2M` 参数核对；
+5. per-dimension whitening 的统计量计算范围，确认没有使用 holdout；
+6. Pfam span masking、三层 predictor、SmoothL1、MLM、variance loss 的全部权重；
+7. Phase 1/2 optimizer、学习率、batch、梯度累积、精度格式与随机种子；
+8. 每项 probe 的 feature extraction、超参数搜索、10/20 seeds 与显著性检验代码；
+9. ProTrek、ESMC 与 concatenation 基线的相同 split/相同 probe 重跑配置；
+10. 至少三个独立预训练 seed，而不只是固定 checkpoint 上重复下游 probe。
+
+在这些材料公开前，可复现性应评为“论文 recipe 部分可读、关键资产未开放”，不能因为作者报告了 GPU 时长就写成端到端可复现。
+
+#### 是否值得写成区别于追踪日报的原创技术博客
+
+**值得，优先级高。** 最适合的主题不是“蛋白 JEPA 全面胜出”，而是《JEPA 还是特权知识蒸馏？ProtJEPA 的跨模态迁移与标签泄漏边界》。文章应围绕 teacher-defined target、missing modalities、GO teacher removal、within-graph DTI 和 fold retrieval 负结果展开；若等到代码、split 和 checkpoint 开放后再写，可把“机制审计”升级为“可复现实验复盘”。
+
+## 横向比较
+
+| 维度 | ProtJEPA（今日历史回补） | CardioState-JEPA（8 月 14 日已解读） | Landslide MAE–JEPA（8 月 16 日已解读） |
+|---|---|---|---|
+| JEPA 角色 | 多教师 privileged distillation 主方法 | 多生理模态 masked latent foundation model | 与 MAE 做 matched frozen-probe 比较的目标函数 |
+| target 来源 | 十个生物教师融合后的 joint profile | ECG/PPG/PCG 的共享心脏状态 | EMA visual target encoder |
+| 下游 | 蛋白功能、定位、DTI、无序、fold retrieval | 25 项心电/脉搏/心音分类回归 | VHR 滑坡像素分割 |
+| 最强归因证据 | teacher-removal 与 ESMC matched student 对比 | 同架构 matched objective ablation | 同架构、同数据、同 four-tap frozen probe 下 MAE 持续领先 |
+| 关键反例 | fold Recall@1 `21.5% < 50.4%`；移除 GO teacher 后低于 ESMC | 三模态并非所有任务都最高 | 无 pretraining multiseed、无独立 test、潜在地理重叠 |
+| 共同启示 | JEPA 效果由 target 所含教师知识决定 | 跨模态对齐质量决定共享 target 的价值 | 下游尺度与读取接口决定目标函数排序 |
+
+三篇连起来看，比“JEPA 是否优于 MAE/contrastive”更有解释力的变量是 **target 里有什么、谁定义 target、下游如何读取表示**。ProtJEPA 把教师知识写入 target，CardioState-JEPA 把生理时延对齐后的跨模态状态写入 target，Landslide audit 则显示标准 latent target 可能丢失像素边界。JEPA 不是脱离 target design 的统一方法名。
+
+## 值得继续追的问题
+
+1. ProtJEPA 若去掉 GO/定位/图谱等与下游标签直接邻近的教师，只保留 sequence/structure teacher，增益还剩多少？
+2. 以 sequence identity、结构相似度和时间切分共同构造 dark-protein holdout 后，ProtJEPA 的 retrieval/classification 排名是否稳定？
+3. DTI 改用完全独立于 PrimeKG 的外部药物–靶点图，`0.478 vs 0.450` AUPRC 是否仍成立？
+4. ProtJEPA 的 whitening、variance loss、MLM 与 JEPA latent loss分别贡献多少？多次 pretraining 的方差多大？
+5. 10 个教师分别贡献哪些互补信息？用 Shapley-style 或成组移除能否区分冗余教师与真正协同？
+6. sequence student 的提升来自 latent prediction、额外 MLM、whitening 还是 variance penalty？需要同计算预算的逐项 matched ablation。
+7. 将 ProTrek、ESMC 与 ProtJEPA 放在同一 backbone、同一 probe、同一 split 下，当前 `58.07/69.99%` 的结论是否稳定？
+8. 教师生成约 20 GPUh、学生训练约 28 GPUh；相同预算直接扩大 sequence model 或做 supervised multitask training 会怎样？
+9. 代码开放后能否从精确 split 复核 teacher graph、GO annotations 与所有评测标签的时间关系？
+10. 工作日索引恢复后，arXiv/OpenAlex 是否补入 8 月 16–17 日周末窗口遗漏；尤其继续追踪 V-JEPA 2 机器人/视频与 A-JEPA 音频方向。
+
+## 博客价值判断
+
+### 当日追踪博客
+
+应完整收录，但标题和摘要必须明确：**今日严格新增为 0，主解读是一篇证据刚完成闭环的高价值历史回补。** 这样既不重复 8 月 16 日 Landslide 论文，也不把旧稿包装成新进展。
+
+### 区别于追踪日报的原创博客
+
+- **首选：ProtJEPA，优先级高。** 主题为“JEPA 与 privileged distillation 的边界”；素材同时有正结果、teacher-removal、结构任务负结果和图谱重叠风险，足以形成独立论证。
+- **可延展的方法论主题：**《不要只问是不是 JEPA：先问 target 由谁定义》。用 ProtJEPA 的多教师 target、CardioState-JEPA 的跨模态 target 和 Landslide 的像素边界负结果对照三种工程形态。
+
+### 配图判断
+
+本日优先采用 ProtJEPA 官方 Figure 1：它直接显示“十教师 → joint profile → sequence-only student → dark-protein tasks”，1280×1000、约 131 KiB，已经足够轻量；正文限制 `max-width:760px` 并 lazy-load，不复制大图入仓库。[官方图片](https://www.biorxiv.org/content/biorxiv/early/2026/08/08/2026.08.03.742606/F1.large.jpg)
+
+## 来源链接
+
+### 严格增量与引用链
+
+- [arXiv 严格提交窗口：2026-08-16 14:04 UTC 至 2026-08-17 03:04 UTC](https://export.arxiv.org/api/query?search_query=%28all%3AJEPA%20OR%20all%3A%22joint-embedding%20predictive%22%29%20AND%20submittedDate%3A%5B202608161404%20TO%20202608170304%5D&start=0&max_results=100&sortBy=submittedDate&sortOrder=descending)
+- [arXiv JEPA 按 lastUpdatedDate 排序](https://export.arxiv.org/api/query?search_query=all%3AJEPA%20OR%20all%3A%22joint-embedding%20predictive%22&start=0&max_results=100&sortBy=lastUpdatedDate&sortOrder=descending)
+- [Crossref JEPA 创建日期窗口](https://api.crossref.org/works?query.bibliographic=JEPA&filter=from-created-date%3A2026-08-16%2Cuntil-created-date%3A2026-08-17&rows=100)
+- OpenAlex：[I-JEPA](https://api.openalex.org/works?filter=cites%3AW4386076428%2Cfrom_publication_date%3A2026-08-16&sort=publication_date%3Adesc&per-page=100) · [V-JEPA](https://api.openalex.org/works?filter=cites%3AW4394861491%2Cfrom_publication_date%3A2026-08-16&sort=publication_date%3Adesc&per-page=100) · [V-JEPA 2](https://api.openalex.org/works?filter=cites%3AW4417261359%2Cfrom_publication_date%3A2026-08-16&sort=publication_date%3Adesc&per-page=100)
+- bioRxiv/medRxiv 的 8 月 16–17 日日期 API 本轮虽返回 HTTP 200，却没有可解析响应体，因此**未**被用作“无新增”的证据。
+
+### ProtJEPA 一手来源
+
+- [bioRxiv 官方 HTML 全文](https://www.biorxiv.org/content/10.64898/2026.08.03.742606v1.full)
+- [bioRxiv 官方 PDF](https://www.biorxiv.org/content/10.64898/2026.08.03.742606v1.full.pdf)
+- [DOI：10.64898/2026.08.03.742606](https://doi.org/10.64898/2026.08.03.742606)
+- [Crossref DOI 元数据](https://api.crossref.org/works/10.64898/2026.08.03.742606)
+- [官方 Figure 1](https://www.biorxiv.org/content/biorxiv/early/2026/08/08/2026.08.03.742606/F1.large.jpg)
+
+### 排除与去重
+
+- **Landslide MAE–JEPA**：已在 2026-08-16 完整解读，本日严格去重。
+- **Scaling Representation Diversity（arXiv:2608.12748）**：8 月 14 日已登记为时间窗外历史漏项；论文确实使用 text-conditioned JEPA auxiliary stream，但本日按单篇收束要求不展开，保留为下一轮候选。[arXiv](https://arxiv.org/abs/2608.12748)
+- **HERA、SR-JEPA、Helping Music、SJEPA、FactorJEPA**：已在 8 月 7–9 日记录或候选池覆盖，未发现新版本。
+- **ECG–PPG KDD 论文（DOI `10.1145/3770855.3819000`）**：ACM 页面/PDF 仍拒绝访问，无法逐表核验，不用摘要补齐。
+- **UA-JEPA 与内镜 I-JEPA**：仍缺可核验全文或逐表实验，不纳入主解读。
+- **Semantic Scholar 的未来期号条目**：I-JEPA 引用链出现 2026-09-01 的农业分割与创面分割元数据；在当前日期既非严格新增、又未完成一手全文审计，只登记为后续候选，不按未来出版日期提前认领。
+- **related-work-only**：本轮没有仅因引用 I-JEPA/V-JEPA/A-JEPA 而进入主解读的论文。
