@@ -1,0 +1,693 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>在松散智能体中寻找稳定控制：调度与动态工作流方案追踪 - Lu Zhongqiu</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="Lu Zhongqiu"><meta name="msapplication-TileImage" content="/img/favicon.svg"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Lu Zhongqiu"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="这是一篇长期维护的方案追踪文档。首版研究截止到 2026-07-23，只采用官方文档、官方工程博客、官方仓库与论文原文。  我想解决的并不是“如何让智能体每次走完全相同的路径”，而是一个更现实的问题："><meta property="og:type" content="blog"><meta property="og:title" content="在松散智能体中寻找稳定控制：调度与动态工作流方案追踪"><meta property="og:url" content="https://luzhongqiu.github.io/2026/07/23/stable-orchestration-for-general-agents/"><meta property="og:site_name" content="Lu Zhongqiu"><meta property="og:description" content="这是一篇长期维护的方案追踪文档。首版研究截止到 2026-07-23，只采用官方文档、官方工程博客、官方仓库与论文原文。  我想解决的并不是“如何让智能体每次走完全相同的路径”，而是一个更现实的问题："><meta property="og:locale" content="zh_CN"><meta property="og:image" content="https://luzhongqiu.github.io/img/og_image.png"><meta property="article:published_time" content="2026-07-23T02:30:00.000Z"><meta property="article:modified_time" content="2026-07-29T02:38:34.000Z"><meta property="article:author" content="Lu Zhongqiu"><meta property="article:tag" content="通用智能体"><meta property="article:tag" content="智能体调度"><meta property="article:tag" content="工作流"><meta property="article:tag" content="Agentic Workflow"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="https://luzhongqiu.github.io/img/og_image.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"https://luzhongqiu.github.io/2026/07/23/stable-orchestration-for-general-agents/"},"headline":"在松散智能体中寻找稳定控制：调度与动态工作流方案追踪","image":["https://luzhongqiu.github.io/img/og_image.png"],"datePublished":"2026-07-23T02:30:00.000Z","dateModified":"2026-07-29T02:38:34.000Z","author":{"@type":"Person","name":"Lu Zhongqiu"},"publisher":{"@type":"Organization","name":"Lu Zhongqiu","logo":{"@type":"ImageObject","url":"https://luzhongqiu.github.io/img/logo.svg"}},"description":"这是一篇长期维护的方案追踪文档。首版研究截止到 2026-07-23，只采用官方文档、官方工程博客、官方仓库与论文原文。  我想解决的并不是“如何让智能体每次走完全相同的路径”，而是一个更现实的问题："}</script><link rel="canonical" href="https://luzhongqiu.github.io/2026/07/23/stable-orchestration-for-general-agents/"><link rel="icon" href="/img/favicon.svg"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.0.0/css/all.css"><link data-pjax rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/atom-one-light.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;600&amp;family=Source+Code+Pro"><link data-pjax rel="stylesheet" href="/css/default.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"><!--!--><!--!--><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><!--!--><!--!--><!-- hexo injector head_end start --><script>
+  (function () {
+      function switchTab() {
+          if (!location.hash) {
+            return;
+          }
+
+          const id = '#' + CSS.escape(location.hash.substring(1));
+          const $tabMenu = document.querySelector(`.tabs a[href="${id}"]`);
+          if (!$tabMenu) {
+            return;
+          }
+
+          const $tabMenuContainer = $tabMenu.parentElement.parentElement;
+          Array.from($tabMenuContainer.children).forEach($menu => $menu.classList.remove('is-active'));
+          Array.from($tabMenuContainer.querySelectorAll('a'))
+              .map($menu => document.getElementById($menu.getAttribute("href").substring(1)))
+              .forEach($content => $content.classList.add('is-hidden'));
+
+          if ($tabMenu) {
+              $tabMenu.parentElement.classList.add('is-active');
+          }
+          const $activeTab = document.querySelector(id);
+          if ($activeTab) {
+              $activeTab.classList.remove('is-hidden');
+          }
+      }
+      switchTab();
+      window.addEventListener('hashchange', switchTab, false);
+  })();
+  </script><link rel="stylesheet" href="/css/custom.css"><!-- hexo injector head_end end --><meta name="generator" content="Hexo 8.1.2"></head><body class="is-2-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/">Lu Zhongqiu</a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a><a class="navbar-item" href="/about">About</a></div><div class="navbar-end"><a class="navbar-item search" title="搜索" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-8-widescreen"><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item"><time dateTime="2026-07-23T02:30:00.000Z" title="7/23/2026, 2:30:00 AM">2026-07-23</time>发表</span><span class="level-item"><time dateTime="2026-07-29T02:38:34.000Z" title="7/29/2026, 2:38:34 AM">2026-07-29</time>更新</span><span class="level-item"><a class="link-muted" href="/categories/%E6%99%BA%E8%83%BD%E4%BD%93%E5%B7%A5%E7%A8%8B/">智能体工程</a></span><span class="level-item">2 小时读完 (大约17727个字)</span></div></div><h1 class="title is-3 is-size-4-mobile">在松散智能体中寻找稳定控制：调度与动态工作流方案追踪</h1><div class="content"><blockquote>
+<p>这是一篇长期维护的方案追踪文档。首版研究截止到 2026-07-23，只采用官方文档、官方工程博客、官方仓库与论文原文。</p>
+</blockquote>
+<p>我想解决的并不是“如何让智能体每次走完全相同的路径”，而是一个更现实的问题：</p>
+<blockquote>
+<p>当任务路径必须由模型临场决定时，怎样让系统仍然拥有可恢复、可审计、可限额、可中止、可验证的确定性外壳？</p>
+</blockquote>
+<p>为了避免把产品宣传、工程经验和本文结论混在一起，下文使用三种标记：</p>
+<ul>
+<li><strong>官方事实</strong>：官方文档或源码明确描述的机制。</li>
+<li><strong>一方主张</strong>：厂商或作者根据自身实验给出的经验判断，不自动视作普遍规律。</li>
+<li><strong>本文推断</strong>：基于多个一手来源形成的设计结论，仍需在具体业务中验证。</li>
+</ul>
+<h2 id="一、问题定义：稳定不是固定路径，而是受控的不确定性"><a href="#一、问题定义：稳定不是固定路径，而是受控的不确定性" class="headerlink" title="一、问题定义：稳定不是固定路径，而是受控的不确定性"></a>一、问题定义：稳定不是固定路径，而是受控的不确定性</h2><p>Anthropic 把 agentic system 分为两类：workflow 的执行路径由代码预先定义，agent 则由模型动态决定过程与工具使用；前者更可预测，后者更灵活。它同时建议从最简单的方案开始，只在必要时增加复杂度。<a target="_blank" rel="noopener" href="https://www.anthropic.com/engineering/building-effective-agents">官方事实；来源：Anthropic《Building effective agents》</a></p>
+<p>这组区分很有用，但生产系统通常不会停留在二选一。真正可用的通用智能体更像一个混合体：</p>
+<ul>
+<li>允许模型决定“下一步做什么、调用谁、是否改计划”；</li>
+<li>不允许模型决定“权限边界、状态提交方式、重试语义、预算上限、验收标准”；</li>
+<li>让模型拥有策略自由，让运行时掌握机制控制。</li>
+</ul>
+<p><strong>本文推断：</strong> 稳定控制的目标不是消灭随机性，而是把随机性收敛到几个显式决策点。只要状态转移、外部副作用和停止条件仍由确定性系统接管，模型可以在边界内保持松散和灵活。</p>
+<h3 id="需要分别控制的四种“不稳定”"><a href="#需要分别控制的四种“不稳定”" class="headerlink" title="需要分别控制的四种“不稳定”"></a>需要分别控制的四种“不稳定”</h3><table>
+<thead>
+<tr>
+<th>不稳定来源</th>
+<th>典型表现</th>
+<th>应落在哪一层控制</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>推理不稳定</td>
+<td>同一任务产生不同计划、路由或答案</td>
+<td>结构化决策、候选约束、外部评测</td>
+</tr>
+<tr>
+<td>执行不稳定</td>
+<td>进程崩溃、网络失败、重复调用工具</td>
+<td>checkpoint、event log、幂等、重试与补偿</td>
+</tr>
+<tr>
+<td>权限不稳定</td>
+<td>越权写入、误删、被工具输出提示注入</td>
+<td>capability、deny-first 策略、sandbox、审批</td>
+</tr>
+<tr>
+<td>组织不稳定</td>
+<td>子智能体重复劳动、互相覆盖、无限讨论</td>
+<td>任务依赖、租约、隔离工作区、预算与终止条件</td>
+</tr>
+</tbody></table>
+<p>这里最容易犯的错误，是用“记住对话”代替“记住执行”。会话历史回答的是“模型看过什么”，执行状态回答的是“哪些动作已经可靠完成、哪些副作用可能已经发生”。两者必须分开。</p>
+<h2 id="二、分层控制模型：把自由放在中间，把硬约束放在上下两端"><a href="#二、分层控制模型：把自由放在中间，把硬约束放在上下两端" class="headerlink" title="二、分层控制模型：把自由放在中间，把硬约束放在上下两端"></a>二、分层控制模型：把自由放在中间，把硬约束放在上下两端</h2><h3 id="第-0-层：触发与租约"><a href="#第-0-层：触发与租约" class="headerlink" title="第 0 层：触发与租约"></a>第 0 层：触发与租约</h3><p>定时器、Webhook、事件总线只负责产生一次 run。每次 run 必须有稳定的 <code>run_id</code>、输入快照、版本号和互斥租约，防止同一任务被重复并发消费。</p>
+<p><strong>本文推断：</strong> cron 不是工作流引擎。它只解决“何时开始”，不解决重入、恢复、重复副作用和发布一致性。</p>
+<h3 id="第-1-层：目标、验收与预算"><a href="#第-1-层：目标、验收与预算" class="headerlink" title="第 1 层：目标、验收与预算"></a>第 1 层：目标、验收与预算</h3><p>任务开始前固定：</p>
+<ul>
+<li>目标与不变量；</li>
+<li>可接受的最终状态；</li>
+<li>最大轮数、模型调用数、工具调用数、墙钟时间、费用；</li>
+<li>最大递归深度、并发数、失败次数；</li>
+<li>哪些动作必须人工批准。</li>
+</ul>
+<p>预算不能只设一个 token 上限。某个代理可能 token 很少，却创建大量子任务、发起高风险写操作，或在网络重试中挂很久。</p>
+<h3 id="第-2-层：类型化状态与结构化决策"><a href="#第-2-层：类型化状态与结构化决策" class="headerlink" title="第 2 层：类型化状态与结构化决策"></a>第 2 层：类型化状态与结构化决策</h3><p>模型不直接返回“下一步随便做什么”，而是返回一个有限联合类型，例如：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">Decision =</span><br><span class="line">  | Plan(steps, assumptions)</span><br><span class="line">  | CallTool(tool, args, expected_effect)</span><br><span class="line">  | Delegate(role, task, budget)</span><br><span class="line">  | AskHuman(question, risk)</span><br><span class="line">  | Finish(answer, evidence)</span><br><span class="line">  | Abort(reason)</span><br></pre></td></tr></table></figure>
+
+<p>业务状态、执行状态、消息历史、产物引用分别存储。结构化输出只保证“形状正确”，并不保证“语义正确”；因此还需要不变量校验和权限检查。</p>
+<h3 id="第-3-层：动态规划与受限路由"><a href="#第-3-层：动态规划与受限路由" class="headerlink" title="第 3 层：动态规划与受限路由"></a>第 3 层：动态规划与受限路由</h3><p>这一层可以让模型自由发挥：动态拆解、选择工具、选择专家、循环修订。但可达节点集合、递归深度、并发度、终止条件仍由代码限定。</p>
+<p>Anthropic 的 orchestrator-workers 模式就是典型例子：中央 LLM 动态拆分任务、委派给 worker，再汇总结果，适合无法预先知道子任务数量和性质的任务，如代码修改。<a target="_blank" rel="noopener" href="https://www.anthropic.com/engineering/building-effective-agents">官方事实；来源：Anthropic《Building effective agents》</a></p>
+<h3 id="第-4-层：显式状态机与持久化执行"><a href="#第-4-层：显式状态机与持久化执行" class="headerlink" title="第 4 层：显式状态机与持久化执行"></a>第 4 层：显式状态机与持久化执行</h3><p>将一次自由决策编译成一个显式状态转移：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">READY -&gt; DECIDING -&gt; POLICY_CHECK -&gt; WAITING_APPROVAL</span><br><span class="line">                     |                 |</span><br><span class="line">                     v                 v</span><br><span class="line">                  EXECUTING ------&gt; VERIFYING</span><br><span class="line">                     |                 |</span><br><span class="line">                     v                 v</span><br><span class="line">                  RETRYING       COMMITTED / COMPENSATING</span><br></pre></td></tr></table></figure>
+
+<p>运行时负责 checkpoint、replay、超时、取消、重试和版本迁移。模型不能通过一句自然语言改变这些语义。</p>
+<h3 id="第-5-层：副作用网关"><a href="#第-5-层：副作用网关" class="headerlink" title="第 5 层：副作用网关"></a>第 5 层：副作用网关</h3><p>所有有副作用的工具都必须经过统一网关：</p>
+<ul>
+<li>使用稳定的幂等键；</li>
+<li>先记录意图，再执行动作；</li>
+<li>区分可安全重试、需查询结果、需补偿、禁止自动重试；</li>
+<li>按风险做静态策略检查或人工审批；</li>
+<li>把凭据留在网关或 vault，不交给模型和执行沙箱。</li>
+</ul>
+<p>Temporal 明确建议把 API&#x2F;LLM 等易失败或非确定操作放入 Activity，Workflow 本身保持可重放的确定性；Activity 默认会重试，因此 Activity 代码应按可能重复执行来设计幂等性。<a target="_blank" rel="noopener" href="https://docs.temporal.io/encyclopedia/retry-policies">官方事实；来源：Temporal Retry Policies</a></p>
+<h3 id="第-6-层：可观测与评测"><a href="#第-6-层：可观测与评测" class="headerlink" title="第 6 层：可观测与评测"></a>第 6 层：可观测与评测</h3><p>每次 run 至少记录：</p>
+<ul>
+<li>决策与状态转移；</li>
+<li>模型、prompt&#x2F;agent&#x2F;workflow 版本；</li>
+<li>工具入参摘要、结果摘要、幂等键；</li>
+<li>权限判定、审批者和依据；</li>
+<li>token、费用、轮数、耗时、重试与补偿；</li>
+<li>最终环境状态和验收结果。</li>
+</ul>
+<p>Anthropic 将完整试验记录称为 transcript&#x2F;trace&#x2F;trajectory，并区分“代理声称完成”与“环境中是否真的完成”的 outcome；其建议是组合代码、模型和人工 grader，并同时维护能力评测与接近 100% 通过率的回归评测。<a target="_blank" rel="noopener" href="https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents">官方事实与一方主张；来源：Anthropic《Demystifying evals for AI agents》</a></p>
+<p>2026 年 7 月 24 日新上架的 GuardianAgentBench 在 580 个场景、6 个领域、3 个 agent framework 和 6 个模型上测试工具型 agent。作者报告：最佳配置总体准确率为 74.8%，工具集合扩大和顺序轮次加深都会单调降低表现；其执行期 guardrail 相比 system prompt 防御可恢复 19.9% 的失败，误报率为 0.5%。<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2607.20982">一方主张；未同行评审预印本；来源：GuardianAgentBench</a></p>
+<p><strong>本文推断：</strong> 工具数和深度上限不只是成本预算，也是可靠性预算；guardrail 应尽量成为执行期的结构化干预，而不是只写在 system prompt 里。上述数值仍需在其他工具分布、框架和真实副作用任务上复现。</p>
+<p>2026 年 7 月 28 日上架的 OrchBench 进一步把“编排质量”和“worker 能力”拆开：planner 只需要为给定任务 DAG 指定 agent 分配、跨 agent 信息传递和保留比例，确定性模拟器不调用 worker，就计算结果质量、makespan 与 token 成本。作者报告其模拟总分与 Claude Code Dynamic Workflows 的真实质量在 6 个模型级样本上达到 Pearson (r&#x3D;0.816)，只消耗 1.3% 的 token 和 10.3% 的墙钟时间；但真实耗时和 token 高度依赖框架，不能由该模拟可靠预测。<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2607.25656">一方主张；未同行评审预印本；来源：OrchBench</a></p>
+<p><strong>本文推断：</strong> 多智能体评测至少应拆成两层：先用可复现模拟或静态检查筛查依赖、信息传递、并发和预算计划，再在目标框架中运行故障注入与 outcome eval。OrchBench 也支持一个重要判断：增加 agent 数不等于增加可靠性，任务关键信息是否完整跨越 handoff 才是更直接的控制变量；其相关性样本仍小，适合作为初筛证据而不是生产替代测试。</p>
+<h2 id="三、Claude-Code-式动态工作流：它稳定在哪里，又没有稳定什么"><a href="#三、Claude-Code-式动态工作流：它稳定在哪里，又没有稳定什么" class="headerlink" title="三、Claude Code 式动态工作流：它稳定在哪里，又没有稳定什么"></a>三、Claude Code 式动态工作流：它稳定在哪里，又没有稳定什么</h2><p>Claude Code 很适合作为“动态工作流”的观察对象，因为它不是先画完整 DAG，再让模型填空，而是让模型边探索边决定下一步。</p>
+<h3 id="1-官方-Dynamic-Workflows：把易漂移的编排计划移进可读脚本"><a href="#1-官方-Dynamic-Workflows：把易漂移的编排计划移进可读脚本" class="headerlink" title="1. 官方 Dynamic Workflows：把易漂移的编排计划移进可读脚本"></a>1. 官方 Dynamic Workflows：把易漂移的编排计划移进可读脚本</h3><p>2026 年 Claude Code 已提供正式的 Dynamic Workflows 能力：Claude 针对任务生成一段 JavaScript 编排脚本，独立 workflow runtime 在后台执行它，用 <code>agent()</code> 和 <code>pipeline()</code> 批量调度 subagent。循环、分支和中间结果保存在脚本与脚本变量中，主会话只接收最终结果。<a target="_blank" rel="noopener" href="https://code.claude.com/docs/en/workflows">官方事实；来源：Claude Code Dynamic Workflows</a></p>
+<p>官方对四种扩展方式的区分非常清楚：</p>
+<table>
+<thead>
+<tr>
+<th>方式</th>
+<th>谁决定下一步</th>
+<th>中间结果在哪里</th>
+<th>可复用的是什么</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Subagent</td>
+<td>Claude 逐轮决定</td>
+<td>Claude 上下文</td>
+<td>worker 定义</td>
+</tr>
+<tr>
+<td>Skill</td>
+<td>Claude 按说明执行</td>
+<td>Claude 上下文</td>
+<td>指令</td>
+</tr>
+<tr>
+<td>Agent team</td>
+<td>lead agent 逐轮决定</td>
+<td>共享任务表</td>
+<td>team 定义</td>
+</tr>
+<tr>
+<td>Dynamic workflow</td>
+<td>JavaScript 脚本</td>
+<td>脚本变量</td>
+<td>完整编排</td>
+</tr>
+</tbody></table>
+<p><a target="_blank" rel="noopener" href="https://code.claude.com/docs/en/workflows">官方事实；来源：Claude Code Dynamic Workflows</a></p>
+<p>一个保存后的 workflow 大致是这样：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">const</span> meta = &#123;</span><br><span class="line">  <span class="attr">name</span>: <span class="string">&quot;audit-routes&quot;</span>,</span><br><span class="line">  <span class="attr">description</span>: <span class="string">&quot;逐文件审计并交叉验证&quot;</span>,</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> found = <span class="keyword">await</span> <span class="title function_">agent</span>(<span class="string">&quot;列出所有 route 文件&quot;</span>, &#123;</span><br><span class="line">  <span class="attr">schema</span>: &#123;</span><br><span class="line">    <span class="attr">type</span>: <span class="string">&quot;object&quot;</span>,</span><br><span class="line">    <span class="attr">required</span>: [<span class="string">&quot;files&quot;</span>],</span><br><span class="line">    <span class="attr">properties</span>: &#123; <span class="attr">files</span>: &#123; <span class="attr">type</span>: <span class="string">&quot;array&quot;</span>, <span class="attr">items</span>: &#123; <span class="attr">type</span>: <span class="string">&quot;string&quot;</span> &#125; &#125; &#125;,</span><br><span class="line">  &#125;,</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> audits = <span class="keyword">await</span> <span class="title function_">pipeline</span>(found.<span class="property">files</span>, <span class="function"><span class="params">file</span> =&gt;</span></span><br><span class="line">  <span class="title function_">agent</span>(<span class="string">`审计 <span class="subst">$&#123;file&#125;</span>，只报告有证据的问题`</span>, &#123; <span class="attr">label</span>: file &#125;),</span><br><span class="line">);</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> verified = <span class="keyword">await</span> <span class="title function_">pipeline</span>(audits.<span class="title function_">filter</span>(<span class="title class_">Boolean</span>), <span class="function"><span class="params">finding</span> =&gt;</span></span><br><span class="line">  <span class="title function_">agent</span>(<span class="string">`对抗性复核这条发现：<span class="subst">$&#123;finding&#125;</span>`</span>),</span><br><span class="line">);</span><br><span class="line"></span><br><span class="line"><span class="keyword">return</span> verified.<span class="title function_">filter</span>(<span class="function"><span class="params">result</span> =&gt;</span> result.<span class="property">confirmed</span>);</span><br></pre></td></tr></table></figure>
+
+<p>脚本可保存到项目的 <code>.claude/workflows/</code> 或个人的 <code>~/.claude/workflows/</code>，以后作为命令复用。每次 run 的实际脚本也写入 session 目录，可查看、diff、修改后重跑。<a target="_blank" rel="noopener" href="https://code.claude.com/docs/en/workflows">官方事实；来源：Claude Code Dynamic Workflows</a></p>
+<p>它提供了三种很具体的稳定性：</p>
+<ol>
+<li><strong>控制流稳定</strong>：loop、branch、fan-out&#x2F;fan-in 不再依赖主模型每一轮都记得原计划，而由代码执行。</li>
+<li><strong>上下文稳定</strong>：大量中间结果留在脚本变量中，避免所有 worker transcript 挤进主上下文。</li>
+<li><strong>重复与检查稳定</strong>：同一审计、迁移或交叉验证模式可以保存、阅读和复跑，而不是每次临场生成。</li>
+</ol>
+<p>runtime 还施加硬上限：最多 16 个并发 agent（低 CPU 机器可能更少），每个 run 最多 1,000 个 agent。它可以暂停、停止或重启单个 agent，并显示各阶段 agent 数、token 与耗时。<a target="_blank" rel="noopener" href="https://code.claude.com/docs/en/workflows">官方事实；来源：Claude Code Dynamic Workflows</a></p>
+<p>但它的恢复边界同样明确：</p>
+<ul>
+<li>同一 Claude Code session 内暂停再恢复时，已完成 agent 直接返回缓存结果；</li>
+<li>暂停时仍在运行的 agent 不保存，恢复时会从头重启；</li>
+<li>退出 Claude Code 后，新 session 会把 workflow 从头启动；</li>
+<li>workflow 中途不接受普通用户输入，只有权限 prompt 可以暂停；需要阶段签字时，应拆成多个 workflow；</li>
+<li>workflow 脚本本身没有直接文件系统或 shell 权限，副作用由 subagent 工具调用执行；</li>
+<li>workflow subagent 固定运行在 <code>acceptEdits</code> mode 并继承 tool allowlist，文件编辑自动批准；未在 allowlist 中的 shell、Web 和 MCP 调用仍可能触发权限 prompt，并继续受 sandbox 约束。</li>
+</ul>
+<p><a target="_blank" rel="noopener" href="https://code.claude.com/docs/en/workflows">官方事实；来源：Claude Code Dynamic Workflows</a></p>
+<p><strong>本文推断：</strong> 这是一种“session 内可恢复的脚本化多 agent 编排”，不是跨进程、跨 session 的 durable execution。它缓存的是已完成 agent result，而没有公开承诺外部工具的幂等、事务、补偿或结果不明时的 reconcile。对代码审计、研究、可重跑迁移很有价值；对付款、发布、工单写入等业务副作用，仍需要外部执行账本和 durable orchestrator。</p>
+<h3 id="2-内核仍是动态-agent-loop"><a href="#2-内核仍是动态-agent-loop" class="headerlink" title="2. 内核仍是动态 agent loop"></a>2. 内核仍是动态 agent loop</h3><p>Claude Code 官方把循环描述为三个交织阶段：收集上下文、采取行动、验证结果。每次工具结果都会返回上下文，影响下一个决策。<a target="_blank" rel="noopener" href="https://code.claude.com/docs/en/how-claude-code-works">官方事实；来源：How Claude Code works</a></p>
+<p>这意味着流程图通常在运行后才完整显现：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">用户目标</span><br><span class="line">  -&gt; 搜索代码</span><br><span class="line">  -&gt; 读取文件</span><br><span class="line">  -&gt; 形成局部假设</span><br><span class="line">  -&gt; 编辑</span><br><span class="line">  -&gt; 测试失败</span><br><span class="line">  -&gt; 再搜索</span><br><span class="line">  -&gt; 修复</span><br><span class="line">  -&gt; 再验证</span><br><span class="line">  -&gt; 完成</span><br></pre></td></tr></table></figure>
+
+<p><strong>本文推断：</strong> Claude Code 的关键不是“无工作流”，而是工作流被延迟到运行期生成；其稳定性来自循环外壳和工具边界，而不是来自预先固定的路径。</p>
+<h3 id="3-CLAUDE-md、skills-与工具描述构成软控制面"><a href="#3-CLAUDE-md、skills-与工具描述构成软控制面" class="headerlink" title="3. CLAUDE.md、skills 与工具描述构成软控制面"></a>3. <code>CLAUDE.md</code>、skills 与工具描述构成软控制面</h3><p>项目规则、上下文、skills 和工具 schema 会影响模型决策。skills 按需加载，subagent 拥有独立上下文并只把结果摘要返回主会话，可减轻主上下文膨胀。<a target="_blank" rel="noopener" href="https://code.claude.com/docs/en/how-claude-code-works">官方事实；来源：How Claude Code works</a></p>
+<p>但这些仍是“模型会尽量遵守”的软约束，不能代替权限系统和状态机。</p>
+<h3 id="4-hooks、permissions-与-sandbox-构成硬控制面"><a href="#4-hooks、permissions-与-sandbox-构成硬控制面" class="headerlink" title="4. hooks、permissions 与 sandbox 构成硬控制面"></a>4. hooks、permissions 与 sandbox 构成硬控制面</h3><p>Claude Code 的 hooks 可在 <code>PreToolUse</code>、<code>PostToolUse</code>、<code>PermissionRequest</code>、<code>Stop</code>、<code>SubagentStart/Stop</code> 等生命周期点运行确定性代码；<code>PreToolUse</code> 可以阻止、修改或要求确认工具调用，deny&#x2F;ask 规则仍具有优先权。<a target="_blank" rel="noopener" href="https://code.claude.com/docs/en/hooks">官方事实；来源：Hooks reference</a>、<a target="_blank" rel="noopener" href="https://code.claude.com/docs/en/permissions">Configure permissions</a></p>
+<p>Anthropic 还把 sandbox 描述为文件系统与网络两条边界。它不是让分类器“更相信模型”，而是限制模型即使做错时能够造成的最大损害。<a target="_blank" rel="noopener" href="https://www.anthropic.com/engineering/claude-code-sandboxing">官方事实；来源：Anthropic《Beyond permission prompts》</a></p>
+<p>Anthropic 2026 年的工程复盘进一步主张：频繁人工确认会造成 approval fatigue，纯概率分类器也必然有漏判，因此 containment 应作为纵深防御，而不是由模型判断替代环境隔离。<a target="_blank" rel="noopener" href="https://www.anthropic.com/engineering/how-we-contain-claude">一方主张；来源：Anthropic《How we contain Claude across products》</a></p>
+<h3 id="5-subagents、agent-teams-与-worktrees-控制任务组织和冲突"><a href="#5-subagents、agent-teams-与-worktrees-控制任务组织和冲突" class="headerlink" title="5. subagents、agent teams 与 worktrees 控制任务组织和冲突"></a>5. subagents、agent teams 与 worktrees 控制任务组织和冲突</h3><p>subagent 在独立上下文中执行聚焦任务并回报摘要；agent team 则由 lead、独立 teammate、共享任务表和 mailbox 构成，任务依赖完成后可自动解锁。<a target="_blank" rel="noopener" href="https://code.claude.com/docs/en/agent-teams">官方事实；来源：Claude Code Agent Teams</a></p>
+<p>worktree 为并行 session 或 subagent 提供独立文件树，避免编辑互相覆盖。<a target="_blank" rel="noopener" href="https://code.claude.com/docs/en/worktrees">官方事实；来源：Claude Code Worktrees</a></p>
+<p>但 agent teams 目前仍被官方标记为 experimental，并明确存在 session resume、task coordination 和 shutdown 的已知限制。<a target="_blank" rel="noopener" href="https://code.claude.com/docs/en/agent-teams">官方事实；来源：Claude Code Agent Teams</a></p>
+<p><strong>本文推断：</strong> 多智能体不是稳定性的默认来源。只有在任务可以清晰分区、产物可合并、依赖可显式表达时，并行才增加吞吐；否则它只是把单代理的不确定性乘以参与者数量。</p>
+<h3 id="6-session-与-checkpoint-提供“可回看、可撤销”，不是通用-durable-execution"><a href="#6-session-与-checkpoint-提供“可回看、可撤销”，不是通用-durable-execution" class="headerlink" title="6. session 与 checkpoint 提供“可回看、可撤销”，不是通用 durable execution"></a>6. session 与 checkpoint 提供“可回看、可撤销”，不是通用 durable execution</h3><p>Claude Code 把消息、工具调用和结果持续写入本地 JSONL session，并在编辑前快照受影响文件，因此可 resume、fork、rewind。<a target="_blank" rel="noopener" href="https://code.claude.com/docs/en/how-claude-code-works">官方事实；来源：How Claude Code works</a>、<a target="_blank" rel="noopener" href="https://code.claude.com/docs/en/sessions">Manage sessions</a></p>
+<p>但 checkpoint 只跟踪其文件编辑工具造成的修改；Bash 命令和外部进程改动不在回滚范围内，官方也明确说它不能替代 Git。<a target="_blank" rel="noopener" href="https://code.claude.com/docs/en/checkpointing">官方事实；来源：Claude Code Checkpointing</a></p>
+<p>因此：</p>
+<ul>
+<li>session persistence 是对话与事件留存；</li>
+<li>file checkpoint 是局部撤销；</li>
+<li>Git&#x2F;worktree 是代码版本与隔离；</li>
+<li>durable execution 才是崩溃后按明确语义恢复未完成步骤。</li>
+</ul>
+<p>四者不能互换。</p>
+<h3 id="7-budget-与-telemetry-提供止损和复盘"><a href="#7-budget-与-telemetry-提供止损和复盘" class="headerlink" title="7. budget 与 telemetry 提供止损和复盘"></a>7. budget 与 telemetry 提供止损和复盘</h3><p>Claude Code 非交互模式提供 <code>--max-turns</code> 和 <code>--max-budget-usd</code>，并支持 JSON Schema 约束最终输出。<a target="_blank" rel="noopener" href="https://code.claude.com/docs/en/cli-usage">官方事实；来源：Claude Code CLI reference</a></p>
+<p>Claude Code 2.1.217 又把组织预算变成更明确的运行时边界：普通 subagent 默认最多并发 20 个，嵌套派生默认关闭，只有显式设置最大派生深度后才允许继续递归；达到 <code>--max-budget-usd</code> 后不仅拒绝新派生，还会停止正在运行的后台 subagent。<a target="_blank" rel="noopener" href="https://github.com/anthropics/claude-code/releases/tag/v2.1.217">官方事实；来源：Claude Code 2.1.217 release</a></p>
+<p>Claude Code 也可通过 OpenTelemetry 导出指标、事件和 beta traces；trace 层级可以把一次用户交互关联到模型请求、工具调用、权限等待和 hook 执行。<a target="_blank" rel="noopener" href="https://code.claude.com/docs/en/monitoring-usage">官方事实；来源：Claude Code Monitoring</a></p>
+<h3 id="8-长时任务真正依赖“结构化交接产物”"><a href="#8-长时任务真正依赖“结构化交接产物”" class="headerlink" title="8. 长时任务真正依赖“结构化交接产物”"></a>8. 长时任务真正依赖“结构化交接产物”</h3><p>Anthropic 的长时 coding harness 实验发现，仅靠 compaction 不足以让代理跨多个上下文窗口持续可靠工作。其做法是让 initializer 建立 feature list、进度文件、启动脚本和 Git 基线，再让后续 coding agent 每次只推进一个增量，并留下可验证的干净状态。<a target="_blank" rel="noopener" href="https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents">一方主张；来源：Anthropic《Effective harnesses for long-running agents》</a></p>
+<p>2026 年的后续实验又加入 planner、generator、evaluator，把生成与验收分离，并通过可测试的 sprint contract 推进长时任务；作者同时提醒，harness 对模型能力的假设会随模型升级而过时，需要做消融和持续调整。<a target="_blank" rel="noopener" href="https://www.anthropic.com/engineering/harness-design-long-running-apps">一方主张；来源：Anthropic《Harness design for long-running application development》</a></p>
+<h3 id="9-持久化记忆还必须由控制面按线索主动投递"><a href="#9-持久化记忆还必须由控制面按线索主动投递" class="headerlink" title="9. 持久化记忆还必须由控制面按线索主动投递"></a>9. 持久化记忆还必须由控制面按线索主动投递</h3><p>仅仅把事实写入 memory store，并不能保证模型在需要时主动读取。Cue-Anchored Working Memory 提议让 memory 携带 path、symbol、semantic、event、temporal 等触发条件，由 harness 确定性匹配当前情境并注入相关事实。作者在一个真实 coding task 的受控实验中报告：预置 memory store 后 114 轮仍出现 0 次自愿 memory 操作，而 harness 注入的事实跨 138 次 compact-resume 保持送达；只存在对话中的 10 个事实则在第一次摘要后消失。<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2607.20972">一方主张；单作者、未同行评审预印本；来源：Delivery, Not Storage</a></p>
+<p><strong>本文推断：</strong> 稳定记忆至少有三层：持久化存储、确定性检索&#x2F;触发、受预算约束的上下文投递。把后两层留给 agent“想起来再做”，会把可靠性重新交还给概率模型；但 cue 规则本身也需要版本化、冲突处理、敏感信息过滤和误触发评测。</p>
+<p><strong>本文推断：</strong> Claude Code 式动态工作流最可复用的部分，不是某个 prompt，而是这组组合：</p>
+<blockquote>
+<p>动态工具循环 + 脚本化编排 + 显式任务账本 + 线索触发的记忆投递 + 独立工作区 + 生命周期拦截器 + 风险边界 + 外部验证 + 可恢复交接产物。</p>
+</blockquote>
+<h2 id="四、方案对照：它们解决的不是同一层问题"><a href="#四、方案对照：它们解决的不是同一层问题" class="headerlink" title="四、方案对照：它们解决的不是同一层问题"></a>四、方案对照：它们解决的不是同一层问题</h2><table>
+<thead>
+<tr>
+<th>方案</th>
+<th>主要控制形态</th>
+<th>动态性</th>
+<th>恢复语义</th>
+<th>人工&#x2F;权限</th>
+<th>观测与评测</th>
+<th>适合承担的角色</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Claude Code &#x2F; Claude Agent SDK</td>
+<td>模型驱动工具循环、JS Dynamic Workflows、hooks、subagents</td>
+<td>高</td>
+<td>workflow 同 session 缓存已完成 agent；session resume、file rewind；均不等于通用 durable execution</td>
+<td>permissions、hooks、sandbox、审批</td>
+<td>workflow 阶段进度、OTel、transcript、工具事件</td>
+<td>交互式编码 agent、脚本化多 agent 编排与动态 harness</td>
+</tr>
+<tr>
+<td>GitHub Agentic Workflows</td>
+<td>Markdown 意图 + 编译后的 Actions 控制面 + 沙箱 agent</td>
+<td>高，但触发、权限与写出路径静态</td>
+<td>继承 Actions run&#x2F;artifact 语义；未承诺跨 run replay 或业务 exactly-once</td>
+<td>默认只读、网络防火墙、SafeOutputs、审批</td>
+<td>Actions 日志、audit&#x2F;logs、OTel、成本预算</td>
+<td>仓库级持续 AI、定时审计、受控 PR&#x2F;Issue 自动化</td>
+</tr>
+<tr>
+<td>LangGraph</td>
+<td>显式 graph&#x2F;state + 条件边&#x2F;函数式入口</td>
+<td>中高</td>
+<td>每步 checkpoint、interrupt、replay&#x2F;fork；Graph API 在节点边界恢复</td>
+<td>interrupt&#x2F;HITL，权限需应用层补齐</td>
+<td>LangSmith tracing&#x2F;eval 生态</td>
+<td>状态化 agent 图与可检查执行</td>
+</tr>
+<tr>
+<td>Temporal</td>
+<td>确定性 Workflow + Activities + event history</td>
+<td>中；模型动态决策需封装为 Activity&#x2F;数据</td>
+<td>确定性 replay、默认 Activity retry、长时 timers&#x2F;signals</td>
+<td>人工等待可建模；权限策略需应用层实现</td>
+<td>Event History、Visibility、OTel 集成</td>
+<td>最强的业务级 durable execution 外壳</td>
+</tr>
+<tr>
+<td>Google ADK 2.x</td>
+<td>graph、语言原生 dynamic workflow、agent nodes</td>
+<td>高</td>
+<td>dynamic node 自动 checkpoint；恢复时跳过成功子节点；2.5 扩展节点级恢复</td>
+<td>human input、tool confirmation、callbacks</td>
+<td>logging、tracing、eval</td>
+<td>“代码控制流 + agent 节点”的新桥接层</td>
+</tr>
+<tr>
+<td>OpenAI Agents SDK</td>
+<td>Runner loop、handoffs、Programmatic Tool Calling、Sandbox Agents</td>
+<td>高</td>
+<td>session 保存对话；<code>RunState</code> 恢复 harness 与 program call；sandbox session&#x2F;snapshot 恢复或重建工作区</td>
+<td><code>allowed_callers</code>、tool approval、guardrails、sandbox 隔离</td>
+<td>task&#x2F;turn&#x2F;tool tracing，与 eval 平台衔接</td>
+<td>动态 loop、受限脚本化工具编排、HITL 与可恢复执行工作区</td>
+</tr>
+<tr>
+<td>AutoGen AgentChat&#x2F;Core</td>
+<td>群聊、selector、swarm、event runtime</td>
+<td>高</td>
+<td>agent&#x2F;team <code>save_state</code>&#x2F;<code>load_state</code>；运行中保存可能不一致</td>
+<td>UserProxy&#x2F;Handoff、终止条件</td>
+<td>logging、OpenTelemetry</td>
+<td>多 agent 协作实验与消息型运行时</td>
+</tr>
+<tr>
+<td>Microsoft Agent Framework</td>
+<td>类型化 graph&#x2F;functional&#x2F;declarative workflow + agent</td>
+<td>中高</td>
+<td>标准 checkpoint；Durable Extension 基于 Durable Task 跨 worker 恢复</td>
+<td>RequestPort、ToolApprovalMiddleware、HITL</td>
+<td>workflow events、OTel、Durable Task dashboard</td>
+<td>微软技术栈中的状态化 agent 与 durable workflow</td>
+</tr>
+<tr>
+<td>Semantic Kernel</td>
+<td>sequential&#x2F;concurrent&#x2F;handoff&#x2F;group chat&#x2F;magentic</td>
+<td>中高</td>
+<td>旧 orchestration 不是 durable engine</td>
+<td>callbacks&#x2F;企业集成，具体策略自行实现</td>
+<td>OTel logs&#x2F;metrics&#x2F;traces</td>
+<td>既有 SK 项目；新项目应评估其继任者</td>
+</tr>
+</tbody></table>
+<h3 id="GitHub-Agentic-Workflows：把自然语言代理编译进确定性-CI-控制面"><a href="#GitHub-Agentic-Workflows：把自然语言代理编译进确定性-CI-控制面" class="headerlink" title="GitHub Agentic Workflows：把自然语言代理编译进确定性 CI 控制面"></a>GitHub Agentic Workflows：把自然语言代理编译进确定性 CI 控制面</h3><p>GitHub Agentic Workflows（<code>gh-aw</code>）把 Markdown 中的触发条件、权限、工具、预算和自然语言任务编译成锁定的 <code>.lock.yml</code> GitHub Actions 工作流；Markdown 是可编辑源，编译产物才是实际执行的安全加固计划。运行时可以选择 Copilot、Claude Code、Codex 等 agent，但 agent 只能在已编译的容器、工具 allowlist、网络出口和权限边界中动态决策。<a target="_blank" rel="noopener" href="https://github.github.com/gh-aw/introduction/how-they-work/">官方事实；来源：GitHub Agentic Workflows《How They Work》</a></p>
+<p>它最值得复用的机制是把“模型建议的副作用”和“真正提交副作用”分成两个阶段：</p>
+<ol>
+<li>agent 使用只读 GitHub 权限，把创建 PR、评论、Issue 等意图写成 artifact；</li>
+<li>SafeOutputs 在独立阶段按声明的输出类型、数量上限、patch 大小、受保护文件和策略做确定性过滤；</li>
+<li>凭据只进入后续写出 job，过滤后的动作才触达 GitHub API。</li>
+</ol>
+<p><a target="_blank" rel="noopener" href="https://github.github.com/gh-aw/introduction/architecture/">官方事实；来源：Security Architecture</a>、<a target="_blank" rel="noopener" href="https://github.github.com/gh-aw/reference/safe-outputs/">Safe Outputs</a></p>
+<p>编译期还会做 schema 校验、GitHub Actions 表达式 allowlist 和 action SHA 固定。2026-07-23 发布的 v0.83.1 进一步把 Grype 容器漏洞扫描、Syft SBOM、Grant 许可证审计和 YAML lint 纳入编译安全管线。<a target="_blank" rel="noopener" href="https://github.com/github/gh-aw/releases/tag/v0.83.1">官方事实；来源：gh-aw v0.83.1 release</a></p>
+<p>2026-07-25 发布的 v0.83.3 预发布版又在 <code>gh aw update</code> 后加入 <code>actions-lock</code> 终态校验：检查 action 是否为 40 字符 commit SHA、map key 是否与 <code>repo@version</code> 一致、version 是否解析到已存 SHA、commit 是否真实存在，以及容器 pin 是否为合法 digest 且 <code>pinned_image</code> 自洽；不满足时让更新失败，而不是把畸形锁文件留到 Actions 执行期才暴露。网络或认证失败的在线核验会被跳过，因此它提高的是更新后的 fail-closed 完整性，不应被描述为离线可证明的供应链真实性。<a target="_blank" rel="noopener" href="https://github.com/github/gh-aw/releases/tag/v0.83.3">官方事实；预发布；来源：gh-aw v0.83.3 release</a>、<a target="_blank" rel="noopener" href="https://github.com/github/gh-aw/pull/47959">合并实现 #47959</a></p>
+<p><strong>本文推断：</strong> <code>gh-aw</code> 是“模型动态决策 + 确定性外壳”的一个非常完整的仓库级实例：自然语言负责判断，Actions 负责触发和阶段，编译器负责静态边界，SafeOutputs 负责副作用提交。但其公开文档没有把跨 run replay、外部副作用幂等或补偿定义成通用 durable execution 协议；<code>max</code>、标题去重和 PR 保护能缩小风险，不能替代业务幂等键与执行账本。</p>
+<h3 id="MCP-2026-07-28：无状态协议与显式-durable-task-分层"><a href="#MCP-2026-07-28：无状态协议与显式-durable-task-分层" class="headerlink" title="MCP 2026-07-28：无状态协议与显式 durable task 分层"></a>MCP 2026-07-28：无状态协议与显式 durable task 分层</h3><p>MCP 2026-07-28 规范把 core protocol 明确收缩为无状态、自包含请求：删除初始化握手与协议 session，每次请求携带自己的协议版本和能力；服务器必须实现 <code>server/discover</code>，需要状态的应用应把显式 handle 作为普通参数传递。它还删除了 SSE resume&#x2F;redelivery：流在请求中途断开时，该请求丢失，客户端必须用新的 request ID 重新发起，而不是假设 transport 会续传原执行。<a target="_blank" rel="noopener" href="https://modelcontextprotocol.io/specification/2026-07-28">官方事实；来源：MCP 2026-07-28 规范与变更说明</a>、<a target="_blank" rel="noopener" href="https://modelcontextprotocol.io/specification/2026-07-28/changelog">Key Changes</a></p>
+<p>长时操作被移到可独立协商的 Tasks 扩展。服务器先持久化 task，再返回稳定 <code>taskId</code>；客户端必须保存该 ID，可用 <code>tasks/get</code> 轮询，并通过 <code>input_required</code> 与 <code>tasks/update</code> 完成人机输入。<code>completed</code>、<code>failed</code>、<code>cancelled</code> 是不可变终态；对未知或已经满足的输入键，服务器忽略重复响应。取消仍是 cooperative：服务器确认取消意图，但不保证底层工作已经停止。<a target="_blank" rel="noopener" href="https://modelcontextprotocol.io/extensions/tasks/overview">官方事实；来源：MCP Tasks</a></p>
+<p><strong>本文推断：</strong> 这次拆分给出了一条很清晰的架构边界：协议负责能力发现和请求，durable extension 负责显式任务句柄，业务控制面仍负责幂等键、effect fencing、补偿和恢复决策。尤其在断线重发时，新的 request ID 不能替代稳定的业务 action ID；否则 transport 的“重新发起”会把同一个外部动作变成第二次执行。Tasks 也必须按客户端与 SDK 的实际协商结果渐进启用，不能仅凭规范版本假设端到端支持。</p>
+<h3 id="自然语言工作流也可以先编译，再交给模型执行"><a href="#自然语言工作流也可以先编译，再交给模型执行" class="headerlink" title="自然语言工作流也可以先编译，再交给模型执行"></a>自然语言工作流也可以先编译，再交给模型执行</h3><p>2026 年预印本 COVENANT 把 SOP、服务政策等自然语言工作流视为源程序：离线阶段先构造 workflow AST，再降级成带类型化节点、guard、显式读写集合和允许边的 workflow CFG；运行时 controller 持有唯一游标，只把当前节点、相关历史、约束和响应 schema 暴露给 agent。提议通过协议与语义检查后，controller 才提交状态并沿允许边前进；失败则保留上一个已提交状态，返回诊断并在预算内修复。<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2607.25400">一方主张；未同行评审预印本；来源：COVENANT</a></p>
+<p>作者在 3 个既有 benchmark 的 120 个 case、5 种 agent interface 和 5 个模型上报告，25 个配对单元都得到改善；最佳配置从 50.00% 提升到 83.33%，归因于 workflow misalignment 的失败率从 42.50% 降至 15.83%。消融中，显式 CFG traversal 的增益大于额外的语义 verifier，但完整系统的墙钟时间约为基线的 2.48 倍。<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2607.25400">一方主张；来源同上</a></p>
+<p>它的边界比结果更值得关注：论文没有证明自然语言到 AST&#x2F;CFG 的语义编译端到端可靠，部分检查仍依赖 LLM verifier；controller 的“拒绝不提交”只保护 controller state。如果工具动作在事后检查前已经触达外部环境，被拒绝的 attempt 仍可能留下副作用。<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2607.25400">作者限定；来源同上</a></p>
+<p><strong>本文推断：</strong> “自然语言规则 → 可审计 IR → controller-owned traversal → verify-repair-commit”是比“把完整 SOP 塞进 prompt”更强的控制模式，但编译产物必须版本化、审阅和回归测试；所有外部写动作仍应在执行前经过 policy&#x2F;effect gate，不能把事后 verifier 当成事务回滚。</p>
+<h3 id="LangGraph：agent-native-的显式状态与-checkpoint"><a href="#LangGraph：agent-native-的显式状态与-checkpoint" class="headerlink" title="LangGraph：agent-native 的显式状态与 checkpoint"></a>LangGraph：agent-native 的显式状态与 checkpoint</h3><p>LangGraph 在每个 super-step 保存 graph state checkpoint，可支持 HITL、memory、time travel 和失败恢复；同一 super-step 中已成功节点的 pending writes 可保留，恢复时不必重跑它们。<a target="_blank" rel="noopener" href="https://docs.langchain.com/oss/python/langgraph/persistence">官方事实；来源：LangGraph Persistence</a></p>
+<p>它的 Graph API 通常从失败节点的开头恢复；Functional API 则从 entrypoint 重放，但读取已缓存的 task 结果。因此官方要求把随机性和外部副作用封装进 task，并让外部调用具备幂等性。<a target="_blank" rel="noopener" href="https://docs.langchain.com/oss/python/langgraph/functional-api">官方事实；来源：LangGraph Functional API</a></p>
+<p>需要注意，time travel 的 replay 会重新执行 checkpoint 之后的节点，包括 LLM、API 和 interrupt，并不等同于读取旧缓存。<a target="_blank" rel="noopener" href="https://docs.langchain.com/oss/python/langgraph/use-time-travel">官方事实；来源：LangGraph Time Travel</a></p>
+<p>另一个生产边界是版本升级：LangGraph 默认让暂停线程恢复到最新 graph 代码，不会自动把 run 固定到启动时版本；删节点、改 state schema 或改变 task 顺序可能破坏恢复。<a target="_blank" rel="noopener" href="https://docs.langchain.com/oss/python/langgraph/backward-compatibility">官方事实；来源：LangGraph Backward Compatibility</a></p>
+<h3 id="Temporal：把-agent-当作不确定-Activity，把流程当作可重放程序"><a href="#Temporal：把-agent-当作不确定-Activity，把流程当作可重放程序" class="headerlink" title="Temporal：把 agent 当作不确定 Activity，把流程当作可重放程序"></a>Temporal：把 agent 当作不确定 Activity，把流程当作可重放程序</h3><p>Temporal 通过 Event History 重放 Workflow；发生故障时从最后记录事件恢复。Workflow 要满足确定性约束，外部 API、LLM 和其他非确定操作应放入 Activity。<a target="_blank" rel="noopener" href="https://docs.temporal.io/workflow-execution">官方事实；来源：Temporal Workflow Execution</a></p>
+<p>Activity 默认按声明式 Retry Policy 指数退避重试，Workflow 默认不整体重试。Temporal 的保证不是神奇的“外部世界 exactly-once”，所以支付、发布、发信等 Activity 仍必须使用业务幂等键，必要时用 Saga&#x2F;补偿动作恢复业务一致性。<a target="_blank" rel="noopener" href="https://docs.temporal.io/encyclopedia/retry-policies">官方事实；来源：Temporal Retry Policies</a>、<a target="_blank" rel="noopener" href="https://pages.temporal.io/rs/250-WIU-007/images/tech-guide-saga-pattern-made-easy.pdf">Temporal Saga 技术指南</a></p>
+<p><strong>本文推断：</strong> 当 agent 要跨小时或天运行，并会触达钱、库存、发布、工单等真实业务状态时，Temporal 更适合作为 agent runtime 外面的“可靠骨架”，而不是让 LLM 本身承担恢复协议。</p>
+<h3 id="跨框架实证：审批、取消与超时不天然构成副作用栅栏"><a href="#跨框架实证：审批、取消与超时不天然构成副作用栅栏" class="headerlink" title="跨框架实证：审批、取消与超时不天然构成副作用栅栏"></a>跨框架实证：审批、取消与超时不天然构成副作用栅栏</h3><p>2026 年预印本《Stop Means Stop》用不调用模型的最小差分探针，测试了 LangGraph Python&#x2F;JavaScript、LlamaIndex Workflows、Microsoft Agent Framework、OpenAI Agents SDK 与 CrewAI 的固定版本。作者报告：五个提供执行前审批门的实现都允许同一并行执行步中的 sibling effect 在审批等待期间落地，随后拒绝已无法阻止该副作用；不同框架还分别出现恢复重复执行、取消后孤儿动作和超时后 zombie effect。研究同时把 Temporal 作为对照：强制 history replay 没有重复 Activity，但等待 Signal 的审批分支不会自动暂停 sibling Activity；不发送 heartbeat 的阻塞 Activity 和超时 Activity 仍可能在调用方已观察到停止后提交外部效果。<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2607.14166">一方主张；单作者、未同行评审预印本；来源：Stop Means Stop</a></p>
+<p>论文提出的 SOUNDGATE 把修复点放到框架之外：所有副作用先提交给一个 effect gate，由它执行 <code>hold-until-decided</code>、拒绝粘滞、replay 去重和 cancel&#x2F;timeout fencing。作者报告其在六个框架实现上的端到端探针中阻止了全部已测违规，并用 Verus、TLA+&#x2F;TLC、TLAPS、Loom 与差分一致性测试提供验证证据；但这不是端到端形式化证明，结论严格依赖 <strong>complete mediation</strong>——任何未经过 gate 的网络、文件、IPC 或共享内存路径都可能绕过控制，跨阶段 API 的原子性与补偿也仍需另行设计。<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2607.14166">一方主张与作者限定；来源：Stop Means Stop</a></p>
+<p><strong>本文推断：</strong> durable execution 解决“运行时怎样重建进度”，effect barrier 解决“停止信号之后什么还能触达外部世界”，两者正交。审批、<code>cancel()</code>、timeout 和 checkpoint 只有在副作用提交点具备完整中介、稳定动作身份与 fencing 时，才能升级为可依赖的安全语义。</p>
+<p>PydanticAI <code>v2.19.0</code> 为“取消是一种状态，而不是一次事件”提供了更具体的实现：如果 hook、事件处理器或 Temporal Activity 吞掉了 <code>CancelledError</code>，runtime 会在 run step、hook、finalize 和事件流边界重查 <code>Task.cancelling()</code>，在已完成步骤的消息写入 history 后重新抛出取消。它由此维持“外部取消最终仍取消 run”与“已完成工作不会因取消丢失”两条不变量；Python 3.10 因缺少相应计数 API 只有 best-effort 行为。<a target="_blank" rel="noopener" href="https://github.com/pydantic/pydantic-ai/releases/tag/v2.19.0">官方事实；来源：PydanticAI v2.19.0</a>、<a target="_blank" rel="noopener" href="https://github.com/pydantic/pydantic-ai/pull/6496">实现 PR #6496</a></p>
+<p><strong>本文推断：</strong> agent runtime 应在每个可提交边界重新读取 level-triggered cancellation state，并先持久化已完成结果，再阻止正常成功路径继续推进。这个 backstop 能避免“异常被吃掉后假成功”，但仍不能召回已越过 effect gate 的远端动作；停止状态检查与副作用 fencing 仍需同时存在。</p>
+<h3 id="Google-ADK-2-x：当前最值得跟踪的桥接方案"><a href="#Google-ADK-2-x：当前最值得跟踪的桥接方案" class="headerlink" title="Google ADK 2.x：当前最值得跟踪的桥接方案"></a>Google ADK 2.x：当前最值得跟踪的桥接方案</h3><p>Google ADK 2.0 的 Dynamic Workflows 支持 Python 与 Go。它允许用 <code>while</code>、条件、递归、<code>async/await</code> 等普通语言结构组织 node，而不是把所有复杂路径硬塞进静态图；同时会跟踪每个 node 执行，恢复时自动跳过已成功子节点。<a target="_blank" rel="noopener" href="https://adk.dev/graphs/dynamic/">官方事实；来源：ADK Dynamic Workflows</a></p>
+<p>其 re-entry 语义很接近轻量 durable function：动态 orchestrator 在恢复时从函数开头重入，但通过 checkpoint 返回已完成 child activation 的结果；叶子节点也可配置为把恢复载荷直接 handoff 给后继节点。<a target="_blank" rel="noopener" href="https://adk.dev/graphs/dynamic/">官方事实；来源：ADK Dynamic Workflows</a></p>
+<p>ADK 早期的 resumability 文档同时明确警告：工具在恢复时是 at-least-once，可能执行多次；对购买等重复有害的工具，调用者必须自行去重。修改已经暂停的 workflow 后再 resume 也不受支持。<a target="_blank" rel="noopener" href="https://adk.dev/runtime/resume/">官方事实；来源：ADK Resume Agents</a></p>
+<p>ADK 2.5.0 把恢复和输入边界又向前推进了一步：为 standalone node 与 <code>NodeTool</code> 增加 HITL resume，为 task-mode agent workflow node 增加基于状态的 resume，并为 <code>LlmAgent</code> workflow node 增加严格输入 schema 校验；同一版本还阻止伪造 continuation 和在 resumable mode 中由用户构造 function call 绕过模型边界。<a target="_blank" rel="noopener" href="https://github.com/google/adk-python/releases/tag/v2.5.0">官方事实；来源：Google ADK 2.5.0 release</a></p>
+<p><strong>本文推断：</strong> ADK 2.x 正在填补 LangGraph 的图式可检查性和 Temporal 的语言原生 durable orchestration 之间的空档；2.5.0 说明其 checkpoint 已开始与 HITL、类型边界和恢复安全联动，但仍需验证生产存储、版本迁移、并发恢复、补偿与运维工具是否达到关键业务要求。</p>
+<h3 id="OpenAI-Agents-SDK：harness-与-sandbox-已分层，仍不是业务级-durable-engine"><a href="#OpenAI-Agents-SDK：harness-与-sandbox-已分层，仍不是业务级-durable-engine" class="headerlink" title="OpenAI Agents SDK：harness 与 sandbox 已分层，仍不是业务级 durable engine"></a>OpenAI Agents SDK：harness 与 sandbox 已分层，仍不是业务级 durable engine</h3><p>OpenAI Agents SDK 的 Runner 执行“模型调用—工具&#x2F;交接—再调用”的循环，并通过 <code>max_turns</code> 停止过长 run；Agent 可声明 handoffs、structured <code>output_type</code> 和 guardrails。<a target="_blank" rel="noopener" href="https://openai.github.io/openai-agents-python/running_agents/">官方事实；来源：Running agents</a>、<a target="_blank" rel="noopener" href="https://openai.github.io/openai-agents-python/agents/">Agents</a></p>
+<p>Programmatic Tool Calling 又增加了一条很接近 Claude Code Dynamic Workflows 的路径：受支持模型可生成 JavaScript，在 OpenAI 托管的全新隔离 V8 runtime 中并行、循环或条件调用合资格工具，并在 runtime 内缩减中间结果。runtime 没有 Node.js、包安装、直接网络、通用文件系统、子进程或跨 program 的持久 JavaScript 状态；应用通过每个工具的 <code>allowed_callers</code> 明确限制它只能 direct call、只能由 program 调用或两者皆可。<a target="_blank" rel="noopener" href="https://developers.openai.com/api/docs/guides/tools-programmatic-tool-calling">官方事实；来源：Programmatic Tool Calling</a></p>
+<p><code>program</code>、嵌套 <code>function_call</code> 与 <code>program_output</code> 是分离的 Responses item，<code>caller</code> 记录调用关系，opaque fingerprint 用于 resume&#x2F;replay。OpenAI Agents JS <code>v0.14.0</code> 将这些 program call 接入 streaming、session、replay 和序列化 <code>RunState</code>；同一版本还把 run cancellation 传播到 function&#x2F;MCP tool，并等待后台清理完成后再结束 stream。<a target="_blank" rel="noopener" href="https://github.com/openai/openai-agents-js/releases/tag/v0.14.0">官方事实；来源：OpenAI Agents JS v0.14.0 release</a></p>
+<p>官方仍建议默认用 direct call 承担写入和审批敏感动作，并要求应用对每次 program 发出的调用重新检查参数、权限和高影响审批；工具应尽量幂等，因为 replay 或 retry 可能重复调用。<a target="_blank" rel="noopener" href="https://developers.openai.com/api/docs/guides/tools-programmatic-tool-calling">官方事实；来源：Programmatic Tool Calling</a></p>
+<p><strong>本文推断：</strong> Programmatic Tool Calling 把“模型生成脚本、确定性 runtime 执行受限工具集合”的模式下沉到了 Responses&#x2F;Agents SDK，并让脚本执行关系进入可序列化状态；但 cooperative cancellation 只改善停止信号传播，不等于已提交副作用的 fencing。它也没有把 fresh V8 变成跨进程 durable engine，业务写操作仍需执行账本、幂等键和 effect gate。</p>
+<p>Sessions 负责跨 run 保存对话历史，不是通用 workflow checkpoint。HITL 的 <code>RunState</code> 则可序列化到数据库或队列，在工具审批后恢复，是一个明确但范围有限的 durable pause&#x2F;resume 边界。<a target="_blank" rel="noopener" href="https://openai.github.io/openai-agents-python/sessions/">官方事实；来源：Sessions</a>、<a target="_blank" rel="noopener" href="https://openai.github.io/openai-agents-python/human_in_the_loop/">Human-in-the-loop</a></p>
+<p>SDK 默认追踪模型生成、工具、handoff 和 guardrail；tool guardrail 目前主要覆盖 <code>function_tool</code>，对 hosted tools、内建执行工具与 handoff 并非统一生效。<a target="_blank" rel="noopener" href="https://openai.github.io/openai-agents-python/tracing/">官方事实；来源：OpenAI Agents SDK Tracing</a>、<a target="_blank" rel="noopener" href="https://openai.github.io/openai-agents-python/guardrails/">Guardrails</a></p>
+<p>2026 年 4 月发布的 Sandbox Agents 又增加了一层此前容易被忽略的恢复边界。官方把 harness 定义为模型外的控制面，持有 agent loop、模型调用、工具路由、handoff、审批、trace、恢复和 run state；sandbox 则是执行面，只负责文件、命令、依赖、挂载、端口和工作区快照。把凭据、审计、人工复核和恢复状态留在 sandbox 之外，也让丢失或过期的容器不必等于丢失整个 run。<a target="_blank" rel="noopener" href="https://openai.com/index/the-next-evolution-of-the-agents-sdk/">官方事实；来源：OpenAI《The next evolution of the Agents SDK》</a>、<a target="_blank" rel="noopener" href="https://developers.openai.com/api/docs/guides/agents/sandboxes">Sandbox Agents</a></p>
+<p>官方文档明确要求区分三种状态：<code>RunState</code> 恢复模型项、工具状态、审批和当前 agent 位置；serialized sandbox session state 让具体 provider client 重连原工作区；snapshot 保存文件与产物，用来创建新的 sandbox。恢复优先复用 live session，其次读取 <code>RunState</code> 中的 sandbox session state，再次使用显式 serialized state，最后才按 manifest 或 snapshot 创建新环境。Sandbox Agents 目前仍是 beta，session resume 取决于 client&#x2F;provider 是否实现对应能力；远程挂载也不会被复制进 snapshot。<a target="_blank" rel="noopener" href="https://developers.openai.com/api/docs/guides/agents/sandboxes">官方事实；来源：Sandbox Agents</a></p>
+<p><strong>本文推断：</strong> 这修正了把 OpenAI Agents SDK 仅视为“轻量 loop + HITL 序列化”的不完整判断：它已经具备 <strong>harness 状态 + 执行工作区</strong> 的双层恢复结构，适合长时文件型任务在容器失效后继续。但 snapshot 恢复的是工作区，不是 Temporal 式 event history；官方没有因此承诺普通工具调用的 replay 去重、外部副作用幂等、版本迁移、补偿或 exactly-once。对付款、发布、通知等业务动作，仍需要独立执行账本与副作用网关。</p>
+<h3 id="AutoGen：强在协作拓扑，弱在默认持久化语义"><a href="#AutoGen：强在协作拓扑，弱在默认持久化语义" class="headerlink" title="AutoGen：强在协作拓扑，弱在默认持久化语义"></a>AutoGen：强在协作拓扑，弱在默认持久化语义</h3><p>AutoGen 的 <code>SelectorGroupChat</code> 可由模型动态选择下一位 speaker，<code>Swarm</code> 可由当前 agent 通过 handoff 局部决定下一位；termination condition 支持消息数、token、timeout、handoff、外部停止等组合。<a target="_blank" rel="noopener" href="https://microsoft.github.io/autogen/stable/user-guide/agentchat-user-guide/selector-group-chat.html">官方事实；来源：Selector Group Chat</a>、<a target="_blank" rel="noopener" href="https://microsoft.github.io/autogen/stable/user-guide/agentchat-user-guide/tutorial/termination.html">Termination</a></p>
+<p><code>GraphFlow</code> 提供顺序、并行、条件和循环，但官方仍标为 experimental。Agent&#x2F;team 可 <code>save_state</code>&#x2F;<code>load_state</code>，然而官方 API 警告：团队运行中保存可能得到不一致状态。<a target="_blank" rel="noopener" href="https://microsoft.github.io/autogen/stable/user-guide/agentchat-user-guide/graph-flow.html">官方事实；来源：GraphFlow</a>、<a target="_blank" rel="noopener" href="https://microsoft.github.io/autogen/stable/reference/python/autogen_agentchat.teams.html">Teams API</a></p>
+<p><strong>本文推断：</strong> AutoGen 适合研究 agent 之间如何协作，不应仅因“能保存状态”就被当作 durable workflow engine。</p>
+<h3 id="Microsoft-Agent-Framework：把类型化-workflow-接到-Durable-Task"><a href="#Microsoft-Agent-Framework：把类型化-workflow-接到-Durable-Task" class="headerlink" title="Microsoft Agent Framework：把类型化 workflow 接到 Durable Task"></a>Microsoft Agent Framework：把类型化 workflow 接到 Durable Task</h3><p>Microsoft Agent Framework 同时提供 graph、functional 和 declarative workflow：graph 以 superstep 执行类型化 executor 与条件边，Functional API 在 <code>@step</code> 边界缓存结果，二者都暴露事件、HITL 和 checkpoint。标准 checkpoint 用于在 Agent Framework runtime 内恢复；Durable Extension 则把 agent session 和 graph workflow 接到 Durable Task，使进度可跨进程、重启和分布式 worker 恢复，并能在等待人工输入时释放计算资源。<a target="_blank" rel="noopener" href="https://learn.microsoft.com/en-us/agent-framework/workflows/">官方事实；来源：Agent Framework Workflows</a>、<a target="_blank" rel="noopener" href="https://learn.microsoft.com/en-us/agent-framework/integrations/durable-extension">Durable Extension</a></p>
+<p>2026-07-21 的 Python 1.12.0 将 declarative workflows、<code>ToolApprovalMiddleware</code>、harness agent 的 mode&#x2F;todo provider 提升为 stable，并为 Durable Task workflow 内部产生的 HITL 请求加入 response URL；同一版本还修复了 checkpoint 编码一致性，并将 harness 的文件访问改为 opt-in。<a target="_blank" rel="noopener" href="https://github.com/microsoft/agent-framework/releases/tag/python-1.12.0">官方事实；来源：Microsoft Agent Framework Python 1.12.0 release</a></p>
+<p>其 .NET 实验性 MCP Skills API 又把 skill 从本地包变成集中控制面：agent 通过认证 MCP 连接读取 <code>skill://index.json</code>，再按需加载 <code>SKILL.md</code>&#x2F;资源或归档；服务器更新后，下次 discovery 即可生效。远程归档受下载大小、解压后大小和文件数上限约束，归档中的脚本永不执行，<code>load_skill</code>、<code>read_skill_resource</code>、<code>run_skill_script</code> 等 skill tools 默认仍需审批。<a target="_blank" rel="noopener" href="https://devblogs.microsoft.com/agent-framework/discover-agent-skills-from-mcp-servers-in-net/">官方事实；实验性 API；来源：Microsoft《Discover Agent Skills from MCP servers in .NET》</a></p>
+<p><strong>本文推断：</strong> 这使先前“新项目应评估 Agent Framework”的建议变得更具体：它已经不是 Semantic Kernel 的概念性继任路线，而是一个将类型化 agent graph、审批中间件、声明式工作流和 Durable Task 分层组合的生产候选。集中分发 skill 能消除副本漂移，却也会让同一个 workflow version 在不重新部署时读到不同规则；生产 run 应记录并尽可能固定 skill source、版本与内容摘要。仍要确认 Activity&#x2F;工具副作用的幂等、版本迁移和 Durable Task 后端运维边界，不能因为“completed steps 不重跑”就推导出外部 exactly-once。</p>
+<h3 id="Semantic-Kernel：需要把历史能力与当前产品路线分开"><a href="#Semantic-Kernel：需要把历史能力与当前产品路线分开" class="headerlink" title="Semantic Kernel：需要把历史能力与当前产品路线分开"></a>Semantic Kernel：需要把历史能力与当前产品路线分开</h3><p>Semantic Kernel Agent Orchestration 支持 concurrent、sequential、handoff、group chat、magentic，但官方文档把这些能力标为 experimental。<a target="_blank" rel="noopener" href="https://learn.microsoft.com/en-us/semantic-kernel/frameworks/agent/agent-orchestration/">官方事实；来源：Semantic Kernel Agent Orchestration</a></p>
+<p>截至本次追踪，Microsoft 官方仓库已说明 Microsoft Agent Framework 是 Semantic Kernel 的继任者；官方维护者也明确建议原 SK Process Framework 用户转向 Agent Framework Workflows。<a target="_blank" rel="noopener" href="https://github.com/microsoft/semantic-kernel">官方事实；来源：Semantic Kernel 官方仓库</a>、<a target="_blank" rel="noopener" href="https://github.com/microsoft/semantic-kernel/discussions/12270">官方仓库讨论 #12270</a></p>
+<p><strong>本文推断：</strong> 对存量 SK 项目，可继续利用其 agent 与 OTel 能力；对新建的稳定编排层，不宜再把旧 Process Framework 作为长期押注，应单独评估 Microsoft Agent Framework。</p>
+<h2 id="五、可复用控制模式"><a href="#五、可复用控制模式" class="headerlink" title="五、可复用控制模式"></a>五、可复用控制模式</h2><h3 id="模式-1：确定性外壳，非确定性内核"><a href="#模式-1：确定性外壳，非确定性内核" class="headerlink" title="模式 1：确定性外壳，非确定性内核"></a>模式 1：确定性外壳，非确定性内核</h3><p>只让模型输出决策，不让模型直接提交状态：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">model decides -&gt; schema validates -&gt; policy authorizes</span><br><span class="line">              -&gt; runtime executes -&gt; verifier checks</span><br><span class="line">              -&gt; state store commits</span><br></pre></td></tr></table></figure>
+
+<p>任何一步失败，都能回答“失败前最后一个已提交状态是什么”。</p>
+<h3 id="模式-2：双账本"><a href="#模式-2：双账本" class="headerlink" title="模式 2：双账本"></a>模式 2：双账本</h3><p>至少维护两本账：</p>
+<ol>
+<li><strong>执行账本</strong>：step、attempt、status、input hash、output ref、idempotency key、错误和补偿状态。</li>
+<li><strong>认知账本</strong>：计划、假设、证据、进度摘要、未解决问题。</li>
+</ol>
+<p>前者由运行时写，后者允许 agent 更新。认知账本丢失会让模型变笨；执行账本丢失会让系统重复扣款、重复发布或无法恢复。</p>
+<h3 id="模式-3：副作用采用“至少一次-幂等”，不要幻想端到端-exactly-once"><a href="#模式-3：副作用采用“至少一次-幂等”，不要幻想端到端-exactly-once" class="headerlink" title="模式 3：副作用采用“至少一次 + 幂等”，不要幻想端到端 exactly-once"></a>模式 3：副作用采用“至少一次 + 幂等”，不要幻想端到端 exactly-once</h3><p>推荐协议：</p>
+<ol>
+<li>生成 <code>action_id = hash(run_id, logical_step, canonical_args)</code>；</li>
+<li>持久化 <code>PENDING</code> 意图；</li>
+<li>通过 policy&#x2F;approval；</li>
+<li>带 <code>action_id</code> 调用工具；</li>
+<li>工具端记录并去重；</li>
+<li>查询或写回结果，提交 <code>SUCCEEDED</code>；</li>
+<li>若结果未知，先 reconcile，再决定是否重试。</li>
+</ol>
+<p>对无法幂等的操作，必须设计补偿，或强制人工确认。</p>
+<h3 id="模式-4：按失败类型分层重试"><a href="#模式-4：按失败类型分层重试" class="headerlink" title="模式 4：按失败类型分层重试"></a>模式 4：按失败类型分层重试</h3><table>
+<thead>
+<tr>
+<th>失败</th>
+<th>默认策略</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>429、短暂网络错误</td>
+<td>有界指数退避 + jitter</td>
+</tr>
+<tr>
+<td>schema 不合法</td>
+<td>把校验错误返回模型，限制修复次数</td>
+</tr>
+<tr>
+<td>业务前置条件不满足</td>
+<td>不重试，重新规划或请求人工</td>
+</tr>
+<tr>
+<td>权限拒绝</td>
+<td>不用换表达方式绕过；终止或升级审批</td>
+</tr>
+<tr>
+<td>结果未知</td>
+<td>查询幂等记录或外部状态，不盲目重放</td>
+</tr>
+<tr>
+<td>不变量破坏</td>
+<td>停止新动作，执行补偿并报警</td>
+</tr>
+</tbody></table>
+<h3 id="模式-5：风险分级审批，而不是每步都点“允许”"><a href="#模式-5：风险分级审批，而不是每步都点“允许”" class="headerlink" title="模式 5：风险分级审批，而不是每步都点“允许”"></a>模式 5：风险分级审批，而不是每步都点“允许”</h3><p>建议将动作分为：</p>
+<ul>
+<li>L0：纯读取，自动允许；</li>
+<li>L1：工作区内可逆写入，sandbox 内自动允许；</li>
+<li>L2：外部可逆写入，策略检查后自动或批量批准；</li>
+<li>L3：发布、付款、删库、通知用户等高影响动作，必须审批；</li>
+<li>L4：策略禁止，任何 prompt 都不能解锁。</li>
+</ul>
+<p>人工批准时展示的是“即将发生的副作用、目标、diff、幂等键和回滚办法”，而不是整段思维过程。</p>
+<h3 id="模式-6：把预算视为状态机不变量"><a href="#模式-6：把预算视为状态机不变量" class="headerlink" title="模式 6：把预算视为状态机不变量"></a>模式 6：把预算视为状态机不变量</h3><p>每次转移前检查：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">turns &lt;= max_turns</span><br><span class="line">cost &lt;= max_cost</span><br><span class="line">wall_time &lt;= deadline</span><br><span class="line">tool_calls[tool] &lt;= quota[tool]</span><br><span class="line">depth &lt;= max_depth</span><br><span class="line">active_children &lt;= max_concurrency</span><br><span class="line">retries[step] &lt;= retry_limit</span><br></pre></td></tr></table></figure>
+
+<p>预算耗尽时进入 <code>PAUSED_BUDGET</code> 或 <code>FAILED_BUDGET</code>，不能让模型自行宣布“再做最后一次”。</p>
+<h3 id="模式-7：生成者与验证者分离"><a href="#模式-7：生成者与验证者分离" class="headerlink" title="模式 7：生成者与验证者分离"></a>模式 7：生成者与验证者分离</h3><p>验证优先级应是：</p>
+<ol>
+<li>环境&#x2F;数据库&#x2F;文件的真实 outcome；</li>
+<li>单元测试、类型检查、静态分析、策略断言；</li>
+<li>独立 evaluator 的 rubric；</li>
+<li>生成 agent 的自我评价。</li>
+</ol>
+<p>Anthropic 的长时 harness 实验观察到 agent 对自身产物的评价偏宽松，独立 evaluator 更容易被调成怀疑式验收。<a target="_blank" rel="noopener" href="https://www.anthropic.com/engineering/harness-design-long-running-apps">一方主张；来源：Anthropic《Harness design for long-running application development》</a></p>
+<h3 id="模式-8：版本化所有恢复边界"><a href="#模式-8：版本化所有恢复边界" class="headerlink" title="模式 8：版本化所有恢复边界"></a>模式 8：版本化所有恢复边界</h3><p>checkpoint 至少携带：</p>
+<ul>
+<li>workflow&#x2F;graph version；</li>
+<li>state schema version；</li>
+<li>prompt、tool schema、policy version；</li>
+<li>skill source、版本与内容摘要；</li>
+<li>model family 与关键参数；</li>
+<li>code artifact&#x2F;commit；</li>
+<li>migration function 或“不支持恢复”的明确标志。</li>
+</ul>
+<p>恢复前先做兼容性检查，不要把旧状态静默塞给新流程。</p>
+<h3 id="模式-9：把“停止”实现为副作用栅栏"><a href="#模式-9：把“停止”实现为副作用栅栏" class="headerlink" title="模式 9：把“停止”实现为副作用栅栏"></a>模式 9：把“停止”实现为副作用栅栏</h3><p>不要把审批、取消和超时只实现成调度器中的状态标志。对每个需要控制的副作用作用域，还应满足：</p>
+<ol>
+<li>审批未决时，同一作用域内的写动作只能进入 <code>HELD</code>，不能触达外部提交点；</li>
+<li>拒绝是粘滞状态，迟到或重放的 attempt 不能重新打开动作；</li>
+<li>每个逻辑副作用都有稳定身份，resume 只能复用 receipt 或被判重；</li>
+<li>cancel&#x2F;timeout 推进 run epoch 或 fencing token，旧 worker 即使继续运行也不能提交；</li>
+<li>工具进程没有绕过 gate 的网络、文件、IPC 或共享内存出口。</li>
+</ol>
+<p>这里的关键不是暂停所有计算。只读 sibling 可以继续，真正需要被栅住的是外部效果；如果读取结果可能在长审批期间过期，还要在释放动作前重新校验业务前置条件。</p>
+<h2 id="六、参考架构与最小实现"><a href="#六、参考架构与最小实现" class="headerlink" title="六、参考架构与最小实现"></a>六、参考架构与最小实现</h2><h3 id="参考架构"><a href="#参考架构" class="headerlink" title="参考架构"></a>参考架构</h3><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">Trigger / API / User</span><br><span class="line">        |</span><br><span class="line">        v</span><br><span class="line">Run Registry ---- lease / deadline / version</span><br><span class="line">        |</span><br><span class="line">        v</span><br><span class="line">Dynamic Planner/Router &lt;---- cognitive ledger / evidence</span><br><span class="line">        |</span><br><span class="line">        v</span><br><span class="line">Typed Decision Validator</span><br><span class="line">        |</span><br><span class="line">        v</span><br><span class="line">Policy Engine ----&gt; Human Approval Queue</span><br><span class="line">        |</span><br><span class="line">        v</span><br><span class="line">Durable Orchestrator &lt;---- event log / checkpoints / timers</span><br><span class="line">        |</span><br><span class="line">        v</span><br><span class="line">Side-effect Gateway ---- hold / idempotency / fencing / reconcile / compensation</span><br><span class="line">        |</span><br><span class="line">        v</span><br><span class="line">Sandboxed Tools / Agents / External APIs</span><br><span class="line">        |</span><br><span class="line">        v</span><br><span class="line">Outcome Verifier ----&gt; traces / metrics / eval dataset</span><br></pre></td></tr></table></figure>
+
+<p>模型可以放在 planner、worker、evaluator 中；Run Registry、Policy Engine、Durable Orchestrator 与 Side-effect Gateway 不应交给模型自由实现。</p>
+<h3 id="最小状态结构"><a href="#最小状态结构" class="headerlink" title="最小状态结构"></a>最小状态结构</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">RunState</span>(<span class="title class_ inherited__">TypedDict</span>):</span><br><span class="line">    run_id: <span class="built_in">str</span></span><br><span class="line">    workflow_version: <span class="built_in">str</span></span><br><span class="line">    phase: <span class="type">Literal</span>[</span><br><span class="line">        <span class="string">&quot;ready&quot;</span>, <span class="string">&quot;deciding&quot;</span>, <span class="string">&quot;waiting_approval&quot;</span>, <span class="string">&quot;executing&quot;</span>,</span><br><span class="line">        <span class="string">&quot;verifying&quot;</span>, <span class="string">&quot;compensating&quot;</span>, <span class="string">&quot;succeeded&quot;</span>, <span class="string">&quot;failed&quot;</span>, <span class="string">&quot;paused&quot;</span></span><br><span class="line">    ]</span><br><span class="line">    goal: Goal</span><br><span class="line">    business_state: <span class="built_in">dict</span></span><br><span class="line">    next_decision: Decision | <span class="literal">None</span></span><br><span class="line">    completed_steps: <span class="built_in">dict</span>[<span class="built_in">str</span>, StepReceipt]</span><br><span class="line">    pending_actions: <span class="built_in">dict</span>[<span class="built_in">str</span>, ActionIntent]</span><br><span class="line">    budgets: BudgetState</span><br><span class="line">    evidence_refs: <span class="built_in">list</span>[<span class="built_in">str</span>]</span><br><span class="line">    last_checkpoint: <span class="built_in">str</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="最小控制循环"><a href="#最小控制循环" class="headerlink" title="最小控制循环"></a>最小控制循环</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">async</span> <span class="keyword">def</span> <span class="title function_">run</span>(<span class="params">run_id: <span class="built_in">str</span></span>):</span><br><span class="line">    state = store.load_for_update(run_id)</span><br><span class="line">    assert_compatible(state)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> state[<span class="string">&quot;phase&quot;</span>] <span class="keyword">not</span> <span class="keyword">in</span> TERMINAL:</span><br><span class="line">        assert_budget(state[<span class="string">&quot;budgets&quot;</span>])</span><br><span class="line">        assert_invariants(state)</span><br><span class="line"></span><br><span class="line">        decision = <span class="keyword">await</span> planner.decide(public_view(state))</span><br><span class="line">        decision = DecisionAdapter.validate_python(decision)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> decision.kind == <span class="string">&quot;finish&quot;</span>:</span><br><span class="line">            report = <span class="keyword">await</span> verifier.verify(state, decision)</span><br><span class="line">            state = commit_finish_or_replan(state, report)</span><br><span class="line">            store.checkpoint(state)</span><br><span class="line">            <span class="keyword">continue</span></span><br><span class="line"></span><br><span class="line">        action = compile_action(decision, state)</span><br><span class="line">        action.idempotency_key = stable_key(</span><br><span class="line">            state[<span class="string">&quot;run_id&quot;</span>], action.logical_step, action.canonical_args</span><br><span class="line">        )</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 先持久化意图，再触发副作用。</span></span><br><span class="line">        store.record_intent(action)</span><br><span class="line">        verdict = policy.evaluate(action, state)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> verdict.requires_human:</span><br><span class="line">            store.pause_for_approval(state, action, verdict)</span><br><span class="line">            <span class="keyword">return</span></span><br><span class="line">        <span class="keyword">if</span> verdict.denied:</span><br><span class="line">            state = replan_or_fail(state, verdict)</span><br><span class="line">            store.checkpoint(state)</span><br><span class="line">            <span class="keyword">continue</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">try</span>:</span><br><span class="line">            receipt = <span class="keyword">await</span> gateway.execute_idempotently(action)</span><br><span class="line">            check = <span class="keyword">await</span> verifier.verify_receipt(action, receipt)</span><br><span class="line">            state = commit_receipt(state, receipt, check)</span><br><span class="line">        <span class="keyword">except</span> UnknownExternalOutcome:</span><br><span class="line">            state = <span class="keyword">await</span> reconcile_before_retry(state, action)</span><br><span class="line">        <span class="keyword">except</span> RetryableError <span class="keyword">as</span> error:</span><br><span class="line">            state = schedule_bounded_retry(state, action, error)</span><br><span class="line">        <span class="keyword">except</span> PermanentError <span class="keyword">as</span> error:</span><br><span class="line">            state = compensate_or_fail(state, action, error)</span><br><span class="line"></span><br><span class="line">        store.checkpoint(state)</span><br></pre></td></tr></table></figure>
+
+<p>这段伪代码故意没有把框架写死。小型系统可用数据库事务与任务队列实现；agent 状态复杂时可用 LangGraph&#x2F;ADK；有长时业务副作用时可把这个循环或每个 step 放入 Temporal。</p>
+<h2 id="七、失败模式与边界"><a href="#七、失败模式与边界" class="headerlink" title="七、失败模式与边界"></a>七、失败模式与边界</h2><h3 id="1-“有-checkpoint，所以不会重复执行”"><a href="#1-“有-checkpoint，所以不会重复执行”" class="headerlink" title="1. “有 checkpoint，所以不会重复执行”"></a>1. “有 checkpoint，所以不会重复执行”</h3><p>错误。大多数恢复协议都允许某一步至少执行一次。进程可能在外部动作成功后、结果写回前崩溃。没有工具端幂等或 reconcile，checkpoint 也无法判断外部世界发生了什么。</p>
+<h3 id="2-“保存会话就等于保存工作流”"><a href="#2-“保存会话就等于保存工作流”" class="headerlink" title="2. “保存会话就等于保存工作流”"></a>2. “保存会话就等于保存工作流”</h3><p>错误。对话可以完整，但任务依赖、动作状态、租约、审批与补偿仍可能缺失。OpenAI Sessions、Claude Code sessions、AutoGen state 都需要结合其明确的执行语义理解，不能只看“persistent”字样。</p>
+<h3 id="3-“图天然比循环稳定”"><a href="#3-“图天然比循环稳定”" class="headerlink" title="3. “图天然比循环稳定”"></a>3. “图天然比循环稳定”</h3><p>错误。静态图让可达路径更清晰，却不能自动解决节点内部副作用、版本迁移、错误分类与幂等。反过来，语言原生循环也可以在 node&#x2F;task 边界自动 checkpoint；ADK 2.0 Dynamic Workflows 和 LangGraph Functional API 都在探索这条路线。</p>
+<h3 id="4-“多-agent-会互相检查，所以更可靠”"><a href="#4-“多-agent-会互相检查，所以更可靠”" class="headerlink" title="4. “多 agent 会互相检查，所以更可靠”"></a>4. “多 agent 会互相检查，所以更可靠”</h3><p>错误。多个同源模型可能共享盲点，还会引入重复工作、消息污染、合并冲突和成本爆炸。独立 evaluator 只有在 rubric、工具和 outcome 校验独立时才真正提供新信号。</p>
+<h3 id="5-“结构化输出消除了幻觉”"><a href="#5-“结构化输出消除了幻觉”" class="headerlink" title="5. “结构化输出消除了幻觉”"></a>5. “结构化输出消除了幻觉”</h3><p>错误。schema 只保证数据能被程序解析。<code>{&quot;approved&quot;: true}</code> 完全可能格式正确但判断错误。关键字段仍要由规则、数据库或独立证据验证。</p>
+<h3 id="6-“人工审批是最终安全边界”"><a href="#6-“人工审批是最终安全边界”" class="headerlink" title="6. “人工审批是最终安全边界”"></a>6. “人工审批是最终安全边界”</h3><p>不充分。高频弹窗会造成疲劳，审批者也可能无法理解真实影响。硬权限、sandbox、凭据隔离和网络出口控制应先缩小 blast radius，人工只处理少量高价值决策。</p>
+<p>更隐蔽的错误是把“某个分支正在等待审批”理解成“整个审批作用域的副作用都已暂停”。并行 sibling 可能在等待期间提交，取消或超时也可能只停止调用方等待，无法撤回正在 worker thread、Promise 或远端 API 中执行的动作。审批系统必须在 effect commit point 设 barrier，并用 fencing 拒绝迟到结果；否则人类点击“拒绝”时可能已经太晚。</p>
+<h3 id="7-“replay-会复现原来的模型结果”"><a href="#7-“replay-会复现原来的模型结果”" class="headerlink" title="7. “replay 会复现原来的模型结果”"></a>7. “replay 会复现原来的模型结果”</h3><p>通常不会。Temporal 通过历史事件确定性重建 Workflow，而 LLM&#x2F;API 放在不重放的 Activity 中；LangGraph time travel 则会重新执行 checkpoint 之后的 LLM&#x2F;API 节点，可能产生不同结果。必须先理解框架的 replay 单位。</p>
+<h3 id="8-“长期运行等于一直保持同一个上下文”"><a href="#8-“长期运行等于一直保持同一个上下文”" class="headerlink" title="8. “长期运行等于一直保持同一个上下文”"></a>8. “长期运行等于一直保持同一个上下文”</h3><p>上下文不是可靠存储。compaction、摘要和模型变化都可能丢失细节。Anthropic Managed Agents 将 session 设计为独立于 harness 和 sandbox 的追加事件日志，并让无状态 harness 通过 session 重建上下文，这是比“把一切塞进 prompt”更稳的边界。<a target="_blank" rel="noopener" href="https://www.anthropic.com/engineering/managed-agents">官方事实；来源：Anthropic《Scaling Managed Agents》</a></p>
+<h2 id="八、目前的选择建议"><a href="#八、目前的选择建议" class="headerlink" title="八、目前的选择建议"></a>八、目前的选择建议</h2><h3 id="如果你在做交互式通用-agent"><a href="#如果你在做交互式通用-agent" class="headerlink" title="如果你在做交互式通用 agent"></a>如果你在做交互式通用 agent</h3><p>先采用 Claude Code &#x2F; OpenAI Agents SDK 类的动态 loop，但必须加：</p>
+<ul>
+<li>typed decision；</li>
+<li>tool-level guardrail；</li>
+<li>独立执行账本；</li>
+<li>多维预算；</li>
+<li>高风险审批；</li>
+<li>outcome verifier。</li>
+</ul>
+<h3 id="如果你需要可检查的状态化-agent-流程"><a href="#如果你需要可检查的状态化-agent-流程" class="headerlink" title="如果你需要可检查的状态化 agent 流程"></a>如果你需要可检查的状态化 agent 流程</h3><p>优先评估 LangGraph、Google ADK 2.x 或 Microsoft Agent Framework：</p>
+<ul>
+<li>图结构清晰、需要 time travel&#x2F;interrupt：LangGraph；</li>
+<li>希望用普通语言的循环&#x2F;递归写动态编排，又要自动跳过已成功子节点：ADK Dynamic Workflows；</li>
+<li>已在微软技术栈内，需要类型化 graph、声明式 workflow、HITL 和 Durable Task 的一体化路径：Microsoft Agent Framework；</li>
+<li>三者都要额外补齐业务幂等、权限和版本迁移策略。</li>
+</ul>
+<h3 id="如果你要在-GitHub-仓库中持续运行-agent"><a href="#如果你要在-GitHub-仓库中持续运行-agent" class="headerlink" title="如果你要在 GitHub 仓库中持续运行 agent"></a>如果你要在 GitHub 仓库中持续运行 agent</h3><p>优先评估 GitHub Agentic Workflows。它把 trigger、只读权限、沙箱、网络出口、写出类型和数量上限编译进 Actions 控制面，适合定时审计、Issue&#x2F;PR 分类、文档维护和受控修复。对跨系统写入或不可逆动作，仍应在 SafeOutputs 之后接业务执行账本、审批和幂等网关。</p>
+<h3 id="如果你需要跨天执行并修改关键业务状态"><a href="#如果你需要跨天执行并修改关键业务状态" class="headerlink" title="如果你需要跨天执行并修改关键业务状态"></a>如果你需要跨天执行并修改关键业务状态</h3><p>用 Temporal 一类 durable engine 做外层，把 LLM 决策当作 Activity 的结果，把真实动作也放在可审计 Activity 中；微软栈也可评估 Agent Framework Durable Extension，但要用同样的副作用标准核验。不要让 agent framework 单独承担订单、付款、发布等恢复责任。</p>
+<h3 id="如果你主要研究多-agent-协作"><a href="#如果你主要研究多-agent-协作" class="headerlink" title="如果你主要研究多 agent 协作"></a>如果你主要研究多 agent 协作</h3><p>AutoGen 的 selector、swarm、GraphFlow 很有表达力，但应把生产恢复交给更明确的持久层。Semantic Kernel 存量项目可继续维护，新项目应把 Microsoft Agent Framework 纳入比较，而不是继续押注旧 Process Framework。</p>
+<h2 id="九、待验证问题"><a href="#九、待验证问题" class="headerlink" title="九、待验证问题"></a>九、待验证问题</h2><p>以下结论尚不能只靠文档回答，需要原型或故障注入：</p>
+<ol>
+<li>ADK 2.x Dynamic Workflows 在数据库持久层、多 worker 并发恢复时，node activation 的去重键和一致性边界是什么？</li>
+<li>ADK 动态 workflow 在代码升级、node 重命名、循环体改变后，是否有可操作的版本迁移策略？</li>
+<li>LangGraph Graph API、Functional API 与 Temporal 嵌套时，哪一层拥有重试权最不容易产生“重试放大”？</li>
+<li>OpenAI <code>RunState</code> 除 HITL 外，面对进程在普通工具调用中途崩溃时能恢复到什么粒度？</li>
+<li>Claude Code agent teams 的任务依赖、resume 和 shutdown 限制何时进入稳定支持？</li>
+<li>对通用编码 agent，<code>pass^k</code>、最终 outcome、成本和人工介入率如何组成一个不会鼓励保守停机的综合指标？</li>
+<li>当 planner、worker、evaluator 使用同一模型家族时，如何测量它们的相关性失败，而不是只看单次多数票？</li>
+<li>何种粒度的 checkpoint 在恢复成本、存储成本和副作用风险之间最优？</li>
+<li>“工具端幂等”无法实现时，哪些动作应直接升级为人工事务，而不是自动补偿？</li>
+<li>如何用 capability token 把一次授权限制到 <code>run_id + resource + operation + expiry</code>，并让 subagent 只能进一步收窄、不能扩大权限？</li>
+<li>GitHub Agentic Workflows 的 SafeOutputs 在 Actions job 被取消、写出结果未知或 workflow rerun 时，哪些操作具备稳定去重语义？</li>
+<li>Agent Framework 标准 checkpoint 与 Durable Extension 嵌套时，哪一层拥有重试权，如何避免 agent&#x2F;tool 的重试放大？</li>
+<li>对包含网络、文件、IPC、共享内存与多阶段 API 的真实工具，怎样证明 complete mediation，而不是只靠 wrapper 约定？effect gate 的高可用、决策认证和跨阶段补偿应由哪一层承担？</li>
+<li>Programmatic Tool Calling 在 client-owned tool 已成功但 <code>function_call_output</code> 尚未写回时，<code>RunState</code>&#x2F;stateless replay 如何与业务幂等键共同避免重复副作用？</li>
+<li>远程 MCP skill 在长时 run 中更新时，应按 run、step 还是 session 固定版本，如何在紧急策略更新与可重放性之间取舍？</li>
+<li>MCP Tasks 在断线重发、重复 <code>tasks/update</code> 与 cooperative cancellation 交错时，各 SDK 是否保持终态不可变和输入去重；底层工具的迟到副作用由哪一层 fencing？</li>
+</ol>
+<h2 id="十、更新记录"><a href="#十、更新记录" class="headerlink" title="十、更新记录"></a>十、更新记录</h2><h3 id="2026-07-29：补入无状态任务协议、脚本化编排与工作流编译"><a href="#2026-07-29：补入无状态任务协议、脚本化编排与工作流编译" class="headerlink" title="2026-07-29：补入无状态任务协议、脚本化编排与工作流编译"></a>2026-07-29：补入无状态任务协议、脚本化编排与工作流编译</h3><ul>
+<li>纳入 OpenAI Programmatic Tool Calling 与 Agents JS v0.14.0：模型生成 JavaScript，但只能在 fresh V8 中调用 <code>allowed_callers</code> 允许的工具；program call 可进入 session&#x2F;replay&#x2F;<code>RunState</code>，取消信号也开始传播到 function&#x2F;MCP tool。</li>
+<li>明确其边界：写入与审批敏感动作仍应走 direct call 和应用级审批；fresh V8、cooperative cancellation 与可序列化 program item 都不等于业务级 durable execution 或副作用 fencing。</li>
+<li>纳入 COVENANT：把自然语言 SOP 编译为 AST&#x2F;CFG，由 controller 持有游标并执行 verify-repair-commit；同时保留编译语义、LLM verifier 和事后检查无法撤销外部副作用的限制。</li>
+<li>纳入 OrchBench：用确定性模拟把 planner 的依赖、handoff 和预算质量从 worker 噪声中分离，支持“先初筛编排，再做真实 outcome&#x2F;fault eval”的两层测试。</li>
+<li>补入 Agent Framework 的实验性远程 MCP Skills：集中分发与归档安全边界更清晰，但 run 仍需固定 skill source、版本和摘要，避免热更新破坏恢复一致性。</li>
+<li>纳入 MCP 2026-07-28：core protocol 改为无状态自包含请求，长时恢复移入显式 Tasks 扩展；明确断线重发仍须稳定业务 action ID，cooperative cancellation 也不等于 effect fencing。</li>
+<li>补入 PydanticAI 2.19.0 的 level-triggered cancellation backstop：在稳定边界重查取消状态并保留已完成 history，避免被 hook&#x2F;Activity 吞掉的取消转成假成功。</li>
+</ul>
+<h3 id="2026-07-27：补齐-OpenAI-Agents-SDK-的双层恢复边界"><a href="#2026-07-27：补齐-OpenAI-Agents-SDK-的双层恢复边界" class="headerlink" title="2026-07-27：补齐 OpenAI Agents SDK 的双层恢复边界"></a>2026-07-27：补齐 OpenAI Agents SDK 的双层恢复边界</h3><ul>
+<li>纳入 Sandbox Agents：区分 harness 控制面与 sandbox 执行面，并把 <code>RunState</code>、serialized sandbox session state、snapshot 三类状态的恢复职责拆开。</li>
+<li>修正“Agents SDK 只有对话 session 与 HITL pause&#x2F;resume”的不完整判断：它已能恢复 harness 并重连或重建执行工作区。</li>
+<li>同时明确限制：Sandbox Agents 仍为 beta，恢复依赖 provider&#x2F;client；snapshot 不包含远程挂载，也不提供 event-history replay、外部副作用幂等、补偿或 exactly-once。</li>
+</ul>
+<h3 id="2026-07-26：补入副作用栅栏与停止语义实证"><a href="#2026-07-26：补入副作用栅栏与停止语义实证" class="headerlink" title="2026-07-26：补入副作用栅栏与停止语义实证"></a>2026-07-26：补入副作用栅栏与停止语义实证</h3><ul>
+<li>纳入《Stop Means Stop》的跨框架差分探针：审批等待可能泄漏并行 sibling effect，取消与超时也可能留下孤儿或 zombie 副作用。</li>
+<li>修正“durable execution 足以承载停止语义”的潜在误读：Temporal 的 history replay 能避免该实验中的重复 Activity，但不自动提供审批分支的全局 effect barrier。</li>
+<li>增加外部 effect gate 控制模式：<code>hold-until-decided</code>、拒绝粘滞、replay 去重、cancel&#x2F;timeout fencing，并明确 complete mediation、跨阶段原子性与补偿边界。</li>
+<li>跟进 gh-aw v0.83.3 预发布版：将 <code>actions-lock</code> 的 SHA、key&#x2F;ref、commit 存在性和容器 digest 自洽性校验放到 update 终态，补强编译式控制面的供应链不变量。</li>
+</ul>
+<h3 id="2026-07-24：补入编译式控制面与-Durable-Task-路线"><a href="#2026-07-24：补入编译式控制面与-Durable-Task-路线" class="headerlink" title="2026-07-24：补入编译式控制面与 Durable Task 路线"></a>2026-07-24：补入编译式控制面与 Durable Task 路线</h3><ul>
+<li>新增 GitHub Agentic Workflows：明确 Markdown 意图、编译后的 Actions 计划、只读 agent、SafeOutputs 分阶段提交和编译期安全检查的组合，并纳入 7 月 23 日 v0.83.1 的供应链扫描能力。</li>
+<li>修正 Claude Code 的预算边界：补入 subagent 默认并发上限、默认禁止嵌套派生，以及预算耗尽时停止后台 subagent。</li>
+<li>将 Google ADK 跟踪基线推进到 2.5.0，补入节点级 HITL&#x2F;state resume、严格输入 schema 与 continuation 防伪。</li>
+<li>将 Microsoft Agent Framework 从“待评估继任者”升级为独立方案，区分 runtime checkpoint 与基于 Durable Task 的跨 worker durable execution。</li>
+<li>纳入两篇 7 月 24 日新上架预印本：将稳定记忆从“存储”扩展为 harness 主动投递，并用 GuardianAgentBench 补强执行期 guardrail、工具面与深度预算的证据；同时明确其未同行评审边界。</li>
+</ul>
+<h3 id="2026-07-23：建立首版基线"><a href="#2026-07-23：建立首版基线" class="headerlink" title="2026-07-23：建立首版基线"></a>2026-07-23：建立首版基线</h3><ul>
+<li>建立“确定性外壳 + 非确定性内核”的分层控制模型。</li>
+<li>拆解 Claude Code 的 agent loop、hooks、permissions、sandbox、subagents、agent teams、worktrees、sessions、checkpoint、预算与 OTel。</li>
+<li>以 Claude Code 官方 Dynamic Workflows 为主线，明确“脚本持有控制流与中间结果”的稳定性，以及仅限同 session 恢复、运行中 agent 重启和缺少副作用事务语义的边界。</li>
+<li>明确区分 session&#x2F;file rewind 与真正 durable execution。</li>
+<li>对照 LangGraph、Temporal、Google ADK、OpenAI Agents SDK、AutoGen 与 Semantic Kernel。</li>
+<li>纳入 2026 年关键进展：Google ADK 2.0 Dynamic Workflows 的语言原生控制流、自动 checkpoint 和恢复时跳过已成功子节点。</li>
+<li>纳入 Anthropic 关于长时 harness、独立 evaluator、Managed Agents 事件日志与 containment 的最新工程经验。</li>
+</ul>
+<h2 id="一手来源"><a href="#一手来源" class="headerlink" title="一手来源"></a>一手来源</h2><h3 id="新论文"><a href="#新论文" class="headerlink" title="新论文"></a>新论文</h3><ul>
+<li><a target="_blank" rel="noopener" href="https://arxiv.org/abs/2607.14166">Stop Means Stop: Measuring and Repairing the Enforcement Gap in Agent-Framework Control Primitives</a></li>
+<li><a target="_blank" rel="noopener" href="https://arxiv.org/abs/2607.20972">Delivery, Not Storage: Cue-Anchored Working Memory as a Harness Property for Coding Agents</a></li>
+<li><a target="_blank" rel="noopener" href="https://arxiv.org/abs/2607.20982">GuardianAgentBench: Where Agents Fail and How to Guard Them</a></li>
+<li><a target="_blank" rel="noopener" href="https://arxiv.org/abs/2607.25400">COVENANT: Natural-Language Workflow Compilation for Aligned Agent Execution</a></li>
+<li><a target="_blank" rel="noopener" href="https://arxiv.org/abs/2607.25656">OrchBench: Evaluating Multi-Agent Orchestration Plans in Isolation via Deterministic Simulation</a></li>
+</ul>
+<h3 id="Anthropic-Claude-Code"><a href="#Anthropic-Claude-Code" class="headerlink" title="Anthropic &#x2F; Claude Code"></a>Anthropic &#x2F; Claude Code</h3><ul>
+<li><a target="_blank" rel="noopener" href="https://www.anthropic.com/engineering/building-effective-agents">Building effective agents</a></li>
+<li><a target="_blank" rel="noopener" href="https://code.claude.com/docs/en/how-claude-code-works">How Claude Code works</a></li>
+<li><a target="_blank" rel="noopener" href="https://code.claude.com/docs/en/workflows">Dynamic Workflows</a></li>
+<li><a target="_blank" rel="noopener" href="https://code.claude.com/docs/en/hooks">Hooks reference</a></li>
+<li><a target="_blank" rel="noopener" href="https://code.claude.com/docs/en/permissions">Configure permissions</a></li>
+<li><a target="_blank" rel="noopener" href="https://code.claude.com/docs/en/checkpointing">Checkpointing</a></li>
+<li><a target="_blank" rel="noopener" href="https://code.claude.com/docs/en/agent-teams">Agent teams</a></li>
+<li><a target="_blank" rel="noopener" href="https://code.claude.com/docs/en/worktrees">Worktrees</a></li>
+<li><a target="_blank" rel="noopener" href="https://code.claude.com/docs/en/cli-usage">CLI reference</a></li>
+<li><a target="_blank" rel="noopener" href="https://code.claude.com/docs/en/monitoring-usage">Monitoring with OpenTelemetry</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/anthropics/claude-code/releases/tag/v2.1.217">Claude Code 2.1.217 release</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents">Effective harnesses for long-running agents</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.anthropic.com/engineering/harness-design-long-running-apps">Harness design for long-running application development</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.anthropic.com/engineering/managed-agents">Scaling Managed Agents: Decoupling the brain from the hands</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.anthropic.com/engineering/claude-code-sandboxing">Beyond permission prompts: making Claude Code more secure and autonomous</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.anthropic.com/engineering/how-we-contain-claude">How we contain Claude across products</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents">Demystifying evals for AI agents</a></li>
+</ul>
+<h3 id="GitHub-Agentic-Workflows"><a href="#GitHub-Agentic-Workflows" class="headerlink" title="GitHub Agentic Workflows"></a>GitHub Agentic Workflows</h3><ul>
+<li><a target="_blank" rel="noopener" href="https://github.github.com/gh-aw/introduction/how-they-work/">How They Work</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.github.com/gh-aw/introduction/architecture/">Security Architecture</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.github.com/gh-aw/reference/safe-outputs/">Safe Outputs</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.github.com/gh-aw/reference/permissions/">GitHub Tools Read Permissions</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/github/gh-aw/releases/tag/v0.83.1">gh-aw v0.83.1 release</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/github/gh-aw/releases/tag/v0.83.3">gh-aw v0.83.3 pre-release</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/github/gh-aw/pull/47959">Post-update SHA integrity validation implementation</a></li>
+</ul>
+<h3 id="LangGraph"><a href="#LangGraph" class="headerlink" title="LangGraph"></a>LangGraph</h3><ul>
+<li><a target="_blank" rel="noopener" href="https://docs.langchain.com/oss/python/langgraph/persistence">Persistence</a></li>
+<li><a target="_blank" rel="noopener" href="https://docs.langchain.com/oss/python/langgraph/functional-api">Functional API</a></li>
+<li><a target="_blank" rel="noopener" href="https://docs.langchain.com/oss/python/langgraph/use-time-travel">Time travel</a></li>
+<li><a target="_blank" rel="noopener" href="https://docs.langchain.com/oss/python/langgraph/backward-compatibility">Backward compatibility</a></li>
+</ul>
+<h3 id="Temporal"><a href="#Temporal" class="headerlink" title="Temporal"></a>Temporal</h3><ul>
+<li><a target="_blank" rel="noopener" href="https://docs.temporal.io/workflow-execution">Workflow Execution</a></li>
+<li><a target="_blank" rel="noopener" href="https://docs.temporal.io/encyclopedia/retry-policies">Retry Policies</a></li>
+<li><a target="_blank" rel="noopener" href="https://docs.temporal.io/activities">Activities</a></li>
+<li><a target="_blank" rel="noopener" href="https://pages.temporal.io/rs/250-WIU-007/images/tech-guide-saga-pattern-made-easy.pdf">Saga Pattern guide</a></li>
+</ul>
+<h3 id="Model-Context-Protocol"><a href="#Model-Context-Protocol" class="headerlink" title="Model Context Protocol"></a>Model Context Protocol</h3><ul>
+<li><a target="_blank" rel="noopener" href="https://modelcontextprotocol.io/specification/2026-07-28">MCP 2026-07-28 specification</a></li>
+<li><a target="_blank" rel="noopener" href="https://modelcontextprotocol.io/specification/2026-07-28/changelog">MCP 2026-07-28 key changes</a></li>
+<li><a target="_blank" rel="noopener" href="https://modelcontextprotocol.io/extensions/tasks/overview">MCP Tasks extension</a></li>
+</ul>
+<h3 id="Google-ADK"><a href="#Google-ADK" class="headerlink" title="Google ADK"></a>Google ADK</h3><ul>
+<li><a target="_blank" rel="noopener" href="https://adk.dev/graphs/dynamic/">Dynamic Workflows</a></li>
+<li><a target="_blank" rel="noopener" href="https://adk.dev/graphs/">Graph Workflows</a></li>
+<li><a target="_blank" rel="noopener" href="https://adk.dev/runtime/resume/">Resume Agents</a></li>
+<li><a target="_blank" rel="noopener" href="https://adk.dev/tools-custom/confirmation/">Action confirmations</a></li>
+<li><a target="_blank" rel="noopener" href="https://adk.dev/evaluate/">Evaluation</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/google/adk-python">Google ADK Python repository</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/google/adk-python/releases/tag/v2.5.0">Google ADK 2.5.0 release</a></li>
+</ul>
+<h3 id="OpenAI-Agents-SDK"><a href="#OpenAI-Agents-SDK" class="headerlink" title="OpenAI Agents SDK"></a>OpenAI Agents SDK</h3><ul>
+<li><a target="_blank" rel="noopener" href="https://openai.github.io/openai-agents-python/">Agents SDK Python</a></li>
+<li><a target="_blank" rel="noopener" href="https://openai.com/index/the-next-evolution-of-the-agents-sdk/">The next evolution of the Agents SDK</a></li>
+<li><a target="_blank" rel="noopener" href="https://developers.openai.com/api/docs/guides/agents/sandboxes">Sandbox Agents</a></li>
+<li><a target="_blank" rel="noopener" href="https://developers.openai.com/api/docs/guides/tools-programmatic-tool-calling">Programmatic Tool Calling</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/openai/openai-agents-python/releases/tag/v0.14.0">OpenAI Agents SDK Python 0.14.0 release</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/openai/openai-agents-js/releases/tag/v0.14.0">OpenAI Agents SDK JavaScript 0.14.0 release</a></li>
+<li><a target="_blank" rel="noopener" href="https://openai.github.io/openai-agents-python/running_agents/">Running agents</a></li>
+<li><a target="_blank" rel="noopener" href="https://openai.github.io/openai-agents-python/agents/">Agents and structured outputs</a></li>
+<li><a target="_blank" rel="noopener" href="https://openai.github.io/openai-agents-python/human_in_the_loop/">Human-in-the-loop and RunState</a></li>
+<li><a target="_blank" rel="noopener" href="https://openai.github.io/openai-agents-python/sessions/">Sessions</a></li>
+<li><a target="_blank" rel="noopener" href="https://openai.github.io/openai-agents-python/guardrails/">Guardrails</a></li>
+<li><a target="_blank" rel="noopener" href="https://openai.github.io/openai-agents-python/tracing/">Tracing</a></li>
+</ul>
+<h3 id="AutoGen-Microsoft-Agent-Framework-Semantic-Kernel"><a href="#AutoGen-Microsoft-Agent-Framework-Semantic-Kernel" class="headerlink" title="AutoGen &#x2F; Microsoft Agent Framework &#x2F; Semantic Kernel"></a>AutoGen &#x2F; Microsoft Agent Framework &#x2F; Semantic Kernel</h3><ul>
+<li><a target="_blank" rel="noopener" href="https://microsoft.github.io/autogen/stable/user-guide/agentchat-user-guide/selector-group-chat.html">AutoGen Selector Group Chat</a></li>
+<li><a target="_blank" rel="noopener" href="https://microsoft.github.io/autogen/stable/user-guide/agentchat-user-guide/graph-flow.html">AutoGen GraphFlow</a></li>
+<li><a target="_blank" rel="noopener" href="https://microsoft.github.io/autogen/stable/user-guide/agentchat-user-guide/tutorial/termination.html">AutoGen Termination</a></li>
+<li><a target="_blank" rel="noopener" href="https://microsoft.github.io/autogen/stable/user-guide/agentchat-user-guide/tracing.html">AutoGen Tracing and Observability</a></li>
+<li><a target="_blank" rel="noopener" href="https://learn.microsoft.com/en-us/agent-framework/workflows/">Microsoft Agent Framework Workflows</a></li>
+<li><a target="_blank" rel="noopener" href="https://learn.microsoft.com/en-us/agent-framework/integrations/durable-extension">Microsoft Agent Framework Durable Extension</a></li>
+<li><a target="_blank" rel="noopener" href="https://learn.microsoft.com/en-us/agent-framework/workflows/declarative">Declarative Workflows</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/microsoft/agent-framework/releases/tag/python-1.12.0">Microsoft Agent Framework Python 1.12.0 release</a></li>
+<li><a target="_blank" rel="noopener" href="https://devblogs.microsoft.com/agent-framework/discover-agent-skills-from-mcp-servers-in-net/">Discover Agent Skills from MCP servers in .NET</a></li>
+<li><a target="_blank" rel="noopener" href="https://learn.microsoft.com/en-us/semantic-kernel/frameworks/agent/agent-orchestration/">Semantic Kernel Agent Orchestration</a></li>
+<li><a target="_blank" rel="noopener" href="https://learn.microsoft.com/en-us/semantic-kernel/concepts/enterprise-readiness/observability/">Semantic Kernel Observability</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/microsoft/semantic-kernel">Semantic Kernel official repository</a></li>
+</ul>
+<h3 id="PydanticAI"><a href="#PydanticAI" class="headerlink" title="PydanticAI"></a>PydanticAI</h3><ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/pydantic/pydantic-ai/releases/tag/v2.19.0">PydanticAI v2.19.0 release</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/pydantic/pydantic-ai/pull/6496">PydanticAI level-triggered cancellation implementation</a></li>
+</ul>
+</div><div class="article-tags is-size-7 mb-4"><span class="mr-2">#</span><a class="link-muted mr-2" rel="tag" href="/tags/%E9%80%9A%E7%94%A8%E6%99%BA%E8%83%BD%E4%BD%93/">通用智能体</a><a class="link-muted mr-2" rel="tag" href="/tags/%E6%99%BA%E8%83%BD%E4%BD%93%E8%B0%83%E5%BA%A6/">智能体调度</a><a class="link-muted mr-2" rel="tag" href="/tags/%E5%B7%A5%E4%BD%9C%E6%B5%81/">工作流</a><a class="link-muted mr-2" rel="tag" href="/tags/Agentic-Workflow/">Agentic Workflow</a></div><!--!--></article></div><!--!--><nav class="post-navigation mt-4 level is-mobile"><div class="level-start"><a class="article-nav-prev level level-item link-muted" href="/2026/07/24/jepa-research-tracking/"><i class="level-item fas fa-chevron-left"></i><span class="level-item">JEPA 下游研究追踪 · 2026-07-24</span></a></div><div class="level-end"><a class="article-nav-next level level-item link-muted" href="/2026/07/23/jepa-research-tracking/"><span class="level-item">JEPA 下游研究追踪 · 2026-07-23</span><i class="level-item fas fa-chevron-right"></i></a></div></nav><!--!--></div><div class="column column-left is-4-tablet is-4-desktop is-4-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar is-rounded" src="/img/conan-avatar.svg" alt="Lu Zhongqiu"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">Lu Zhongqiu</p><p class="is-size-6 is-block">Builder · Thinker · Writer</p><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>分享已知的是无趣的，我只研究我当前不知道的，顺便分享</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">文章</p><a href="/archives/"><p class="title">55</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">分类</p><a href="/categories/"><p class="title">6</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">标签</p><a href="/tags/"><p class="title">77</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/luzhongqiu" target="_blank" rel="me noopener">关注我</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="me noopener" title="Github" href="https://github.com/luzhongqiu"><i class="fab fa-github"></i></a></div></div></div><!--!--><div class="card widget" data-type="categories"><div class="card-content"><div class="menu"><h3 class="menu-label">分类</h3><ul class="menu-list"><li><a class="level is-mobile" href="/categories/AI/"><span class="level-start"><span class="level-item">AI</span></span><span class="level-end"><span class="level-item tag">14</span></span></a></li><li><a class="level is-mobile" href="/categories/JEPA%E7%A0%94%E7%A9%B6%E8%BF%BD%E8%B8%AA/"><span class="level-start"><span class="level-item">JEPA研究追踪</span></span><span class="level-end"><span class="level-item tag">37</span></span></a></li><li><a class="level is-mobile" href="/categories/%E5%8C%BB%E5%AD%A6%E7%A7%91%E7%A0%94/"><span class="level-start"><span class="level-item">医学科研</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/%E5%B7%A5%E4%BD%9C/"><span class="level-start"><span class="level-item">工作</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/%E6%99%BA%E8%83%BD%E4%BD%93%E5%B7%A5%E7%A8%8B/"><span class="level-start"><span class="level-item">智能体工程</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/"><span class="level-start"><span class="level-item">深度学习</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></div></div></div><div class="card widget" data-type="recent-posts"><div class="card-content"><h3 class="menu-label">最新文章</h3><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-08-24T02:00:00.000Z">2026-08-24</time></p><p class="title"><a href="/2026/08/24/jepa-research-tracking/">JEPA 下游研究追踪 · 2026-08-24</a></p><p class="categories"><a href="/categories/JEPA%E7%A0%94%E7%A9%B6%E8%BF%BD%E8%B8%AA/">JEPA研究追踪</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-08-23T02:00:00.000Z">2026-08-23</time></p><p class="title"><a href="/2026/08/23/jepa-research-tracking/">JEPA 下游研究追踪 · 2026-08-23</a></p><p class="categories"><a href="/categories/JEPA%E7%A0%94%E7%A9%B6%E8%BF%BD%E8%B8%AA/">JEPA研究追踪</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-08-22T02:00:00.000Z">2026-08-22</time></p><p class="title"><a href="/2026/08/22/jepa-research-tracking/">JEPA 下游研究追踪 · 2026-08-22</a></p><p class="categories"><a href="/categories/JEPA%E7%A0%94%E7%A9%B6%E8%BF%BD%E8%B8%AA/">JEPA研究追踪</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-08-21T02:00:00.000Z">2026-08-21</time></p><p class="title"><a href="/2026/08/21/jepa-research-tracking/">JEPA 下游研究追踪 · 2026-08-21</a></p><p class="categories"><a href="/categories/JEPA%E7%A0%94%E7%A9%B6%E8%BF%BD%E8%B8%AA/">JEPA研究追踪</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-08-19T02:00:00.000Z">2026-08-19</time></p><p class="title"><a href="/2026/08/19/jepa-research-tracking/">JEPA 下游研究追踪 · 2026-08-19</a></p><p class="categories"><a href="/categories/JEPA%E7%A0%94%E7%A9%B6%E8%BF%BD%E8%B8%AA/">JEPA研究追踪</a></p></div></article></div></div><div class="card widget" data-type="archives"><div class="card-content"><div class="menu"><h3 class="menu-label">归档</h3><ul class="menu-list"><li><a class="level is-mobile" href="/archives/2026/08/"><span class="level-start"><span class="level-item">八月 2026</span></span><span class="level-end"><span class="level-item tag">21</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/07/"><span class="level-start"><span class="level-item">七月 2026</span></span><span class="level-end"><span class="level-item tag">18</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/04/"><span class="level-start"><span class="level-item">四月 2026</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/03/"><span class="level-start"><span class="level-item">三月 2026</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/02/"><span class="level-start"><span class="level-item">二月 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li></ul></div></div></div><div class="card widget" data-type="tags"><div class="card-content"><div class="menu"><h3 class="menu-label">标签</h3><div class="field is-grouped is-grouped-multiline"><div class="control"><a class="tags has-addons" href="/tags/ACP/"><span class="tag">ACP</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-Agent/"><span class="tag">AI Agent</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI%E5%8A%A8%E6%80%81/"><span class="tag">AI动态</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI%E5%B7%A5%E5%85%B7/"><span class="tag">AI工具</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI%E7%BC%96%E7%A8%8B/"><span class="tag">AI编程</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI%E8%8A%AF%E7%89%87/"><span class="tag">AI芯片</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Agent/"><span class="tag">Agent</span><span class="tag">5</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AgentSkills/"><span class="tag">AgentSkills</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Agentic-Workflow/"><span class="tag">Agentic Workflow</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/CLI/"><span class="tag">CLI</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Claude/"><span class="tag">Claude</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Claude-Code/"><span class="tag">Claude Code</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Codex/"><span class="tag">Codex</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/DeepSeek/"><span class="tag">DeepSeek</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/GPT-5/"><span class="tag">GPT-5</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/GitAgent/"><span class="tag">GitAgent</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/I-JEPA/"><span class="tag">I-JEPA</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/IDE/"><span class="tag">IDE</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/JEPA/"><span class="tag">JEPA</span><span class="tag">39</span></a></div><div class="control"><a class="tags has-addons" href="/tags/JEPA%E8%BF%BD%E8%B8%AA/"><span class="tag">JEPA追踪</span><span class="tag">37</span></a></div><div class="control"><a class="tags has-addons" href="/tags/KnowS/"><span class="tag">KnowS</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/LLM/"><span class="tag">LLM</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/LLM-JEPA/"><span class="tag">LLM-JEPA</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/LeCun/"><span class="tag">LeCun</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/MCP/"><span class="tag">MCP</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/MiniCPM/"><span class="tag">MiniCPM</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/NVIDIA/"><span class="tag">NVIDIA</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Omni-Flow/"><span class="tag">Omni-Flow</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/OpenClaw/"><span class="tag">OpenClaw</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/OpenViking/"><span class="tag">OpenViking</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Protocol/"><span class="tag">Protocol</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Skill/"><span class="tag">Skill</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Taalas/"><span class="tag">Taalas</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/TypeScript/"><span class="tag">TypeScript</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Vibe-Coding/"><span class="tag">Vibe Coding</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/WeCom/"><span class="tag">WeCom</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/YOLO/"><span class="tag">YOLO</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/kimi-cli/"><span class="tag">kimi-cli</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/oh-my-opencode/"><span class="tag">oh-my-opencode</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/openclaw/"><span class="tag">openclaw</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E4%B8%8A%E4%B8%8B%E6%96%87%E7%AE%A1%E7%90%86/"><span class="tag">上下文管理</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E4%B8%96%E7%95%8C%E6%A8%A1%E5%9E%8B/"><span class="tag">世界模型</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E4%BC%81%E4%B8%9A%E5%BE%AE%E4%BF%A1/"><span class="tag">企业微信</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E5%85%A8%E5%8F%8C%E5%B7%A5/"><span class="tag">全双工</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E5%85%B7%E8%BA%AB%E6%99%BA%E8%83%BD/"><span class="tag">具身智能</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E5%9B%BD%E8%87%AA%E7%84%B6/"><span class="tag">国自然</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E5%9F%BA%E9%87%91%E7%94%B3%E8%AF%B7/"><span class="tag">基金申请</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E5%A4%9A%E6%A8%A1%E6%80%81/"><span class="tag">多模态</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E5%A4%9A%E7%A7%9F%E6%88%B7%E6%9E%B6%E6%9E%84/"><span class="tag">多租户架构</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E5%A4%A7%E6%A8%A1%E5%9E%8B/"><span class="tag">大模型</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E5%B7%A5%E4%BD%9C/"><span class="tag">工作</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E5%B7%A5%E4%BD%9C%E6%B5%81/"><span class="tag">工作流</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E5%BC%80%E6%BA%90/"><span class="tag">开源</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/"><span class="tag">强化学习</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E5%BE%AE%E4%BF%A1%E5%85%AC%E4%BC%97%E5%8F%B7/"><span class="tag">微信公众号</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E6%80%9D%E8%80%83/"><span class="tag">思考</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E6%8E%A8%E7%90%86/"><span class="tag">推理</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E6%8F%92%E4%BB%B6/"><span class="tag">插件</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E6%95%99%E7%A8%8B/"><span class="tag">教程</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E6%96%87%E7%8C%AE%E7%BB%BC%E8%BF%B0/"><span class="tag">文献综述</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E6%97%A5%E6%8A%A5/"><span class="tag">日报</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E6%98%A5%E8%8A%82/"><span class="tag">春节</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E6%99%BA%E8%83%BD%E4%BD%93%E8%B0%83%E5%BA%A6/"><span class="tag">智能体调度</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/"><span class="tag">架构设计</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/"><span class="tag">源码解析</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E7%9B%AE%E6%A0%87%E6%A3%80%E6%B5%8B/"><span class="tag">目标检测</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E7%A1%AC%E4%BB%B6/"><span class="tag">硬件</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E7%A7%91%E6%99%AE/"><span class="tag">科普</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E7%A7%91%E7%A0%94%E5%B7%A5%E5%85%B7/"><span class="tag">科研工具</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E7%AB%AF%E4%BE%A7AI/"><span class="tag">端侧AI</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E8%85%BE%E8%AE%AF/"><span class="tag">腾讯</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E8%87%AA%E7%9B%91%E7%9D%A3%E5%AD%A6%E4%B9%A0/"><span class="tag">自监督学习</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E8%A1%A8%E5%BE%81%E5%AD%A6%E4%B9%A0/"><span class="tag">表征学习</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E8%A7%86%E8%A7%89/"><span class="tag">计算机视觉</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E9%80%9A%E7%94%A8%E6%99%BA%E8%83%BD%E4%BD%93/"><span class="tag">通用智能体</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E9%81%BF%E5%9D%91/"><span class="tag">避坑</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E9%98%BF%E9%87%8C/"><span class="tag">阿里</span><span class="tag">1</span></a></div></div></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">订阅更新</h3><form action="https://feedburner.google.com/fb/a/mailverify" method="post" target="popupwindow" onsubmit="window.open(&#039;https://feedburner.google.com/fb/a/mailverify?uri=&#039;,&#039;popupwindow&#039;,&#039;scrollbars=yes,width=550,height=520&#039;);return true"><input type="hidden" value="" name="uri"><input type="hidden" name="loc" value="en_US"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="订阅"></div></div></form></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">follow.it</h3><form action="" method="post" target="_blank"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="订阅"></div></div></form></div></div></div></div><!--!--></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><p class="is-size-7"><span>&copy; 2026 Lu Zhongqiu</span></p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="GitHub" href="https://github.com/luzhongqiu"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("zh-cn");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script data-pjax src="/js/column.js"></script><script src="/js/animation.js"></script><a id="back-to-top" title="回到顶端" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script data-pjax src="/js/back_to_top.js" defer></script><!--!--><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.js" defer></script><script>window.addEventListener("load", () => {
+      window.cookieconsent.initialise({
+        type: "info",
+        theme: "edgeless",
+        static: false,
+        position: "bottom-left",
+        content: {
+          message: "此网站使用Cookie来改善您的体验。",
+          dismiss: "知道了！",
+          allow: "允许使用Cookie",
+          deny: "拒绝",
+          link: "了解更多",
+          policy: "Cookie政策",
+          href: "https://www.cookiesandyou.com/",
+        },
+        palette: {
+          popup: {
+            background: "#edeff5",
+            text: "#838391"
+          },
+          button: {
+            background: "#4b81e8"
+          },
+        },
+      });
+    });</script><script src="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/js/lightgallery.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/js/jquery.justifiedGallery.min.js" defer></script><script>window.addEventListener("load", () => {
+            if (typeof $.fn.lightGallery === 'function') {
+                $('.article').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof $.fn.justifiedGallery === 'function') {
+                if ($('.justified-gallery > p > .gallery-item').length) {
+                    $('.justified-gallery > p > .gallery-item').unwrap();
+                }
+                $('.justified-gallery').justifiedGallery();
+            }
+        });</script><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/pjax@0.2.8/pjax.min.js"></script><script src="/js/pjax.js"></script><!--!--><!--!--><!--!--><script data-pjax src="/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="想要查找什么..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script data-pjax src="/js/insight.js" defer></script><script data-pjax>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/content.json"}, {"hint":"想要查找什么...","untitled":"(无标题)","posts":"文章","pages":"页面","categories":"分类","tags":"标签"});
+        });</script></body></html>

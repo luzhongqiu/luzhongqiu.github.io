@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="680" height="260" viewBox="0 0 680 260" font-family="'PingFang SC','Helvetica Neue',Arial,sans-serif">
+  <defs>
+    <marker id="arr-acp" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L8,3 z" fill="#3b82f6"/>
+    </marker>
+    <marker id="arr-mcp" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L8,3 z" fill="#f97316"/>
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="680" height="260" fill="#0f172a" rx="12"/>
+
+  <!-- Title -->
+  <text x="340" y="28" text-anchor="middle" fill="#94a3b8" font-size="13" font-weight="700">ACP 与 MCP 集成架构</text>
+
+  <!-- Editor node -->
+  <rect x="30" y="108" width="130" height="44" fill="#1d4ed8" rx="8"/>
+  <text x="95" y="128" text-anchor="middle" fill="#bfdbfe" font-size="12" font-weight="700">编辑器（Client）</text>
+  <text x="95" y="144" text-anchor="middle" fill="#93c5fd" font-size="10">Zed / VSCode / ...</text>
+
+  <!-- ACP arrow -->
+  <line x1="160" y1="130" x2="238" y2="130" stroke="#3b82f6" stroke-width="2" marker-end="url(#arr-acp)"/>
+  <text x="199" y="123" text-anchor="middle" fill="#60a5fa" font-size="11" font-weight="600">ACP</text>
+  <text x="199" y="145" text-anchor="middle" fill="#475569" font-size="9">stdio</text>
+
+  <!-- Agent node -->
+  <rect x="240" y="100" width="140" height="60" fill="#312e81" stroke="#6366f1" stroke-width="1.5" rx="8"/>
+  <text x="310" y="124" text-anchor="middle" fill="#c7d2fe" font-size="12" font-weight="700">Agent</text>
+  <text x="310" y="140" text-anchor="middle" fill="#a5b4fc" font-size="10">Kimi / Claude / ...</text>
+  <text x="310" y="154" text-anchor="middle" fill="#818cf8" font-size="9">接收 MCP Server 配置</text>
+
+  <!-- MCP arrows to servers -->
+  <!-- Arrow to FS -->
+  <line x1="380" y1="112" x2="458" y2="78" stroke="#f97316" stroke-width="1.8" marker-end="url(#arr-mcp)"/>
+  <!-- Arrow to DB -->
+  <line x1="380" y1="130" x2="458" y2="130" stroke="#f97316" stroke-width="1.8" marker-end="url(#arr-mcp)"/>
+  <!-- Arrow to custom -->
+  <line x1="380" y1="148" x2="458" y2="182" stroke="#f97316" stroke-width="1.8" marker-end="url(#arr-mcp)"/>
+
+  <!-- MCP label on arrow -->
+  <text x="425" y="100" text-anchor="middle" fill="#fb923c" font-size="11" font-weight="600">MCP</text>
+
+  <!-- MCP Server: Filesystem -->
+  <rect x="460" y="52" width="180" height="40" fill="#1c1917" stroke="#f97316" stroke-width="1.5" rx="7"/>
+  <text x="550" y="69" text-anchor="middle" fill="#fed7aa" font-size="11" font-weight="600">🗂  文件系统 MCP Server</text>
+  <text x="550" y="83" text-anchor="middle" fill="#78716c" font-size="9">读写本地文件 / 目录</text>
+
+  <!-- MCP Server: Database -->
+  <rect x="460" y="110" width="180" height="40" fill="#1c1917" stroke="#f97316" stroke-width="1.5" rx="7"/>
+  <text x="550" y="127" text-anchor="middle" fill="#fed7aa" font-size="11" font-weight="600">🗄  数据库 MCP Server</text>
+  <text x="550" y="141" text-anchor="middle" fill="#78716c" font-size="9">查询 / 写入数据库</text>
+
+  <!-- MCP Server: Custom -->
+  <rect x="460" y="168" width="180" height="40" fill="#1c1917" stroke="#f97316" stroke-width="1.5" rx="7"/>
+  <text x="550" y="185" text-anchor="middle" fill="#fed7aa" font-size="11" font-weight="600">🔧  自定义工具 MCP Server</text>
+  <text x="550" y="199" text-anchor="middle" fill="#78716c" font-size="9">HTTP API / 脚本 / 外部服务</text>
+
+  <!-- Bottom description -->
+  <text x="340" y="232" text-anchor="middle" fill="#475569" font-size="11">编辑器在创建 Session 时将 MCP Server 配置传给 Agent，Agent 直接连接各 MCP Server 获取工具能力</text>
+</svg>

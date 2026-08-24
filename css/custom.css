@@ -1,0 +1,120 @@
+/* =====================================================
+   Custom overrides — wider content area
+   ===================================================== */
+
+/* Widescreen (≥1216px): unlock the fixed 960px container */
+@media screen and (min-width: 1216px) {
+  .is-2-column .container,
+  .is-1-column .container {
+    max-width: calc(100% - 80px) !important;
+    width: calc(100% - 80px) !important;
+  }
+}
+
+/* FullHD (≥1408px): allow up to 1600px before capping */
+@media screen and (min-width: 1408px) {
+  .is-2-column .container {
+    max-width: 1520px !important;
+    width: auto !important;
+  }
+  .is-1-column .container {
+    max-width: 960px !important;
+    width: auto !important;
+  }
+}
+
+/* =====================================================
+   Compact post list — home pages only
+   ===================================================== */
+
+.home-list-page .column-main > .home-post-list ~ .card {
+  display: none;
+}
+
+.home-post-list {
+  overflow: hidden;
+}
+
+.home-post-list__items {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.home-post-list__item {
+  padding: 1.35rem 1.5rem;
+}
+
+.home-post-list__item + .home-post-list__item {
+  border-top: 1px solid #f0f0f0;
+}
+
+.home-post-list__header {
+  align-items: baseline;
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+}
+
+.home-post-list__title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  line-height: 1.45;
+  margin: 0;
+}
+
+.home-post-list__date {
+  color: #7a7a7a;
+  flex: 0 0 auto;
+  font-size: 0.8rem;
+}
+
+.home-post-list__taxonomies {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-top: 0.65rem;
+}
+
+.home-post-list__category,
+.home-post-list__tag {
+  border-radius: 999px;
+  display: inline-flex;
+  font-size: 0.75rem;
+  line-height: 1.5;
+  padding: 0.2rem 0.65rem;
+}
+
+.home-post-list__category {
+  align-items: center;
+  background: #3273dc;
+  color: #fff !important;
+  gap: 0.35rem;
+}
+
+.home-post-list__tag {
+  background: #f3f5f7;
+  color: #4a4a4a;
+}
+
+.home-post-list__category:hover,
+.home-post-list__tag:hover {
+  filter: brightness(0.96);
+}
+
+@media screen and (max-width: 768px) {
+  .home-post-list__item {
+    padding: 1rem;
+  }
+
+  .home-post-list__header {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+
+  .home-post-list__title {
+    font-size: 1.1rem;
+  }
+}

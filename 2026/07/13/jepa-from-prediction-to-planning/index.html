@@ -1,0 +1,329 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>能预测未来，不等于容易规划未来：JEPA 的两次延续 - Lu Zhongqiu</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="Lu Zhongqiu"><meta name="msapplication-TileImage" content="/img/favicon.svg"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Lu Zhongqiu"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="从上一站继续出发在上一篇关于 JEPA 与世界模型的文章里，我把 I-JEPA 的转向概括成一句话：不要执着于还原每个像素，而要在表示空间里预测世界。被遮住的是猫头，模型不必猜中每根毛发，只要在抽象层面知道那里应该是“猫的头部”。"><meta property="og:type" content="blog"><meta property="og:title" content="能预测未来，不等于容易规划未来：JEPA 的两次延续"><meta property="og:url" content="https://luzhongqiu.github.io/2026/07/13/jepa-from-prediction-to-planning/"><meta property="og:site_name" content="Lu Zhongqiu"><meta property="og:description" content="从上一站继续出发在上一篇关于 JEPA 与世界模型的文章里，我把 I-JEPA 的转向概括成一句话：不要执着于还原每个像素，而要在表示空间里预测世界。被遮住的是猫头，模型不必猜中每根毛发，只要在抽象层面知道那里应该是“猫的头部”。"><meta property="og:locale" content="zh_CN"><meta property="og:image" content="https://luzhongqiu.github.io/img/jepa/jepa-evolution-map.svg"><meta property="og:image" content="https://luzhongqiu.github.io/img/jepa/llm-jepa-training-inference.svg"><meta property="og:image" content="https://luzhongqiu.github.io/img/jepa/predictable-vs-plannable.svg"><meta property="og:image" content="https://luzhongqiu.github.io/img/jepa/value-guided-planning-loop.svg"><meta property="article:published_time" content="2026-07-13T02:00:00.000Z"><meta property="article:modified_time" content="2026-08-24T03:21:27.963Z"><meta property="article:author" content="Lu Zhongqiu"><meta property="article:tag" content="世界模型"><meta property="article:tag" content="JEPA"><meta property="article:tag" content="LLM-JEPA"><meta property="article:tag" content="表征学习"><meta property="article:tag" content="强化学习"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="https://luzhongqiu.github.io/img/jepa/jepa-evolution-map.svg"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"https://luzhongqiu.github.io/2026/07/13/jepa-from-prediction-to-planning/"},"headline":"能预测未来，不等于容易规划未来：JEPA 的两次延续","image":[],"datePublished":"2026-07-13T02:00:00.000Z","dateModified":"2026-08-24T03:21:27.963Z","author":{"@type":"Person","name":"Lu Zhongqiu"},"publisher":{"@type":"Organization","name":"Lu Zhongqiu","logo":{"@type":"ImageObject","url":"https://luzhongqiu.github.io/img/logo.svg"}},"description":"从上一站继续出发在上一篇关于 JEPA 与世界模型的文章里，我把 I-JEPA 的转向概括成一句话：不要执着于还原每个像素，而要在表示空间里预测世界。被遮住的是猫头，模型不必猜中每根毛发，只要在抽象层面知道那里应该是“猫的头部”。"}</script><link rel="canonical" href="https://luzhongqiu.github.io/2026/07/13/jepa-from-prediction-to-planning/"><link rel="icon" href="/img/favicon.svg"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.0.0/css/all.css"><link data-pjax rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/atom-one-light.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;600&amp;family=Source+Code+Pro"><link data-pjax rel="stylesheet" href="/css/default.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"><!--!--><!--!--><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><!--!--><!--!--><!-- hexo injector head_end start --><script>
+  (function () {
+      function switchTab() {
+          if (!location.hash) {
+            return;
+          }
+
+          const id = '#' + CSS.escape(location.hash.substring(1));
+          const $tabMenu = document.querySelector(`.tabs a[href="${id}"]`);
+          if (!$tabMenu) {
+            return;
+          }
+
+          const $tabMenuContainer = $tabMenu.parentElement.parentElement;
+          Array.from($tabMenuContainer.children).forEach($menu => $menu.classList.remove('is-active'));
+          Array.from($tabMenuContainer.querySelectorAll('a'))
+              .map($menu => document.getElementById($menu.getAttribute("href").substring(1)))
+              .forEach($content => $content.classList.add('is-hidden'));
+
+          if ($tabMenu) {
+              $tabMenu.parentElement.classList.add('is-active');
+          }
+          const $activeTab = document.querySelector(id);
+          if ($activeTab) {
+              $activeTab.classList.remove('is-hidden');
+          }
+      }
+      switchTab();
+      window.addEventListener('hashchange', switchTab, false);
+  })();
+  </script><link rel="stylesheet" href="/css/custom.css"><!-- hexo injector head_end end --><meta name="generator" content="Hexo 8.1.2"></head><body class="is-2-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/">Lu Zhongqiu</a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a><a class="navbar-item" href="/about">About</a></div><div class="navbar-end"><a class="navbar-item search" title="搜索" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-8-widescreen"><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item"><time dateTime="2026-07-13T02:00:00.000Z" title="7/13/2026, 2:00:00 AM">2026-07-13</time>发表</span><span class="level-item"><time dateTime="2026-08-24T03:21:27.963Z" title="8/24/2026, 3:21:27 AM">2026-08-24</time>更新</span><span class="level-item"><a class="link-muted" href="/categories/AI/">AI</a></span><span class="level-item">40 分钟读完 (大约5969个字)</span></div></div><h1 class="title is-3 is-size-4-mobile">能预测未来，不等于容易规划未来：JEPA 的两次延续</h1><div class="content"><h1 id="从上一站继续出发"><a href="#从上一站继续出发" class="headerlink" title="从上一站继续出发"></a>从上一站继续出发</h1><p>在<a href="/2026/04/21/world-model-jepa-conversation/">上一篇关于 JEPA 与世界模型的文章</a>里，我把 I-JEPA 的转向概括成一句话：不要执着于还原每个像素，而要在表示空间里预测世界。被遮住的是猫头，模型不必猜中每根毛发，只要在抽象层面知道那里应该是“猫的头部”。</p>
+<p>这套思想最有吸引力的地方，是它像一条可以不断向外延伸的路线：从静态图像到视频，从视觉到语言，再从观察世界走向在世界里行动。</p>
+<p>最近读到的两篇工作，正好落在这条路线的两个方向上。第一篇是已经成为 <a target="_blank" rel="noopener" href="https://iclr.cc/virtual/2026/poster/10010475">ICLR 2026 Poster</a> 的 <a target="_blank" rel="noopener" href="https://arxiv.org/abs/2509.14252">LLM-JEPA</a>，它把联合嵌入预测引入语言模型；第二篇是 <a target="_blank" rel="noopener" href="https://world-model-mila.github.io/">World Modeling Workshop 2026</a> 的非存档海报论文 <a target="_blank" rel="noopener" href="https://arxiv.org/abs/2601.00844">Value-Guided Action Planning with JEPA World Models</a>，它追问一个更棘手的问题：一个能预测状态变化的潜空间，为什么仍然可能很难用来规划动作？</p>
+<p>它们不是前后相接的一套统一系统，研究对象、损失函数和证据成熟度都不同。但把两篇放在一起看，会出现一条比“JEPA 又被用到了哪里”更有意思的主线：<strong>预测目标不仅决定模型能否预测，还会决定模型眼中的世界具有怎样的几何。</strong></p>
+<blockquote>
+<h2 id="能预测未来，不等于容易规划未来。"><a href="#能预测未来，不等于容易规划未来。" class="headerlink" title="能预测未来，不等于容易规划未来。"></a>能预测未来，不等于容易规划未来。</h2></blockquote>
+<p>这句话是理解第二篇论文的钥匙，也恰好照亮了第一篇论文真正做成了什么。</p>
+<p>本文沿着下面这条线继续追踪 JEPA：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">I-JEPA：在表示空间预测</span><br><span class="line">    ↓</span><br><span class="line">LLM-JEPA：让同一知识的两种语言表达在表示空间中可预测</span><br><span class="line">    ↓</span><br><span class="line">Value-Guided JEPA：让表示空间不仅可预测，而且适合规划</span><br></pre></td></tr></table></figure>
+
+<p align="center">
+  <img src="/img/jepa/jepa-evolution-map.svg" alt="JEPA 从视觉表征预测、语言双视图对齐到价值引导规划的演进路线" width="720">
+</p>
+<p align="center"><em>同一种表示预测思想，进入不同问题后，Predictor 的角色也随之改变。</em></p>
+
+<h1 id="第一条延续：当-JEPA-遇到语言模型"><a href="#第一条延续：当-JEPA-遇到语言模型" class="headerlink" title="第一条延续：当 JEPA 遇到语言模型"></a>第一条延续：当 JEPA 遇到语言模型</h1><h2 id="它没有取代-next-token-prediction"><a href="#它没有取代-next-token-prediction" class="headerlink" title="它没有取代 next-token prediction"></a>它没有取代 next-token prediction</h2><p>看到 “LLM-JEPA” 这个名字，很容易产生一个过于宏大的想象：语言模型不再逐 token 预测，而是像世界模型一样直接在语义空间里预测未来。</p>
+<p>论文实际采取的路线更克制，也更务实：<strong>标准的 next-token prediction（NTP）仍然保留，JEPA 只是额外增加一个序列级的表示预测目标。</strong></p>
+<p>例如，输入是一段自然语言需求，输出是与之对应的正则表达式或 SQL。作者把它们视作同一知识的两种视图：</p>
+<ul>
+<li><code>Text</code>：人类用自然语言描述“我要什么”；</li>
+<li><code>Code</code>：程序语言精确表达“它如何实现”。</li>
+</ul>
+<p>训练目标可以简写为：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">L = L_NTP + λ · [1 - cos(Pred(Enc(Text)), Enc(Code))]</span><br></pre></td></tr></table></figure>
+
+<p>第一项照常训练模型生成正确的下一个 token。第二项则要求：从 <code>Text</code> 得到的表示，经 <code>Pred</code> 转换后，应当靠近 <code>Code</code> 的整体表示。论文随后把“双视图”推广到问题与答案、数学题与推理结果、上下文与正确续写，以及互为释义的句子。</p>
+<p>这件事的直觉并不复杂。只用 token loss 时，模型只要一步步把答案吐对即可；加入 JEPA 目标后，输入末端的隐藏状态还要提前形成一个足以预示答案整体语义的表示。它不只被问“下一个词是什么”，还被问“你现在对整件事的理解，能否指向正确答案所在的语义区域？”</p>
+<h2 id="这里的-Pred-到底是什么"><a href="#这里的-Pred-到底是什么" class="headerlink" title="这里的 Pred 到底是什么"></a>这里的 <code>Pred</code> 到底是什么</h2><p>这是整篇 <a target="_blank" rel="noopener" href="https://arxiv.org/pdf/2509.14252">LLM-JEPA 论文</a>最容易被名字误导的地方。</p>
+<p><code>Pred</code> 是 <code>Predictor</code> 的缩写，但它不是另起一套网络，也不是一个在部署阶段持续模拟未来的物理引擎。作者在 <code>Text</code> 末尾追加若干个特殊的 <code>[PRED]</code> token，继续复用同一个 LLM 做前向计算，最后一个 <code>[PRED]</code> token 的隐藏状态就是预测出来的序列表示。</p>
+<p>可以把它想成让模型在回答前留出几块“只用于组织整体意思的草稿纸”。这些 token 不负责生成可读文字，它们负责把输入压成一个能够靠近目标表示的向量。<code>k=0</code> 时甚至没有额外预测 token，而是直接对齐两边的表示。</p>
+<p>训练时，论文还用 block-causal attention mask 阻止 <code>Text</code> 和 <code>Code</code> 互相偷看，在一次组合计算中拿到相互独立的输入表示与目标表示。推理时，整条 JEPA 支路以及 <code>[PRED]</code> token 都被移除，模型仍然按普通自回归方式生成。因此它增加的是训练约束，不增加在线推理步骤。</p>
+<p align="center">
+  <img src="/img/jepa/llm-jepa-training-inference.svg" alt="LLM-JEPA 训练期同时优化 NTP 与 JEPA 表示对齐、推理期移除 JEPA 分支的流程" width="720">
+</p>
+<p align="center"><em>[PRED] 是训练用的表示接口，不是部署时另起一套世界模型。</em></p>
+
+<p>从<a target="_blank" rel="noopener" href="https://github.com/galilai-group/llm-jepa">公开代码</a>看，这套实现也没有照搬 I-JEPA 的完整配方：没有 EMA target encoder，目标表示没有被 <code>detach</code>，JEPA 损失的梯度会同时流向两侧。它更接近“共享编码器上的成对表示一致性正则”，而不是经典 I-JEPA 那种 context encoder、predictor 与慢速 target encoder 的非对称结构。</p>
+<p>这个区别不是咬文嚼字。论文附录做了一个非常关键的实验：去掉 NTP，只保留 JEPA 目标，模型会生成空输出。换句话说，<strong>生成损失不是一个可有可无的旧零件，而是防止整个语言能力被表示对齐目标带偏的锚点。</strong> 作者也因此把 JEPA 项称为对生成目标的 regularization term。</p>
+<h2 id="它带来了什么"><a href="#它带来了什么" class="headerlink" title="它带来了什么"></a>它带来了什么</h2><p>论文在多个 1B–8B 级模型和任务上报告了稳定的正向结果。以 Llama-3.2-1B 为例：</p>
+<table>
+<thead>
+<tr>
+<th>任务</th>
+<th align="right">普通 NTP</th>
+<th align="right">LLM-JEPA</th>
+<th align="right">绝对提升</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>NL-RX-SYNTH</td>
+<td align="right">57.29</td>
+<td align="right">71.46</td>
+<td align="right">+14.17</td>
+</tr>
+<tr>
+<td>GSM8K</td>
+<td align="right">32.36</td>
+<td align="right">36.36</td>
+<td align="right">+4.00</td>
+</tr>
+<tr>
+<td>Spider</td>
+<td align="right">47.52</td>
+<td align="right">50.55</td>
+<td align="right">+3.03</td>
+</tr>
+<tr>
+<td>HellaSwag</td>
+<td align="right">69.40</td>
+<td align="right">70.51</td>
+<td align="right">+1.11</td>
+</tr>
+</tbody></table>
+<p>最明显的收益出现在“自然语言描述 → 正则表达式”这类天然具有双视图结构的任务上。模型从文字规格映射到形式语言，恰好非常适合用一个整体表示预测另一个整体表示。换到更强的基线或语义关系较松的任务，增益会明显缩小：例如 Qwen3-1.7B 在 GSM8K 上只从 44.32 提升到 45.00。</p>
+<p>作者还观察到，加入 JEPA 项后，输入与输出表示之间的差值被压进更窄、更接近线性的子空间。这是一个有趣现象，但不能倒果为因：损失本来就在直接拉近两个表示，所以几何变得整齐首先是优化目标的结果；现有实验展示的是“几何变化与准确率提升同时出现”，还没有证明前者必然导致后者。</p>
+<p>计算代价也要放在桌面上。主设置中，一个 epoch 的训练计算大约是普通微调的两倍；随机丢弃一部分 JEPA loss 的受限实验可把平均成本降到约 1.25 倍，并在等 PFLOPs 曲线上保持优势，但主结果并不是全面的等算力比较。LLM-JEPA 还为 <code>k</code> 和 <code>λ</code> 搜索了更多组合，若配置选择和显著性检验没有严格隔离 validation&#x2F;test，就可能乐观估计收益。论文的通用预训练实验也明确仍是 preliminary，而不是互联网规模预训练已经验证成功。</p>
+<p>所以，我更愿意把这篇论文的结论收在一个准确的位置：</p>
+<blockquote>
+<p>LLM-JEPA 没有把语言模型变成一个完整的 JEPA 世界模型；它证明了 JEPA 式的跨视图表示预测，可以成为自回归训练的一种有效辅助约束。</p>
+</blockquote>
+<p>它的延续在于“如何学习表示”，而不是“如何用表示规划行动”。后一个问题，恰好由第二篇论文接住。</p>
+<h1 id="从预测到规划，中间隔着一堵墙"><a href="#从预测到规划，中间隔着一堵墙" class="headerlink" title="从预测到规划，中间隔着一堵墙"></a>从预测到规划，中间隔着一堵墙</h1><p>设想一台机器人站在迷宫里。它有一个非常准确的世界模型：给定当前位置和动作，它能够预测下一时刻会到哪里。然后我们让规划器不断尝试动作序列，选择那个“预测终点离目标最近”的方案。</p>
+<p>听起来已经万事俱备，但问题可能出在“最近”两个字上。</p>
+<p>目标就在墙的另一侧。从平面坐标看，当前位置和目标只差半米；从行动上看，机器人必须先远离目标，绕过长墙，再从另一侧回来。一个普通的欧氏距离会持续告诉规划器：“贴着墙已经非常接近了。”于是规划器容易卡在墙边的局部最优点，不愿意接受那段“先变远、后变近”的绕路。</p>
+<p>如果编码器学到的潜空间也保留了这种错误几何，世界模型即便把每一步都预测对，规划器看到的仍是一张不好用的地图。</p>
+<p align="center">
+  <img src="/img/jepa/predictable-vs-plannable.svg" alt="隔墙场景中普通潜空间距离与价值塑形距离对规划路径的不同影响" width="720">
+</p>
+<p align="center"><em>欧氏意义上的“近”，并不等于行动意义上的“容易到达”。</em></p>
+
+<p>这里必须拆开两个经常被混为一谈的能力：</p>
+<ul>
+<li><strong>可预测性（predictability）</strong>：给定当前状态和动作，能否准确预测下一状态；</li>
+<li><strong>可规划性（plannability）</strong>：潜空间中的距离与梯度，能否引导优化器找到真正可达、代价更低的动作序列。</li>
+</ul>
+<p>预测模型回答“做了这个动作会发生什么”。规划器还需要回答“在所有可能的未来里，哪条路值得走”。前者准确，不会自动让后者容易。</p>
+<h1 id="第二条延续：让价值函数重画潜空间地图"><a href="#第二条延续：让价值函数重画潜空间地图" class="headerlink" title="第二条延续：让价值函数重画潜空间地图"></a>第二条延续：让价值函数重画潜空间地图</h1><h2 id="这一次，Predictor-真的是运行中的世界模型"><a href="#这一次，Predictor-真的是运行中的世界模型" class="headerlink" title="这一次，Predictor 真的是运行中的世界模型"></a>这一次，Predictor 真的是运行中的世界模型</h2><p><a target="_blank" rel="noopener" href="https://arxiv.org/html/2601.00844">Value-Guided Action Planning with JEPA World Models</a>研究的是动作条件 JEPA。它的基本结构可以写成：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">z_t        = E(s_t)</span><br><span class="line">ẑ_&#123;t+1&#125;   = Pred(z_t, a_t)</span><br></pre></td></tr></table></figure>
+
+<p>编码器 <code>E</code> 把当前图像状态压成 512 维表示，独立的 1.3M 参数 MLP Predictor 接收状态表示和动作，预测下一状态表示。训练中的潜空间预测损失，让 <code>ẑ_{t+1}</code> 靠近真实下一帧的 <code>E(s_{t+1})</code>。</p>
+<p>部署时，这个 Predictor 不会被扔掉。模型预测控制（MPC）配合 MPPI，在潜空间里批量展开候选动作序列：Predictor 负责想象每一步会到哪里，距离或价值函数负责给这些未来打分，然后只执行当前最合适的一小步，再观察、重规划。</p>
+<p>同样叫 <code>Pred</code>，这里的工程职责已经与 LLM-JEPA 完全不同：前者是训练期的表示对齐机制，后者是推理期反复调用的动力学模型。</p>
+<h2 id="把“离目标多远”训练成“还要付出多少代价”"><a href="#把“离目标多远”训练成“还要付出多少代价”" class="headerlink" title="把“离目标多远”训练成“还要付出多少代价”"></a>把“离目标多远”训练成“还要付出多少代价”</h2><p>标准做法通常直接最小化预测状态与目标状态之间的 latent distance。论文认为，这个距离只是“表征像不像”，未必表示“经过动作能否到达”。于是作者反过来规定潜空间应该长成什么样：让状态到目标的距离近似 goal-conditioned value function 的负值。</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">V(s, g) = - ||E(s) - E(g)||</span><br></pre></td></tr></table></figure>
+
+<p>如果从状态 <code>s</code> 到目标 <code>g</code> 需要很多步，距离就应该大，价值就应该低；如果很快可以到达，距离就应该小，价值就应该高。这样一来，墙两侧虽然视觉上和坐标上很接近，只要真实行动必须绕远，它们在潜空间里就不应被放得太近。</p>
+<p>作者使用 IQL 风格的 expectile TD loss 学这个目标条件价值。直觉上，它不要求模型穷举所有动作，而是利用离线轨迹中的状态转移，反复校正“从这里到目标还要付出多少代价”。下一状态的 bootstrap target 使用 stop-gradient，但这里没有 I-JEPA 式的 EMA teacher；被固定的是 TD 目标的梯度路径，不是另一套慢速编码器。</p>
+<p>论文进一步把对称的欧氏距离换成 quasi-distance。普通距离默认 <code>d(s, g) = d(g, s)</code>，但现实中的可达代价经常带方向：下坡容易上坡难、顺流容易逆流难、把杯子推下桌容易放回桌上难。quasi-distance 允许两个方向不同，因此更有能力表达控制问题中的非对称性。即便论文里的简化环境未必强烈需要这种方向性，quasi-distance 版本仍然取得了最好结果。</p>
+<h2 id="最反直觉的结果：联合训练反而更差"><a href="#最反直觉的结果：联合训练反而更差" class="headerlink" title="最反直觉的结果：联合训练反而更差"></a>最反直觉的结果：联合训练反而更差</h2><p>如果按照“JEPA 世界模型”的直觉，我们可能会同时优化两件事：一边让 Predictor 准确预测下一状态，一边让 Encoder 的距离符合价值函数。论文确实测试了这种联合方案，但结果并不好。</p>
+<p>表现最好的 <code>VF_quasi</code> 使用的是分阶段训练（论文记为 <code>Sep</code>）：</p>
+<ol>
+<li>先只用 value loss 塑造状态 Encoder，让潜空间形成适合目标到达任务的几何；</li>
+<li>冻结这个潜空间；</li>
+<li>再训练动作编码器和 Predictor，去拟合已经固定的潜空间动力学；</li>
+<li>规划时用 Predictor rollout，用 quasi-distance 评价候选未来。</li>
+</ol>
+<p align="center">
+  <img src="/img/jepa/value-guided-planning-loop.svg" alt="Value-Guided JEPA 使用 Predictor rollout、价值评分和 MPPI 组成闭环规划的流程" width="720">
+</p>
+<p align="center"><em>Predictor 负责展开候选未来，value-shaped distance 负责告诉规划器哪条未来值得走。</em></p>
+
+<p>与最佳标准 JEPA 基线 <code>pred_VCReg</code> 相比，成功率为：</p>
+<table>
+<thead>
+<tr>
+<th>环境</th>
+<th align="right">pred_VCReg</th>
+<th align="right">VF_quasi（Sep）</th>
+<th align="right">绝对提升</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Wall Small（WS）</td>
+<td align="right">0.55</td>
+<td align="right">0.71</td>
+<td align="right">+0.16</td>
+</tr>
+<tr>
+<td>Wall Big（WB）</td>
+<td align="right">0.89</td>
+<td align="right">0.96</td>
+<td align="right">+0.07</td>
+</tr>
+<tr>
+<td>Maze</td>
+<td align="right">0.54</td>
+<td align="right">0.63</td>
+<td align="right">+0.09</td>
+</tr>
+</tbody></table>
+<p>而把价值损失和预测损失联合起来的 <code>VF_quasi_pred</code>，三个环境分别只有 0.61、0.85 和 0.43，全面低于分阶段版本。加入 VCReg 也没有改善结果。</p>
+<p>这组实验透露出一个非常值得追踪的信号：<strong>“容易预测的表示”与“容易规划的表示”至少在当前训练方法下并不天然一致，两个目标甚至可能争夺潜空间的几何。</strong> 动力学预测希望忠实保留对下一状态有用的变化；价值塑形则希望把状态按目标可达代价重新排列。联合优化并不会自动找到两者的最佳折中。</p>
+<p>当然，证据边界必须说清。这是一篇 7 页的 workshop 工作，实验只有简化的 Wall 和 Maze 环境；主表没有多随机种子均值、标准差或误差条，也没有报告 latent prediction accuracy、训练 FLOPs、在线规划延迟。Wall 规划每次可用 2000 个 MPPI 扰动，Maze 也要用 500 个、规划 horizon 为 100，在线搜索并不轻。论文尚未证明这套方法能直接扩展到真实机器人、高维接触动力学或随机环境。</p>
+<p>因此，它更像一张清晰的路标，而不是已经铺好的高速公路：<strong>如果世界模型最终要服务规划，仅仅让未来状态可预测还不够，潜空间本身必须带有任务需要的价值结构。</strong></p>
+<h1 id="三个-Predictor，其实是三种角色"><a href="#三个-Predictor，其实是三种角色" class="headerlink" title="三个 Predictor，其实是三种角色"></a>三个 Predictor，其实是三种角色</h1><p>JEPA 系列论文经常复用 <code>Encoder</code>、<code>Target</code>、<code>Predictor</code> 这些词，但相同名称不代表相同的系统职责。把三类工作放在一起，区别会非常清楚：</p>
+<table>
+<thead>
+<tr>
+<th>工作</th>
+<th>Predictor 的输入与输出</th>
+<th>是否独立模块</th>
+<th>推理时是否保留</th>
+<th>主要作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>I-JEPA</td>
+<td>可见区域表示 → 被遮挡区域表示</td>
+<td>是</td>
+<td>下游任务通常不保留</td>
+<td>用预测任务逼出通用视觉表征</td>
+</tr>
+<tr>
+<td>LLM-JEPA</td>
+<td>文本表示 → 代码、答案或续写的整体表示</td>
+<td>否，复用同一 LLM 的 <code>[PRED]</code> token</td>
+<td>否</td>
+<td>训练期跨视图语义对齐</td>
+</tr>
+<tr>
+<td>Value-Guided JEPA</td>
+<td>当前状态表示 + 动作 → 下一状态表示</td>
+<td>是，独立 MLP</td>
+<td>是</td>
+<td>为 MPC&#x2F;MPPI 提供潜空间动力学 rollout</td>
+</tr>
+</tbody></table>
+<p>所以，读论文时不能只问“有没有 Predictor”，还要追问三个问题：</p>
+<ol>
+<li>它到底在预测被遮挡内容、另一种语义视图，还是动作之后的状态？</li>
+<li>它是塑造 Encoder 的训练脚手架，还是部署时真正运行的世界模型？</li>
+<li>目标表示由谁产生，梯度是否回传，是否存在 stop-gradient 或 EMA teacher？</li>
+</ol>
+<p>只要这三个问题没有说清，“JEPA”很容易变成一个看似统一、实际含义不断漂移的标签。</p>
+<h1 id="从“预测什么”走向“为了什么而预测”"><a href="#从“预测什么”走向“为了什么而预测”" class="headerlink" title="从“预测什么”走向“为了什么而预测”"></a>从“预测什么”走向“为了什么而预测”</h1><p>把两篇论文并排看，最有意思的并不是它们共享了 JEPA 这个名字，而是它们都在用训练目标改造表示空间。</p>
+<p>LLM-JEPA 的做法是：如果自然语言规格与代码实现表达的是同一件事，就强迫前者的整体表示能够预测后者。结果是输入与输出之间的语义映射更集中、更容易线性化。在这里，目标函数告诉模型：<strong>语法可以不同，但共享的知识应当靠近。</strong></p>
+<p>Value-Guided JEPA 的做法则是：如果两个状态之间必须走很长的路，就算它们视觉上相似、坐标上接近，也不应当在规划空间里靠得太近。在这里，目标函数告诉模型：<strong>外观可以相近，但行动代价不同的状态必须被拉开。</strong></p>
+<p>前者在消除不重要的表达差异，后者在放大对决策重要的可达性差异。它们共同提醒我们：表示学习从来不是把世界“客观地压缩”进一个向量。模型会保留什么、忽略什么、把谁放在谁旁边，取决于我们要求它完成什么预测任务。</p>
+<p>这也让我重新理解“世界模型”四个字。一个世界模型至少有三层能力：</p>
+<table>
+<thead>
+<tr>
+<th>层次</th>
+<th>核心问题</th>
+<th>仅做到这一层的局限</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>表示</td>
+<td>世界中哪些差异值得保留？</td>
+<td>可能有语义，但没有动力学</td>
+</tr>
+<tr>
+<td>预测</td>
+<td>做了动作，世界会怎样变化？</td>
+<td>可能预测准确，但搜索地形糟糕</td>
+</tr>
+<tr>
+<td>规划</td>
+<td>哪条未来路径更可达、代价更低？</td>
+<td>还需要与具体目标和控制闭环结合</td>
+</tr>
+</tbody></table>
+<p>JEPA 最初最鲜明的主张，是从原始信号重建转向抽象表示预测。现在，这条路线继续向前时遇到了第二次转向：从“表示能否预测未来”转向“表示能否帮助我们在未来中做选择”。</p>
+<p>而一旦进入选择，世界就不再只有事实结构，还要有价值结构。距离不再只是相似度，可能还是时间、风险、能量、可达性与不可逆性的混合物。对一个生成模型来说，把两个同义句放近也许足够；对一台要穿过迷宫的机器人来说，墙的存在必须刻进表示空间。</p>
+<h1 id="仍然值得保留的几个问号"><a href="#仍然值得保留的几个问号" class="headerlink" title="仍然值得保留的几个问号"></a>仍然值得保留的几个问号</h1><p>这两篇论文都给出了漂亮的方向，但距离一个统一、规模化的结论还有明显空白。</p>
+<p>对 LLM-JEPA，最重要的问题是：收益究竟来自 JEPA 特有机制，还是来自更一般的“让输入端隐藏状态提前编码答案语义”的监督正则？要回答它，还需要与普通 representation alignment、双向生成、BYOL&#x2F;SimSiam 式目标、多任务学习等进行等算力比较，并在更大规模预训练和开放式生成中验证。</p>
+<p>对 Value-Guided JEPA，最重要的问题是：当环境变得随机、奖励稀疏、离线数据覆盖不足，或者机器人需要处理接触、遮挡与长时序任务时，价值塑形的潜空间是否仍然稳定？论文自己也指出，远距离目标的 TD 信号更弱，IQL 在随机环境中可能有偏，而 prediction-based JEPA 反而可能在随机动力学下更稳健。</p>
+<p>更长远的问题，是能否让一个表示空间同时兼顾：</p>
+<ul>
+<li>对感知任务足够通用；</li>
+<li>对动力学预测足够忠实；</li>
+<li>对目标规划足够平滑；</li>
+<li>对不同任务又不至于每次重学一套几何。</li>
+</ul>
+<p>第二篇论文里“分阶段胜过联合训练”的结果，说明这件事远没有被自然解决。未来真正强大的世界模型，可能不只需要更大的 Predictor，也需要能按目标重构距离、按任务切换几何的机制。</p>
+<h1 id="写在最后"><a href="#写在最后" class="headerlink" title="写在最后"></a>写在最后</h1><p>从 I-JEPA 到这两篇后续工作，我们看到的不是一条整齐、单向的升级路线，而是 JEPA 思想在不同领域里不断变形：</p>
+<ul>
+<li>I-JEPA 用隐藏区域预测塑造视觉 Encoder；</li>
+<li>LLM-JEPA 用跨视图预测约束语言模型的语义表示；</li>
+<li>Value-Guided JEPA 则把价值与可达性写进潜空间，再让动力学模型在这张地图上滚动。</li>
+</ul>
+<p>第一篇告诉我们，预测目标可以改变语言表示的组织方式；第二篇进一步告诉我们，世界模型最后好不好用，不只取决于它预测得准不准，还取决于它把“远近”定义成了什么。</p>
+<p>也许 JEPA 接下来真正值得追踪的问题，已经不只是“能不能少预测一些像素、多预测一些抽象”，而是：<strong>我们希望一个智能体为了什么目的，学会怎样的抽象。</strong></p>
+<blockquote>
+<p>能预测未来，是世界模型的起点；能在未来里找到一条路，才是规划的开始。</p>
+</blockquote>
+<hr>
+<p>本文主要资料：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://arxiv.org/abs/2509.14252">LLM-JEPA：arXiv 2509.14252</a> &#x2F; <a target="_blank" rel="noopener" href="https://arxiv.org/pdf/2509.14252">PDF</a> &#x2F; <a target="_blank" rel="noopener" href="https://github.com/galilai-group/llm-jepa">公开代码</a></li>
+<li><a target="_blank" rel="noopener" href="https://arxiv.org/abs/2601.00844">Value-Guided Action Planning with JEPA World Models：arXiv 2601.00844</a> &#x2F; <a target="_blank" rel="noopener" href="https://arxiv.org/html/2601.00844">HTML</a> &#x2F; <a target="_blank" rel="noopener" href="https://arxiv.org/pdf/2601.00844">PDF</a></li>
+</ul>
+</div><div class="article-tags is-size-7 mb-4"><span class="mr-2">#</span><a class="link-muted mr-2" rel="tag" href="/tags/%E4%B8%96%E7%95%8C%E6%A8%A1%E5%9E%8B/">世界模型</a><a class="link-muted mr-2" rel="tag" href="/tags/JEPA/">JEPA</a><a class="link-muted mr-2" rel="tag" href="/tags/LLM-JEPA/">LLM-JEPA</a><a class="link-muted mr-2" rel="tag" href="/tags/%E8%A1%A8%E5%BE%81%E5%AD%A6%E4%B9%A0/">表征学习</a><a class="link-muted mr-2" rel="tag" href="/tags/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/">强化学习</a></div><!--!--></article></div><!--!--><nav class="post-navigation mt-4 level is-mobile"><div class="level-start"><a class="article-nav-prev level level-item link-muted" href="/2026/07/15/jepa-research-tracking/"><i class="level-item fas fa-chevron-left"></i><span class="level-item">JEPA 下游研究追踪 · 2026-07-15</span></a></div><div class="level-end"><a class="article-nav-next level level-item link-muted" href="/2026/04/28/minicpm-o-4-5-omni-flow-analysis/"><span class="level-item">MiniCPM-o 4.5 技术解析：Omni-Flow 如何实现真正的全双工全模态交互</span><i class="level-item fas fa-chevron-right"></i></a></div></nav><!--!--></div><div class="column column-left is-4-tablet is-4-desktop is-4-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar is-rounded" src="/img/conan-avatar.svg" alt="Lu Zhongqiu"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">Lu Zhongqiu</p><p class="is-size-6 is-block">Builder · Thinker · Writer</p><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>分享已知的是无趣的，我只研究我当前不知道的，顺便分享</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">文章</p><a href="/archives/"><p class="title">55</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">分类</p><a href="/categories/"><p class="title">6</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">标签</p><a href="/tags/"><p class="title">77</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/luzhongqiu" target="_blank" rel="me noopener">关注我</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="me noopener" title="Github" href="https://github.com/luzhongqiu"><i class="fab fa-github"></i></a></div></div></div><!--!--><div class="card widget" data-type="categories"><div class="card-content"><div class="menu"><h3 class="menu-label">分类</h3><ul class="menu-list"><li><a class="level is-mobile" href="/categories/AI/"><span class="level-start"><span class="level-item">AI</span></span><span class="level-end"><span class="level-item tag">14</span></span></a></li><li><a class="level is-mobile" href="/categories/JEPA%E7%A0%94%E7%A9%B6%E8%BF%BD%E8%B8%AA/"><span class="level-start"><span class="level-item">JEPA研究追踪</span></span><span class="level-end"><span class="level-item tag">37</span></span></a></li><li><a class="level is-mobile" href="/categories/%E5%8C%BB%E5%AD%A6%E7%A7%91%E7%A0%94/"><span class="level-start"><span class="level-item">医学科研</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/%E5%B7%A5%E4%BD%9C/"><span class="level-start"><span class="level-item">工作</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/%E6%99%BA%E8%83%BD%E4%BD%93%E5%B7%A5%E7%A8%8B/"><span class="level-start"><span class="level-item">智能体工程</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/"><span class="level-start"><span class="level-item">深度学习</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></div></div></div><div class="card widget" data-type="recent-posts"><div class="card-content"><h3 class="menu-label">最新文章</h3><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-08-24T02:00:00.000Z">2026-08-24</time></p><p class="title"><a href="/2026/08/24/jepa-research-tracking/">JEPA 下游研究追踪 · 2026-08-24</a></p><p class="categories"><a href="/categories/JEPA%E7%A0%94%E7%A9%B6%E8%BF%BD%E8%B8%AA/">JEPA研究追踪</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-08-23T02:00:00.000Z">2026-08-23</time></p><p class="title"><a href="/2026/08/23/jepa-research-tracking/">JEPA 下游研究追踪 · 2026-08-23</a></p><p class="categories"><a href="/categories/JEPA%E7%A0%94%E7%A9%B6%E8%BF%BD%E8%B8%AA/">JEPA研究追踪</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-08-22T02:00:00.000Z">2026-08-22</time></p><p class="title"><a href="/2026/08/22/jepa-research-tracking/">JEPA 下游研究追踪 · 2026-08-22</a></p><p class="categories"><a href="/categories/JEPA%E7%A0%94%E7%A9%B6%E8%BF%BD%E8%B8%AA/">JEPA研究追踪</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-08-21T02:00:00.000Z">2026-08-21</time></p><p class="title"><a href="/2026/08/21/jepa-research-tracking/">JEPA 下游研究追踪 · 2026-08-21</a></p><p class="categories"><a href="/categories/JEPA%E7%A0%94%E7%A9%B6%E8%BF%BD%E8%B8%AA/">JEPA研究追踪</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-08-19T02:00:00.000Z">2026-08-19</time></p><p class="title"><a href="/2026/08/19/jepa-research-tracking/">JEPA 下游研究追踪 · 2026-08-19</a></p><p class="categories"><a href="/categories/JEPA%E7%A0%94%E7%A9%B6%E8%BF%BD%E8%B8%AA/">JEPA研究追踪</a></p></div></article></div></div><div class="card widget" data-type="archives"><div class="card-content"><div class="menu"><h3 class="menu-label">归档</h3><ul class="menu-list"><li><a class="level is-mobile" href="/archives/2026/08/"><span class="level-start"><span class="level-item">八月 2026</span></span><span class="level-end"><span class="level-item tag">21</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/07/"><span class="level-start"><span class="level-item">七月 2026</span></span><span class="level-end"><span class="level-item tag">18</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/04/"><span class="level-start"><span class="level-item">四月 2026</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/03/"><span class="level-start"><span class="level-item">三月 2026</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/02/"><span class="level-start"><span class="level-item">二月 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li></ul></div></div></div><div class="card widget" data-type="tags"><div class="card-content"><div class="menu"><h3 class="menu-label">标签</h3><div class="field is-grouped is-grouped-multiline"><div class="control"><a class="tags has-addons" href="/tags/ACP/"><span class="tag">ACP</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-Agent/"><span class="tag">AI Agent</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI%E5%8A%A8%E6%80%81/"><span class="tag">AI动态</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI%E5%B7%A5%E5%85%B7/"><span class="tag">AI工具</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI%E7%BC%96%E7%A8%8B/"><span class="tag">AI编程</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI%E8%8A%AF%E7%89%87/"><span class="tag">AI芯片</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Agent/"><span class="tag">Agent</span><span class="tag">5</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AgentSkills/"><span class="tag">AgentSkills</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Agentic-Workflow/"><span class="tag">Agentic Workflow</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/CLI/"><span class="tag">CLI</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Claude/"><span class="tag">Claude</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Claude-Code/"><span class="tag">Claude Code</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Codex/"><span class="tag">Codex</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/DeepSeek/"><span class="tag">DeepSeek</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/GPT-5/"><span class="tag">GPT-5</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/GitAgent/"><span class="tag">GitAgent</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/I-JEPA/"><span class="tag">I-JEPA</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/IDE/"><span class="tag">IDE</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/JEPA/"><span class="tag">JEPA</span><span class="tag">39</span></a></div><div class="control"><a class="tags has-addons" href="/tags/JEPA%E8%BF%BD%E8%B8%AA/"><span class="tag">JEPA追踪</span><span class="tag">37</span></a></div><div class="control"><a class="tags has-addons" href="/tags/KnowS/"><span class="tag">KnowS</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/LLM/"><span class="tag">LLM</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/LLM-JEPA/"><span class="tag">LLM-JEPA</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/LeCun/"><span class="tag">LeCun</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/MCP/"><span class="tag">MCP</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/MiniCPM/"><span class="tag">MiniCPM</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/NVIDIA/"><span class="tag">NVIDIA</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Omni-Flow/"><span class="tag">Omni-Flow</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/OpenClaw/"><span class="tag">OpenClaw</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/OpenViking/"><span class="tag">OpenViking</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Protocol/"><span class="tag">Protocol</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Skill/"><span class="tag">Skill</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Taalas/"><span class="tag">Taalas</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/TypeScript/"><span class="tag">TypeScript</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Vibe-Coding/"><span class="tag">Vibe Coding</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/WeCom/"><span class="tag">WeCom</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/YOLO/"><span class="tag">YOLO</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/kimi-cli/"><span class="tag">kimi-cli</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/oh-my-opencode/"><span class="tag">oh-my-opencode</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/openclaw/"><span class="tag">openclaw</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E4%B8%8A%E4%B8%8B%E6%96%87%E7%AE%A1%E7%90%86/"><span class="tag">上下文管理</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E4%B8%96%E7%95%8C%E6%A8%A1%E5%9E%8B/"><span class="tag">世界模型</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E4%BC%81%E4%B8%9A%E5%BE%AE%E4%BF%A1/"><span class="tag">企业微信</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E5%85%A8%E5%8F%8C%E5%B7%A5/"><span class="tag">全双工</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E5%85%B7%E8%BA%AB%E6%99%BA%E8%83%BD/"><span class="tag">具身智能</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E5%9B%BD%E8%87%AA%E7%84%B6/"><span class="tag">国自然</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E5%9F%BA%E9%87%91%E7%94%B3%E8%AF%B7/"><span class="tag">基金申请</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E5%A4%9A%E6%A8%A1%E6%80%81/"><span class="tag">多模态</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E5%A4%9A%E7%A7%9F%E6%88%B7%E6%9E%B6%E6%9E%84/"><span class="tag">多租户架构</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E5%A4%A7%E6%A8%A1%E5%9E%8B/"><span class="tag">大模型</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E5%B7%A5%E4%BD%9C/"><span class="tag">工作</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E5%B7%A5%E4%BD%9C%E6%B5%81/"><span class="tag">工作流</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E5%BC%80%E6%BA%90/"><span class="tag">开源</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/"><span class="tag">强化学习</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E5%BE%AE%E4%BF%A1%E5%85%AC%E4%BC%97%E5%8F%B7/"><span class="tag">微信公众号</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E6%80%9D%E8%80%83/"><span class="tag">思考</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E6%8E%A8%E7%90%86/"><span class="tag">推理</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E6%8F%92%E4%BB%B6/"><span class="tag">插件</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E6%95%99%E7%A8%8B/"><span class="tag">教程</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E6%96%87%E7%8C%AE%E7%BB%BC%E8%BF%B0/"><span class="tag">文献综述</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E6%97%A5%E6%8A%A5/"><span class="tag">日报</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E6%98%A5%E8%8A%82/"><span class="tag">春节</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E6%99%BA%E8%83%BD%E4%BD%93%E8%B0%83%E5%BA%A6/"><span class="tag">智能体调度</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/"><span class="tag">架构设计</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/"><span class="tag">源码解析</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E7%9B%AE%E6%A0%87%E6%A3%80%E6%B5%8B/"><span class="tag">目标检测</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E7%A1%AC%E4%BB%B6/"><span class="tag">硬件</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E7%A7%91%E6%99%AE/"><span class="tag">科普</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E7%A7%91%E7%A0%94%E5%B7%A5%E5%85%B7/"><span class="tag">科研工具</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E7%AB%AF%E4%BE%A7AI/"><span class="tag">端侧AI</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E8%85%BE%E8%AE%AF/"><span class="tag">腾讯</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E8%87%AA%E7%9B%91%E7%9D%A3%E5%AD%A6%E4%B9%A0/"><span class="tag">自监督学习</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E8%A1%A8%E5%BE%81%E5%AD%A6%E4%B9%A0/"><span class="tag">表征学习</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E8%A7%86%E8%A7%89/"><span class="tag">计算机视觉</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E9%80%9A%E7%94%A8%E6%99%BA%E8%83%BD%E4%BD%93/"><span class="tag">通用智能体</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E9%81%BF%E5%9D%91/"><span class="tag">避坑</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E9%98%BF%E9%87%8C/"><span class="tag">阿里</span><span class="tag">1</span></a></div></div></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">订阅更新</h3><form action="https://feedburner.google.com/fb/a/mailverify" method="post" target="popupwindow" onsubmit="window.open(&#039;https://feedburner.google.com/fb/a/mailverify?uri=&#039;,&#039;popupwindow&#039;,&#039;scrollbars=yes,width=550,height=520&#039;);return true"><input type="hidden" value="" name="uri"><input type="hidden" name="loc" value="en_US"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="订阅"></div></div></form></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">follow.it</h3><form action="" method="post" target="_blank"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="订阅"></div></div></form></div></div></div></div><!--!--></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><p class="is-size-7"><span>&copy; 2026 Lu Zhongqiu</span></p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="GitHub" href="https://github.com/luzhongqiu"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("zh-cn");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script data-pjax src="/js/column.js"></script><script src="/js/animation.js"></script><a id="back-to-top" title="回到顶端" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script data-pjax src="/js/back_to_top.js" defer></script><!--!--><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.js" defer></script><script>window.addEventListener("load", () => {
+      window.cookieconsent.initialise({
+        type: "info",
+        theme: "edgeless",
+        static: false,
+        position: "bottom-left",
+        content: {
+          message: "此网站使用Cookie来改善您的体验。",
+          dismiss: "知道了！",
+          allow: "允许使用Cookie",
+          deny: "拒绝",
+          link: "了解更多",
+          policy: "Cookie政策",
+          href: "https://www.cookiesandyou.com/",
+        },
+        palette: {
+          popup: {
+            background: "#edeff5",
+            text: "#838391"
+          },
+          button: {
+            background: "#4b81e8"
+          },
+        },
+      });
+    });</script><script src="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/js/lightgallery.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/js/jquery.justifiedGallery.min.js" defer></script><script>window.addEventListener("load", () => {
+            if (typeof $.fn.lightGallery === 'function') {
+                $('.article').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof $.fn.justifiedGallery === 'function') {
+                if ($('.justified-gallery > p > .gallery-item').length) {
+                    $('.justified-gallery > p > .gallery-item').unwrap();
+                }
+                $('.justified-gallery').justifiedGallery();
+            }
+        });</script><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/pjax@0.2.8/pjax.min.js"></script><script src="/js/pjax.js"></script><!--!--><!--!--><!--!--><script data-pjax src="/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="想要查找什么..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script data-pjax src="/js/insight.js" defer></script><script data-pjax>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/content.json"}, {"hint":"想要查找什么...","untitled":"(无标题)","posts":"文章","pages":"页面","categories":"分类","tags":"标签"});
+        });</script></body></html>

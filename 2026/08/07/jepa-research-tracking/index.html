@@ -1,0 +1,381 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>JEPA 下游研究追踪 · 2026-08-07 - Lu Zhongqiu</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="Lu Zhongqiu"><meta name="msapplication-TileImage" content="/img/favicon.svg"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Lu Zhongqiu"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="本文属于「JEPA追踪」系列，记录每日论文检索、原文核验与阶段性判断；它保留研究日志的证据密度，与经过主题化重写的原创博客区分。 JEPA 下游研究追踪（2026-08-07）"><meta property="og:type" content="blog"><meta property="og:title" content="JEPA 下游研究追踪 · 2026-08-07"><meta property="og:url" content="https://luzhongqiu.github.io/2026/08/07/jepa-research-tracking/"><meta property="og:site_name" content="Lu Zhongqiu"><meta property="og:description" content="本文属于「JEPA追踪」系列，记录每日论文检索、原文核验与阶段性判断；它保留研究日志的证据密度，与经过主题化重写的原创博客区分。 JEPA 下游研究追踪（2026-08-07）"><meta property="og:locale" content="zh_CN"><meta property="og:image" content="https://arxiv.org/html/2608.06062v1/figures/Decoder.png"><meta property="article:published_time" content="2026-08-07T02:00:00.000Z"><meta property="article:modified_time" content="2026-08-24T03:21:27.965Z"><meta property="article:author" content="Lu Zhongqiu"><meta property="article:tag" content="JEPA"><meta property="article:tag" content="JEPA追踪"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="https://arxiv.org/html/2608.06062v1/figures/Decoder.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"https://luzhongqiu.github.io/2026/08/07/jepa-research-tracking/"},"headline":"JEPA 下游研究追踪 · 2026-08-07","image":["https://arxiv.org/html/2608.06062v1/figures/Decoder.png"],"datePublished":"2026-08-07T02:00:00.000Z","dateModified":"2026-08-24T03:21:27.965Z","author":{"@type":"Person","name":"Lu Zhongqiu"},"publisher":{"@type":"Organization","name":"Lu Zhongqiu","logo":{"@type":"ImageObject","url":"https://luzhongqiu.github.io/img/logo.svg"}},"description":"本文属于「JEPA追踪」系列，记录每日论文检索、原文核验与阶段性判断；它保留研究日志的证据密度，与经过主题化重写的原创博客区分。 JEPA 下游研究追踪（2026-08-07）"}</script><link rel="canonical" href="https://luzhongqiu.github.io/2026/08/07/jepa-research-tracking/"><link rel="icon" href="/img/favicon.svg"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.0.0/css/all.css"><link data-pjax rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/atom-one-light.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;600&amp;family=Source+Code+Pro"><link data-pjax rel="stylesheet" href="/css/default.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"><!--!--><!--!--><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><!--!--><!--!--><!-- hexo injector head_end start --><script>
+  (function () {
+      function switchTab() {
+          if (!location.hash) {
+            return;
+          }
+
+          const id = '#' + CSS.escape(location.hash.substring(1));
+          const $tabMenu = document.querySelector(`.tabs a[href="${id}"]`);
+          if (!$tabMenu) {
+            return;
+          }
+
+          const $tabMenuContainer = $tabMenu.parentElement.parentElement;
+          Array.from($tabMenuContainer.children).forEach($menu => $menu.classList.remove('is-active'));
+          Array.from($tabMenuContainer.querySelectorAll('a'))
+              .map($menu => document.getElementById($menu.getAttribute("href").substring(1)))
+              .forEach($content => $content.classList.add('is-hidden'));
+
+          if ($tabMenu) {
+              $tabMenu.parentElement.classList.add('is-active');
+          }
+          const $activeTab = document.querySelector(id);
+          if ($activeTab) {
+              $activeTab.classList.remove('is-hidden');
+          }
+      }
+      switchTab();
+      window.addEventListener('hashchange', switchTab, false);
+  })();
+  </script><link rel="stylesheet" href="/css/custom.css"><!-- hexo injector head_end end --><meta name="generator" content="Hexo 8.1.2"></head><body class="is-2-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/">Lu Zhongqiu</a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a><a class="navbar-item" href="/about">About</a></div><div class="navbar-end"><a class="navbar-item search" title="搜索" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-8-widescreen"><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item"><time dateTime="2026-08-07T02:00:00.000Z" title="8/7/2026, 2:00:00 AM">2026-08-07</time>发表</span><span class="level-item"><time dateTime="2026-08-24T03:21:27.965Z" title="8/24/2026, 3:21:27 AM">2026-08-24</time>更新</span><span class="level-item"><a class="link-muted" href="/categories/JEPA%E7%A0%94%E7%A9%B6%E8%BF%BD%E8%B8%AA/">JEPA研究追踪</a></span><span class="level-item">1 小时读完 (大约7474个字)</span></div></div><h1 class="title is-3 is-size-4-mobile">JEPA 下游研究追踪 · 2026-08-07</h1><div class="content"><p>本文属于「JEPA追踪」系列，记录每日论文检索、原文核验与阶段性判断；它保留研究日志的证据密度，与经过主题化重写的原创博客区分。</p>
+<h1 id="JEPA-下游研究追踪（2026-08-07）"><a href="#JEPA-下游研究追踪（2026-08-07）" class="headerlink" title="JEPA 下游研究追踪（2026-08-07）"></a>JEPA 下游研究追踪（2026-08-07）</h1><blockquote>
+<p>检索截止：2026-08-07 11:20（Asia&#x2F;Shanghai，约 03:20 UTC）</p>
+<p>上次自动化截止：2026-08-06T03:02:01.008Z</p>
+<p>去重范围：<code>/Users/nic/.codex/automations/jepa/memory.md</code> 与 <code>research/jepa/2026-07-15.md</code> 至 <code>2026-08-06.md</code> 的论文标题、候选池和排除项。</p>
+<p>发现入口：<a target="_blank" rel="noopener" href="https://arxiv.org/search/?query=JEPA&searchtype=all&abstracts=show&order=-announced_date_first&size=100">arXiv：JEPA 最新排序</a>、<a target="_blank" rel="noopener" href="https://arxiv.org/search/?query=%22joint-embedding+predictive%22&searchtype=all&abstracts=show&order=-announced_date_first&size=100">arXiv：<code>&quot;joint-embedding predictive&quot;</code> 最新排序</a>。实质结论均回到 arXiv 全文、提交历史或作者官方仓库核验。</p>
+</blockquote>
+<h2 id="今日结论"><a href="#今日结论" class="headerlink" title="今日结论"></a>今日结论</h2><ol>
+<li><strong>严格截止后有四篇实际使用 JEPA 的新投稿</strong>：<ul>
+<li><a target="_blank" rel="noopener" href="https://arxiv.org/abs/2608.05720">PhyLatent</a> v1：2026-08-06 08:02:15 UTC；</li>
+<li><a target="_blank" rel="noopener" href="https://arxiv.org/abs/2608.05774">SR-JEPA</a> v1：2026-08-06 09:09:16 UTC；</li>
+<li><a target="_blank" rel="noopener" href="https://arxiv.org/abs/2608.05928">BioM-JEPA</a> v1：2026-08-06 11:58:29 UTC；</li>
+<li><a target="_blank" rel="noopener" href="https://arxiv.org/abs/2608.06062">Bar-JEPA</a> v1：2026-08-06 14:07:26 UTC。<br><a target="_blank" rel="noopener" href="https://arxiv.org/abs/2608.05523">HERA</a> 虽是今天首次进入最新公告窗口、也直接改造冻结的 V-JEPA 2-G predictor，但其 v1 为 2026-08-06 02:01:05 UTC，早于上次自动化截止约一小时，不能写成“截止后新投稿”。</li>
+</ul>
+</li>
+<li>本日选择 <strong>BioM-JEPA、Bar-JEPA、PhyLatent</strong> 三篇完整解读。它们都不是 related-work-only：BioM-JEPA 从头训练 EMA teacher&#x2F;student 与 block predictor；Bar-JEPA 直接从官方 I-JEPA ViT-H checkpoint 继续做领域自监督训练；PhyLatent 在 LeWorldModel 式动作条件 JEPA + SIGReg 上加入训练期物理结构约束，并保留 predictor 做 MPC。</li>
+<li><strong>今日最强候选是 BioM-JEPA</strong>，原因不是它在所有任务上 SOTA，而是它同时给出同骨干 objective controls、九数据集 frozen probe、八数据集重建 probe、扰动响应、效率对照和明确的 overlap audit。反证同样重要：九数据集 Top-5 macro-F1 为 <code>61.62%</code>，低于 Nicheformer <code>67.30%</code> 和 scFoundation <code>66.17%</code>；因此应把论文结论限定为“graph-connected block prediction 改善若干表示质量和扰动任务”，不能写成“全面击败单细胞基础模型”。</li>
+<li>Bar-JEPA 是今天<strong>最可复现的具体下游落地</strong>：论文已被 ICDAR 2026 接收，官方仓库公开代码、100k&#x2F;17k 合成数据、结果文件和 checkpoint。其真正干净的证据是“同一 I-JEPA ViT-H 起点，有无 chart-domain 自监督继续训练”的差异，而不是与既有 chart de-rendering 工作的跨数据集比较。</li>
+<li>PhyLatent 的主要贡献是说明 <strong>全局 non-collapse 不等于可控制的局部 latent geometry</strong>。但它用 simulator-derived physical states 作训练期辅助监督，五个附加目标混合在同一系统中，并在 PushT 上从 <code>77.67±0.58%</code> 降至 <code>75.33±2.08%</code>；不能把结果描述成纯自监督 JEPA 的普遍提升。</li>
+<li>本轮没有发现新的高可信 A-JEPA 直接下游稿。保留候选 Helping Music、SJEPA、FactorJEPA、EEG-JEPA、HP-JEPA 仍是真实 JEPA 使用者，但已有三篇严格截止后且证据更完整的新稿，不用旧候选凑数。</li>
+</ol>
+<h2 id="JEPA-方向最新进展"><a href="#JEPA-方向最新进展" class="headerlink" title="JEPA 方向最新进展"></a>JEPA 方向最新进展</h2><h3 id="1-“预测单元”开始由领域结构决定"><a href="#1-“预测单元”开始由领域结构决定" class="headerlink" title="1. “预测单元”开始由领域结构决定"></a>1. “预测单元”开始由领域结构决定</h3><ul>
+<li>I-JEPA 预测图像 patch；BioM-JEPA 把目标改成 STRING protein-association &#x2F; corpus coexpression 图上的 connected gene blocks，并对 block 内 teacher token 先聚合、再计算 latent prediction loss。<a target="_blank" rel="noopener" href="https://arxiv.org/html/2608.05928v1#S0.F1">方法图与定义</a></li>
+<li>Bar-JEPA 沿用 I-JEPA multi-block prediction，但修改输入打包以接受保持宽高比的可变分辨率图表，说明预测目标不变时，输入几何接口也会决定下游可用性。<a target="_blank" rel="noopener" href="https://arxiv.org/html/2608.06062v1#S3.F3">变量分辨率设计</a></li>
+<li>PhyLatent 保留 LeWM 式未来 latent prediction，却额外约束“同物理状态应不变、不同物理状态应可辨、不同动作未来应分离”，把控制所需的等价类直接写入训练目标。<a target="_blank" rel="noopener" href="https://arxiv.org/html/2608.05720v1#S4.F3">框架</a></li>
+</ul>
+<p>这三篇共同说明：JEPA 的关键词已不只是“预测 latent 而非像素”，而是<strong>什么构成一个可预测目标、哪些变化应被视为不变量、predictor 最终由谁消费</strong>。</p>
+<h3 id="2-Predictor-生命周期出现三种分化"><a href="#2-Predictor-生命周期出现三种分化" class="headerlink" title="2. Predictor 生命周期出现三种分化"></a>2. Predictor 生命周期出现三种分化</h3><ul>
+<li><strong>BioM-JEPA</strong>：预训练结束后冻结 encoder，丢弃 predictor；下游统一读取 1,536 维 cell embedding。</li>
+<li><strong>Bar-JEPA</strong>：同样只保留 context encoder；冻结 encoder 后训练热图 decoder。</li>
+<li><strong>PhyLatent</strong>：部署时移除五类辅助 head，但保留 action-conditioned predictor 和 MPC planner。</li>
+</ul>
+<p>这使三篇论文的证据不能混成一个排行榜：前两篇主要测试 frozen representation，后一篇测试 predictor-conditioned control。</p>
+<h3 id="3-严格区分“实际使用”与“只引用”"><a href="#3-严格区分“实际使用”与“只引用”" class="headerlink" title="3. 严格区分“实际使用”与“只引用”"></a>3. 严格区分“实际使用”与“只引用”</h3><h4 id="实际使用、但本日未占用主解读名额"><a href="#实际使用、但本日未占用主解读名额" class="headerlink" title="实际使用、但本日未占用主解读名额"></a>实际使用、但本日未占用主解读名额</h4><ul>
+<li><a target="_blank" rel="noopener" href="https://arxiv.org/html/2608.05774v1">SR-JEPA: Learning Predictive Latent State in 3D Scenes</a>：从头训练 point-native EMA target &#x2F; context encoder &#x2F; sparse predictor；在删除完整物体后，以固定 32-point、无形状 query 查询缺失实体 latent。ARKitScenes 5,953 个 held-out objects 上 semantic identity macro accuracy <code>43.13%</code>，比最强 shortcut floor 高 <code>22.18</code> 点；Sr3D support AP <code>41.15</code>。它是严格截止后新稿且证据控制精细，但任务仍依赖 <strong>oracle target centroid</strong>，只覆盖静态场景；object discovery、动作、时序转移、rollout 和 planning 均未验证，故本轮先作为高价值 predictor-diagnostic 候选。</li>
+<li><a target="_blank" rel="noopener" href="https://arxiv.org/html/2608.05523v1">HERA: Historical Evidence Routing Adapter for Physical Prediction in Latent World Models</a>：冻结 V-JEPA 2-G encoders 和 predictor blocks，只训练 3.00M 参数的 structured memory &#x2F; memory registers &#x2F; workspace registers。在 IntPhys2 Main 的 506 对 possible–impossible videos 上，pairwise AvgSurprise accuracy <code>52.57→54.35%</code>；固定相机 immutability 子组 <code>46.15→63.46%</code>。它不是 related-work 引用，但提交早于截止；正文只说多 seed，未披露 seed 数、误差条或总体显著性，也没有代码入口，且总体仍接近 chance，暂不主解读。</li>
+<li><a target="_blank" rel="noopener" href="https://arxiv.org/html/2608.04378v1">Helping Music Co-Creation Agents ‘Listen’ Well</a>：实际训练 2.55M 参数 JEPA-style Swin V2，并接 probing、flow matching、inpainting；仍需完成数据切分、matched baseline、生成评测与代码&#x2F;权重审计。</li>
+<li><a target="_blank" rel="noopener" href="https://arxiv.org/html/2608.04060v1">SJEPA</a>：实际使用 EMA target 和 symbolic&#x2F;neural transition，但下游限于二维摆与人工 grammar，无稳定代码入口。</li>
+<li><a target="_blank" rel="noopener" href="https://arxiv.org/abs/2608.01049">FactorJEPA</a>：实际修改 V-JEPA 2.1 并评估 DENSEWORLD 城市视频；headline 仍以内部 future-latent 指标为主，闭环任务边界待审。</li>
+<li><a target="_blank" rel="noopener" href="https://arxiv.org/abs/2608.00114">EEG-JEPA</a>、<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2608.00491">HP-JEPA</a>：分别覆盖 EEG-FM-Bench 与图分类&#x2F;回归，均是早于本轮窗口的真实 JEPA 候选。</li>
+</ul>
+<h4 id="不计入具体-JEPA-下游证据"><a href="#不计入具体-JEPA-下游证据" class="headerlink" title="不计入具体 JEPA 下游证据"></a>不计入具体 JEPA 下游证据</h4><ul>
+<li><a target="_blank" rel="noopener" href="https://arxiv.org/abs/2608.05437">Discrete energy as an exact label-free training objective for finite-element surrogates</a> 是 FE-JEPA programme 的理论 note；当前稿给出与 JEPA pretraining 相关的条件命题和反例，但没有一个已实现、可评估的 JEPA 下游系统，不计入今天主论文。</li>
+<li>仅在引言&#x2F;related work 中讨论 I-JEPA、V-JEPA、LeJEPA，方法、checkpoint、predictor 或训练 objective 均未进入实验的命中，继续排除。</li>
+</ul>
+<h2 id="新增下游论文解读"><a href="#新增下游论文解读" class="headerlink" title="新增下游论文解读"></a>新增下游论文解读</h2><h3 id="1-BioM-JEPA-joint-embedding-prediction-of-graph-connected-gene-blocks-in-single-cells"><a href="#1-BioM-JEPA-joint-embedding-prediction-of-graph-connected-gene-blocks-in-single-cells" class="headerlink" title="1. BioM-JEPA: joint-embedding prediction of graph-connected gene blocks in single cells"></a>1. BioM-JEPA: joint-embedding prediction of graph-connected gene blocks in single cells</h3><h4 id="元数据"><a href="#元数据" class="headerlink" title="元数据"></a>元数据</h4><ul>
+<li><strong>完整题目</strong>：<em>BioM-JEPA: joint-embedding prediction of graph-connected gene blocks in single cells</em></li>
+<li><strong>作者</strong>：Yuhao Wang、Zelin Zang、Yuxuan Liu、Zhen Lei、Stan Z. Li。</li>
+<li><strong>机构</strong>：Westlake University；香港中科院人工智能与机器人研究中心（CAIR, HKISI-CAS）；中国科学院自动化研究所多模态人工智能系统全国重点实验室；中国科学院大学。</li>
+<li><strong>时间与出处</strong>：arXiv:2608.05928 v1，2026-08-06 11:58:29 UTC；当前是预印本，未见会议&#x2F;期刊接收声明。<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2608.05928">提交历史</a></li>
+</ul>
+<h4 id="它实际使用了哪种-JEPA"><a href="#它实际使用了哪种-JEPA" class="headerlink" title="它实际使用了哪种 JEPA"></a>它实际使用了哪种 JEPA</h4><p>这是从 I-JEPA 抽象出发、面向稀疏单细胞转录组重新定义 target 的真正 JEPA 方法，不是把普通 encoder 改名：</p>
+<ol>
+<li>student 接收一名细胞中除目标 block 外的已观测基因；</li>
+<li>共享 12 层、768 维 linear-attention 架构的 EMA teacher 接收完整已观测基因；</li>
+<li>目标 block 来自 STRING protein-association 图或无标签 corpus coexpression 图的 connected expansion；</li>
+<li>对 block 中当前可观测的 teacher gene states 做 aggregate，四层 predictor 从 context 预测该 block 表示；</li>
+<li>block alignment 与预测表示的统计正则共同训练，teacher stop-gradient；没有逐基因 input reconstruction objective。<a target="_blank" rel="noopener" href="https://arxiv.org/html/2608.05928v1#S3.SS4">正文方法</a></li>
+</ol>
+<p>预训练后丢弃 predictor，冻结 encoder，把每个基因 token 的 feature-wise maximum 与每维 top-5 mean 拼接成 1,536 维 cell embedding，供所有下游任务使用。<a target="_blank" rel="noopener" href="https://arxiv.org/html/2608.05928v1#S3.SS7">embedding 定义</a></p>
+<h4 id="下游任务、数据、指标与基线（事实）"><a href="#下游任务、数据、指标与基线（事实）" class="headerlink" title="下游任务、数据、指标与基线（事实）"></a>下游任务、数据、指标与基线（事实）</h4><ul>
+<li><strong>预训练暴露</strong>：本地 collection 有 22.1M cells；主分析 checkpoint 经历 10.24M cell presentations，相当于 scBaseCount 502M-cell 资源的 <code>2.04%</code> presentation-equivalent。这里应写“presentations”，不能偷换成 10.24M 个唯一细胞。<a target="_blank" rel="noopener" href="https://arxiv.org/html/2608.05928v1#S3.SS8">预训练说明</a></li>
+<li><strong>few-shot cell annotation</strong>：CellBench-LS 的 PBMC12k、hPancreas、cortex、MS、liver、Zheng68k、lung、COVID、immune 共 9 个数据集；Top-5 few-shot macro-F1&#x2F;accuracy&#x2F;recall，五固定 seed。</li>
+<li><strong>frozen-embedding reconstruction</strong>：其中 8 个数据集；共享 decoder 预测 canonical expression vector，评价 cell-wise Pearson、nRMSE、high-expression gene recovery、Reactome programme correlation 和 15-NN graph overlap。</li>
+<li><strong>perturbation response</strong>：Adamson、Norman、Dixit；control-cell embedding + perturbation identity 预测 perturbed expression，指标包括 MSE-LFC、MSE-Expr、Pearson-LFC、sign、Top-50 response-gene overlap；表中可共同对比的 Adamson&#x2F;Norman 结果用五 seed。</li>
+<li><strong>表示诊断&#x2F;生物分析</strong>：effective rank、participation ratio、embedding leading axis&#x2F;norm 与 detected-gene count 的相关，以及 pancreas marker programmes、programme ablation、directed block dependencies、Norman double-perturbation composition。</li>
+<li><strong>matched objective controls</strong>：same vocabulary、encoder width、linear-attention backbone、downstream extraction 的 token-IJEPA、random block、decoder-only。</li>
+<li><strong>foundation-model baselines</strong>：UMAP、scVI、CellPLM、Geneformer、LangCell、scGPT、scMulan、scFoundation、Nicheformer。<a target="_blank" rel="noopener" href="https://arxiv.org/html/2608.05928v1#A3.T7">完整 benchmark 表</a></li>
+</ul>
+<h4 id="关键结果"><a href="#关键结果" class="headerlink" title="关键结果"></a>关键结果</h4><p><strong>事实（表格可直接核对）</strong>：</p>
+<ul>
+<li>在 hPancreas + cortex 的同骨干 objective-family 对照中，BioM-JEPA Top-5 macro-F1 均值为 <code>0.835</code>，高于 token-IJEPA <code>0.817</code>、random block <code>0.812</code>、decoder-only <code>0.797</code>。<a target="_blank" rel="noopener" href="https://arxiv.org/html/2608.05928v1#S1.F3">Figure 3</a></li>
+<li>在更广的 9 数据集、10 模型 frozen probe 中，BioM-JEPA mean macro-F1 是 <code>61.62%</code>（95% dataset bootstrap CI <code>51.56–71.94</code>，mean rank <code>4.33</code>）；Nicheformer <code>67.30%</code>、scFoundation <code>66.17%</code>、CellPLM <code>65.27%</code>。BioM-JEPA <strong>不是 annotation SOTA</strong>。<a target="_blank" rel="noopener" href="https://arxiv.org/html/2608.05928v1#A3.T7">Table S7</a></li>
+<li>Adamson perturbation 表中，BioM-JEPA 的 Top1&#x2F;5&#x2F;9 MSE-LFC 为 <code>14.887±0.171 / 14.381±0.076 / 14.801±0.080</code>，三者平均 <code>14.694</code>；MSE-Expr 平均 <code>0.194</code>，八个 error cell 均列 <code>1/9</code>。Norman 对应 MSE-LFC 均值 <code>6.188</code>、MSE-Expr 均值 <code>0.082</code>，同样均为 <code>1/9</code>。<a target="_blank" rel="noopener" href="https://arxiv.org/html/2608.05928v1#A3.T12">Table S12</a></li>
+<li>单 A100-SXM4-80GB、batch 8、相近 trainable parameters 下，BioM-JEPA &#x2F; scFoundation 的 partial fine-tuning throughput 为 <code>24.37 / 4.24 cells·s⁻¹</code>（<code>5.75×</code>），held-out embedding throughput <code>62.78 / 16.68</code>（<code>3.76×</code>）；peak memory <code>27.98 / 24.59 GiB</code>，因此速度更快但显存并不更低。<a target="_blank" rel="noopener" href="https://arxiv.org/html/2608.05928v1#S1.T1">Table 1</a></li>
+</ul>
+<p><strong>作者主张</strong>：</p>
+<ul>
+<li>block prediction 没有把表征压成狭窄的类别 code；frozen representation 在 8 数据集平均 expression&#x2F;pathway&#x2F;neighbourhood recovery 上最强，并在 perturbation aggregate error 上最优。<a target="_blank" rel="noopener" href="https://arxiv.org/html/2608.05928v1#S1.F4">Figure 4</a>、<a target="_blank" rel="noopener" href="https://arxiv.org/html/2608.05928v1#S1.F5">Figure 5</a></li>
+<li>graph-connected gene blocks 是把 JEPA 扩展到 molecular data 的有效 prediction unit；linear attention 让更宽的 observed-gene context 可计算。</li>
+</ul>
+<p><strong>本次推断</strong>：</p>
+<ul>
+<li>同骨干 controls 支持“完整 BioM-JEPA formulation 优于三种替代 formulation”，但不能把增益单独归因于 graph connectivity、aggregate target 或 regularizer 中某一个组件，因为作者明确说明 controls 比较的是 complete formulations。</li>
+<li>广泛 annotation 未领先而 perturbation&#x2F;error 指标领先，提示 block objective 更可能保留连续 programme&#x2F;response structure，而非单纯强化 cell-type decision boundary；这是一条值得复现的任务依赖假设，不是论文已经证明的普遍规律。</li>
+<li>速度优势主要来自 linear attention 与 scFoundation dense architecture 的系统差异，不等于 JEPA objective 天生更快。</li>
+</ul>
+<h4 id="创新、局限、复现条件与风险"><a href="#创新、局限、复现条件与风险" class="headerlink" title="创新、局限、复现条件与风险"></a>创新、局限、复现条件与风险</h4><ul>
+<li><strong>创新</strong>：首次把 graph-connected gene-block aggregate 表示作为 JEPA target；把 prediction unit 从单 gene 提升到 operational programme-like block；同时保留 matched objective family 与跨模型 benchmark。</li>
+<li><strong>最关键风险：预训练—评测重叠不可排除</strong>。442 个 matrix-only shards 没有 study accession&#x2F;source manifest；所有 benchmark 原始研究都早于 2025-02-25 pretraining cutoff，因此本套 benchmark 不是 temporal holdout。作者只能保证未使用 benchmark labels&#x2F;splits，不能保证未见过同研究细胞。<a target="_blank" rel="noopener" href="https://arxiv.org/html/2608.05928v1#A2.SS2.SSS3">overlap audit</a></li>
+<li>graph-connected blocks 只是 operational target，不自动等于 curated biological pathway；coexpression graph 从无标签 matrices 估计，也受相同 accession 不可审计问题影响。</li>
+<li>depth association 只检查 leading embedding axis 和 embedding norm；不能据此宣称移除了全部测序深度&#x2F;批次混杂。</li>
+<li>官方只承诺“will be released via GitHub”；当前没有可核验训练代码&#x2F;checkpoint。arXiv ancillary 有 panel-level numerical source data，但不分发 count matrices、per-cell embeddings 或 full predictions。<a target="_blank" rel="noopener" href="https://arxiv.org/html/2608.05928v1#S5">数据&#x2F;代码声明</a></li>
+<li>复现需要 scBaseCount 派生数据、固定 graph&#x2F;vocabulary、单细胞预处理、至少 A100 80GB 级硬件；在代码尚未发布前，只能复核数字和协议，不能复跑训练。</li>
+</ul>
+<h4 id="是否值得单独写原创博客"><a href="#是否值得单独写原创博客" class="headerlink" title="是否值得单独写原创博客"></a>是否值得单独写原创博客</h4><p><strong>很值得。</strong> 最好的主题不是“JEPA 打败单细胞 foundation models”，而是：<strong>预测 gene 还是预测 programme？预测单元如何决定 JEPA 学到的生物结构</strong>。文章应把 <code>0.835</code> matched-control 结果与 <code>61.62%</code> 非 SOTA broad benchmark 同时放在标题以下，形成诚实的证据张力。</p>
+<hr>
+<h3 id="2-Bar-JEPA-Extracting-Values-from-Bar-Chart-with-Joint-Embedding-Predictive-Architecture"><a href="#2-Bar-JEPA-Extracting-Values-from-Bar-Chart-with-Joint-Embedding-Predictive-Architecture" class="headerlink" title="2. Bar-JEPA: Extracting Values from Bar Chart with Joint-Embedding Predictive Architecture"></a>2. Bar-JEPA: Extracting Values from Bar Chart with Joint-Embedding Predictive Architecture</h3><h4 id="元数据-1"><a href="#元数据-1" class="headerlink" title="元数据"></a>元数据</h4><ul>
+<li><strong>完整题目</strong>：<em>Bar-JEPA: Extracting Values from Bar Chart with Joint-Embedding Predictive Architecture</em></li>
+<li><strong>作者&#x2F;机构</strong>：Poonam Poonam、Alexander Epple、Timo Ropinski；Ulm University（由作者官方仓库论文说明核验）。</li>
+<li><strong>时间与出处</strong>：arXiv:2608.06062 v1，2026-08-06 14:07:26 UTC；论文注释和官方 citation 均标为 <strong>ICDAR 2026 accepted &#x2F; in proceedings</strong>。<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2608.06062">arXiv</a>、<a target="_blank" rel="noopener" href="https://github.com/epplea/Bar-JEPA">官方仓库</a></li>
+</ul>
+<h4 id="它如何衔接-I-JEPA"><a href="#它如何衔接-I-JEPA" class="headerlink" title="它如何衔接 I-JEPA"></a>它如何衔接 I-JEPA</h4><ol>
+<li>从原始 I-JEPA 官方 ImageNet-1K ViT-H&#x2F;14 300-epoch checkpoint 初始化；</li>
+<li>在 100k 无标签合成 bar charts 上继续训练 50 epochs，仍采用 context encoder、EMA target encoder、narrow predictor 和 multi-block latent prediction；</li>
+<li>将图像 resize&#x2F;patch packing 改成 Pix2Struct 式 aspect-ratio-preserving、最多 256 个 14px patches，以支持可变宽高比；</li>
+<li>下游丢弃 target encoder 与 predictor，冻结 context encoder；classic&#x2F;simple decoder 只读取 feature map，回归 bar tops、ticks、origin 热图，再与 PaddleOCR tick labels 组合恢复数值。<a target="_blank" rel="noopener" href="https://arxiv.org/html/2608.06062v1#S3">方法与训练</a></li>
+</ol>
+<p>这属于“直接复用并领域继续训练 I-JEPA”，不是 JEPA-style 泛称。</p>
+<figure>
+  <img src="https://arxiv.org/html/2608.06062v1/figures/Decoder.png" alt="Bar-JEPA 从冻结的领域适配 I-JEPA encoder 到热图 decoder 与数值恢复的完整流程" style="display:block;max-width:820px;width:100%;height:auto;margin:0 auto;" loading="lazy">
+  <figcaption>Bar-JEPA Figure 4：冻结的 I-JEPA encoder 产生特征图，decoder 回归 bar tops、ticks 与 origin 热图，再结合 OCR 标签恢复数值。图片来自 arXiv 官方 HTML，原图约 225 KiB；本文只外链、限宽并 lazy-load，不在仓库保存副本。</figcaption>
+</figure>
+
+<h4 id="下游任务、数据、指标与基线（事实）-1"><a href="#下游任务、数据、指标与基线（事实）-1" class="headerlink" title="下游任务、数据、指标与基线（事实）"></a>下游任务、数据、指标与基线（事实）</h4><ul>
+<li><strong>任务</strong>：vertical bar chart de-rendering &#x2F; per-bar numerical value recovery。</li>
+<li><strong>encoder 自监督训练</strong>：100k 合成 charts；一组实验再在 15k Chart-to-Text real-world charts 上继续 25 epochs。</li>
+<li><strong>decoder 监督训练</strong>：17k 合成 charts、50 epochs；再用 UB PMC &#x2F; ICPR CHART-Infographics 2022 中 1,316 个有需要标签的 vertical charts 做 30 epochs finetuning，训练&#x2F;验证为 80:20。</li>
+<li><strong>最终测试</strong>：100 个专门生成的 synthetic charts；UB PMC split 4 中 139 个具备所需标签的 vertical charts。</li>
+<li><strong>指标</strong>：bar F1、tick F1；相对值误差阈值 <code>ε=0.05</code> 的 relaxed accuracy 与 <code>ε=0.02</code> 的 hard accuracy。keypoint matching 用 Hungarian algorithm，位置阈值约 <code>2.3%</code>。</li>
+<li><strong>内部 controls</strong>：同一 I-JEPA ViT-H 起点下的 variable resolution、fixed resolution、未做 chart JEPA 的 vanilla ImageNet I-JEPA、simple decoder、额外 real-world encoder finetuning、oracle OCR。</li>
+<li><strong>外部参考</strong>：Soto 等 chart element detection、Zhou 等 value recovery；但测试集不同，论文自己明确说只能 conceptual comparison，不能视为严格 matched baseline。<a target="_blank" rel="noopener" href="https://arxiv.org/html/2608.06062v1#S4">实验协议</a></li>
+</ul>
+<h4 id="关键结果-1"><a href="#关键结果-1" class="headerlink" title="关键结果"></a>关键结果</h4><p><strong>事实（同表内部可比）</strong>：</p>
+<ul>
+<li>UB PMC：real-world FT 的 bar&#x2F;tick F1 为 <code>0.785/0.842</code>，relaxed&#x2F;hard accuracy <code>0.499/0.365</code>；variable resolution 为 <code>0.740/0.827</code>、<code>0.450/0.341</code>；fixed resolution 为 <code>0.716/0.812</code>、<code>0.422/0.292</code>；vanilla 为 <code>0.161/0.024</code>、<code>0/0</code>。<a target="_blank" rel="noopener" href="https://arxiv.org/html/2608.06062v1#S4.T1">Table 1</a></li>
+<li>synthetic：real-world FT 为 <code>0.961/0.951</code>、<code>0.792/0.657</code>；variable resolution <code>0.956/0.940</code>、<code>0.778/0.629</code>；fixed resolution <code>0.882/0.892</code>、<code>0.654/0.498</code>；vanilla <code>0.389/0.182</code>、<code>0.056/0.051</code>。</li>
+<li>OCR 并非当前主要瓶颈：UB PMC oracle OCR relaxed&#x2F;hard <code>0.512/0.389</code>，只比 real-world FT 的 <code>0.499/0.365</code> 小幅提高。</li>
+<li>classic decoder 是 load-bearing component：simple decoder 在 UB PMC relaxed&#x2F;hard 只有 <code>0.009/0.005</code>，synthetic <code>0.014/0.006</code>。因此结果不是“任意轻量 head 都能读出 I-JEPA”。</li>
+<li>与外部工作的非同集参考：本文 synthetic relaxed accuracy <code>79%</code>，Zhou <code>82%</code>；real-world <code>50%</code>，Zhou <code>71%</code>。元素 F1 则本文 synthetic&#x2F;real-world <code>0.956/0.814</code>，Soto <code>0.981/0.555</code>。<a target="_blank" rel="noopener" href="https://arxiv.org/html/2608.06062v1#S4.T3">Table 3&#x2F;4</a></li>
+</ul>
+<p><strong>作者主张</strong>：</p>
+<ul>
+<li>self-supervised chart-domain I-JEPA finetuning 产生更适合 chart value recovery 的 semantic features；变量分辨率以几乎无额外成本改善宽高比变化；相对既有 supervised pipeline，decoder 更快收敛、标签需求较少。</li>
+</ul>
+<p><strong>本次推断</strong>：</p>
+<ul>
+<li>vanilla 与 fixed-resolution 的差异明确证明“领域继续训练有效”，但没有 MAE&#x2F;DINO&#x2F;普通 masked feature prediction 的同数据同骨干对照，不能把增益唯一归因于 JEPA objective；它也可能是 100k chart-domain exposure 的收益。</li>
+<li>variable-resolution 是第二个独立增益源，decoder capacity 是第三个。不能把完整 <code>0→0.422</code> relaxed accuracy 都写成 JEPA 的贡献。</li>
+<li>139 张 real test 太小，且没有多 seed&#x2F;置信区间；<code>0.499</code> 不应被描述为成熟的生产级 chart extraction。</li>
+</ul>
+<h4 id="创新、局限、复现条件与风险-1"><a href="#创新、局限、复现条件与风险-1" class="headerlink" title="创新、局限、复现条件与风险"></a>创新、局限、复现条件与风险</h4><ul>
+<li><strong>创新</strong>：首个明确把 I-JEPA 用于 chart de-rendering 的工作；提供 aspect-ratio-preserving I-JEPA 输入；公开 100k synthetic generator&#x2F;dataset。</li>
+<li><strong>范围限制</strong>：方法只研究 vertical、unstacked bars；生成器不含 error bars、3D effects 等。作者也明确承认模型简单、非 SOTA、目前不适合直接接多模态 LLM 做 chart QA。<a target="_blank" rel="noopener" href="https://arxiv.org/html/2608.06062v1#S5">Discussion</a></li>
+<li><strong>数据限制</strong>：real test 只有 139 张；外部 baselines 使用不同 test sets&#x2F;thresholds，不能做严格排名。</li>
+<li><strong>系统依赖</strong>：ViT-H 较大，OCR 与 postprocessing 仍是完整 pipeline 的组成部分；simple decoder 失败说明“轻量 decoder”表述需要限定为 classic deconvolution head。</li>
+<li><strong>复现条件</strong>：官方仓库公开训练&#x2F;评测代码、结果 CSV&#x2F;confusion matrices、Hugging Face synthetic datasets 与 checkpoints；I-JEPA base checkpoint 需另放入指定路径。pixi 配置注明 CUDA 12.1 Windows、MPS macOS、Linux 暂不支持；也提供 PyTorch≥2.3 的 pip 安装路径，并依赖 PaddleOCR。<a target="_blank" rel="noopener" href="https://github.com/epplea/Bar-JEPA">仓库 Setup&#x2F;Data&#x2F;Checkpoints</a></li>
+</ul>
+<h4 id="是否值得单独写原创博客-1"><a href="#是否值得单独写原创博客-1" class="headerlink" title="是否值得单独写原创博客"></a>是否值得单独写原创博客</h4><p><strong>值得，优先级中高。</strong> 适合写成一篇可复现案例：<strong>把通用 I-JEPA 变成图表读数器，真正起作用的是领域自监督、宽高比处理还是 decoder？</strong> 文章应突出 <code>vanilla→fixed→variable→real-world FT</code> 的逐级证据，并诚实放入 139 张 test、无 matched alternative SSL 和非 SOTA 的边界。</p>
+<hr>
+<h3 id="3-PhyLatent-Learning-Dynamics-Relevant-Representations-for-JEPA-World-Models"><a href="#3-PhyLatent-Learning-Dynamics-Relevant-Representations-for-JEPA-World-Models" class="headerlink" title="3. PhyLatent: Learning Dynamics-Relevant Representations for JEPA World Models"></a>3. PhyLatent: Learning Dynamics-Relevant Representations for JEPA World Models</h3><h4 id="元数据-2"><a href="#元数据-2" class="headerlink" title="元数据"></a>元数据</h4><ul>
+<li><strong>完整题目</strong>：<em>PhyLatent: Learning Dynamics-Relevant Representations for JEPA World Models</em></li>
+<li><strong>作者</strong>：Xi Zeng、Haojie Ren、Ziying Song。</li>
+<li><strong>机构</strong>：Nanyang Technological University School of Mechanical and Aerospace Engineering；Yanshan University School of Artificial Intelligence (School of Software)；The University of Sheffield。</li>
+<li><strong>时间与出处</strong>：arXiv:2608.05720 v1，2026-08-06 08:02:15 UTC；当前预印本，未见会议&#x2F;期刊接收信息。<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2608.05720">提交历史</a></li>
+</ul>
+<h4 id="它如何衔接-JEPA"><a href="#它如何衔接-JEPA" class="headerlink" title="它如何衔接 JEPA"></a>它如何衔接 JEPA</h4><p>PhyLatent 直接沿用 LeWorldModel 风格的 action-conditioned encoder–predictor、EMA target 与 SIGReg baseline，并在同一预测图上添加五个训练期组件：</p>
+<ul>
+<li><strong>SVIC</strong>：static visual invariance，让不改变 simulator state 的外观增强保持 latent 接近；</li>
+<li><strong>PSG</strong>：physical state grounding，以 simulator-derived current physical targets 监督 encoded&#x2F;predicted latents；</li>
+<li><strong>FRA</strong>：future representation alignment；</li>
+<li><strong>CASC</strong>：counterfactual action separation，把不同 action branch 的 predicted futures 拉开；</li>
+<li><strong>LD</strong>：latent denoising，正则局部 future geometry。</li>
+</ul>
+<p>这些 auxiliary heads 在部署时删除；视觉 encoder、action encoder、predictor 与 MPC planner 保留。<a target="_blank" rel="noopener" href="https://arxiv.org/html/2608.05720v1#S4">方法总览</a></p>
+<h4 id="下游任务、数据、指标与基线（事实）-2"><a href="#下游任务、数据、指标与基线（事实）-2" class="headerlink" title="下游任务、数据、指标与基线（事实）"></a>下游任务、数据、指标与基线（事实）</h4><ul>
+<li><strong>任务&#x2F;数据</strong>：stable-worldmodel 接口的 OGBench-Cube（2,010,000 transitions &#x2F; 10,000 episodes）、TwoRooms（920,809 &#x2F; 10,000）、DMC Reacher（2,010,000 &#x2F; 10,000）、PushT（2,336,736 &#x2F; 18,685）；各自 90:10 random train&#x2F;validation split。<a target="_blank" rel="noopener" href="https://arxiv.org/html/2608.05720v1#S5.T2">Table 2</a></li>
+<li><strong>MPC protocol</strong>：每个 rollout 从 dataset state 初始化，目标取同 trajectory 25 steps 后的 state；最多 50 environment steps；每个模型 3 seeds × 100 episodes。planner prediction&#x2F;receding horizon 均为 5，每步 100 candidate sequences、top-10 elites。</li>
+<li><strong>表示诊断</strong>：Cube 上 physical invariance failure（1,000 states）、identifiability collision（200,000 state pairs）、counterfactual branch failure（1,000 action pairs），均三 seed。</li>
+<li><strong>baseline</strong>：相同 architecture &#x2F; planner 的 <code>JEPA + SIGReg</code>。ViT-Tiny&#x2F;14 从头训练、latent 192，predictor 6 blocks；完整训练图约 19.6M trainable parameters。</li>
+<li><strong>资源</strong>：单 RTX 5080、bfloat16；Cube &#x2F; TwoRooms &#x2F; Reacher &#x2F; PushT 训练约 <code>14h35m / 3h32m / 19h02m / 32h43m</code>。<a target="_blank" rel="noopener" href="https://arxiv.org/html/2608.05720v1#S5.SS2">实现细节</a></li>
+</ul>
+<h4 id="关键结果-2"><a href="#关键结果-2" class="headerlink" title="关键结果"></a>关键结果</h4><p><strong>事实</strong>：</p>
+<ul>
+<li>Cube 三类 failure rate：JEPA+SIGReg 的 <code>15.60 / 6.71 / 8.41%</code> 降为 <code>7.53 / 0.95 / 4.62%</code>；MPC success <code>70.00±4.00→78.10±2.80%</code>。<a target="_blank" rel="noopener" href="https://arxiv.org/html/2608.05720v1#S5.T5">Table 5</a></li>
+<li>TwoRooms <code>81.00±6.24→98.00±1.00%</code>；Reacher <code>78.33±2.08→79.33±3.51%</code>；PushT <strong>下降</strong> <code>77.67±0.58→75.33±2.08%</code>。<a target="_blank" rel="noopener" href="https://arxiv.org/html/2608.05720v1#S5.T4">Table 4</a></li>
+<li>Cube grouped ablation：去 PSG+FRA 后 success <code>74.00±1.00%</code>；去 SVIC <code>77.00±1.00%</code>；去 CASC+LD <code>73.33±3.51%</code>；完整 <code>78.10±2.80%</code>。CASC+LD removal 对 planning drop 最大，但 ablation 一次移除一组，仍不能区分组内两个组件。</li>
+</ul>
+<p><strong>作者主张</strong>：</p>
+<ul>
+<li>SIGReg 只维持 aggregate latent distribution 的 global non-collapse，不能保证局部物理等价类、状态可辨识性与动作反事实分支；PhyLatent 把这些结构显式写入训练目标，产生更可靠的 MPC state space。</li>
+<li>Cube 与 TwoRooms 的增益说明相同 representation principles 同时适用于 manipulation 与 navigation；Reacher&#x2F;PushT 被描述为“remains comparable”。</li>
+</ul>
+<p><strong>本次推断</strong>：</p>
+<ul>
+<li>Cube&#x2F;TwoRooms 支持“在本协议中，额外物理结构监督改善控制”，但不支持“纯 JEPA 自监督本身学出物理结构”，因为 PSG 使用 simulator-derived privileged targets。</li>
+<li>PushT 的 latent diagnostics 也改善、MPC 却退化，说明作者提出的 failure rates 不是控制成功的充分统计量；contact-rich local transition 与 planner cost 仍可能主导。这是论文最有价值的反例之一。<a target="_blank" rel="noopener" href="https://arxiv.org/html/2608.05720v1#A3.SS3">PushT 分析</a></li>
+<li>只有 <code>JEPA+SIGReg</code> 一个 matched baseline，未与 Temporal Straightening、Temporal-Distance JEPA、TC-LeWM、ProWorld 或 supervised state model 做同协议比较；不能判断五目标方案是不是最简&#x2F;最优解。</li>
+</ul>
+<h4 id="创新、局限、复现条件与风险-2"><a href="#创新、局限、复现条件与风险-2" class="headerlink" title="创新、局限、复现条件与风险"></a>创新、局限、复现条件与风险</h4><ul>
+<li><strong>创新</strong>：把 global collapse 拆成 physical invariance &#x2F; identifiability &#x2F; counterfactual dynamics 三个可测 failure mode，并使每类 diagnosis 对应训练 constraint；部署不增加 auxiliary heads。</li>
+<li><strong>privileged supervision</strong>：PSG 需要 simulator physical state。Appendix Table 7 说明不含 future state、success label 或 terminal indicator，但仍限制了在真实、无 state instrumentation 场景的可用性。<a target="_blank" rel="noopener" href="https://arxiv.org/html/2608.05720v1#A2.T7">Table 7</a></li>
+<li><strong>归因混合</strong>：五个 objective 与 task-specific weights 同时变化；group ablation 未覆盖逐组件、matched-compute 或 alternative regularizer。</li>
+<li><strong>外推限制</strong>：四个视觉仿真任务、单 planner；无真实机器人、视觉域移、partial observability、长 horizon 或 action noise 评估。</li>
+<li><strong>统计限制</strong>：三 seeds × 100 episodes，论文未报告 pairwise significance；Reacher 差异小于跨 seed variability，PushT 反向。</li>
+<li><strong>复现状态</strong>：论文给出架构、loss weights、augmentations、training time 和 datasets，但 arXiv v1 正文&#x2F;附录未提供代码、checkpoint 或项目仓库 URL；当前只能按文字重实现。</li>
+</ul>
+<h4 id="是否值得单独写原创博客-2"><a href="#是否值得单独写原创博客-2" class="headerlink" title="是否值得单独写原创博客"></a>是否值得单独写原创博客</h4><p><strong>值得，但更适合主题化横向文章，而不是只复述 headline。</strong> 建议主题：<strong>JEPA 不坍塌，为什么仍不是好控制状态？</strong> 可把 PhyLatent 与 TC-LeWM、Temporal Straightening、Temporal-Distance JEPA、ProWorld 串成一篇“global distribution、local geometry、planner cost”三层失配的原创文章。若写单篇，应把 simulator state supervision 与 PushT 退化放进摘要。</p>
+<h2 id="横向比较"><a href="#横向比较" class="headerlink" title="横向比较"></a>横向比较</h2><table>
+<thead>
+<tr>
+<th>维度</th>
+<th>BioM-JEPA</th>
+<th>Bar-JEPA</th>
+<th>PhyLatent</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>JEPA 血缘</td>
+<td>I-JEPA 式 EMA teacher&#x2F;student，重定义 gene-block target</td>
+<td>直接使用官方 I-JEPA ViT-H checkpoint 并领域继续训练</td>
+<td>LeWM 式 action-conditioned JEPA + SIGReg</td>
+</tr>
+<tr>
+<td>Predictor 生命周期</td>
+<td>训练后丢弃</td>
+<td>训练后丢弃</td>
+<td>MPC 时保留，auxiliary heads 丢弃</td>
+</tr>
+<tr>
+<td>具体下游</td>
+<td>cell annotation、expression&#x2F;pathway reconstruction、perturbation response</td>
+<td>bar&#x2F;tick detection、数值恢复</td>
+<td>Cube&#x2F;TwoRooms&#x2F;Reacher&#x2F;PushT MPC</td>
+</tr>
+<tr>
+<td>最强机制证据</td>
+<td>same-backbone token&#x2F;random&#x2F;reconstruction controls</td>
+<td>same I-JEPA 起点的 vanilla&#x2F;fixed&#x2F;variable&#x2F;real FT 阶梯</td>
+<td>same architecture&#x2F;planner baseline + grouped ablation</td>
+</tr>
+<tr>
+<td>最强反证</td>
+<td>broad annotation 不及 Nicheformer&#x2F;scFoundation</td>
+<td>real-world relaxed accuracy 49.9%，非 SOTA；simple decoder 几乎失败</td>
+<td>PushT 成功率下降；Reacher 增益很小</td>
+</tr>
+<tr>
+<td>主要混杂</td>
+<td>block graph、aggregation、regularizer；可能 pretrain overlap</td>
+<td>domain data、variable resolution、decoder capacity</td>
+<td>simulator state supervision、五辅助目标、task-specific weights</td>
+</tr>
+<tr>
+<td>复现状态</td>
+<td>数字齐全，代码&#x2F;checkpoint 尚未发布</td>
+<td>代码、数据、checkpoint、结果公开</td>
+<td>无公开代码&#x2F;权重入口</td>
+</tr>
+<tr>
+<td>今日价值</td>
+<td>最高：新领域 prediction unit + 正反证完整</td>
+<td>最高复现价值：具体 I-JEPA 应用</td>
+<td>最高控制机制价值：non-collapse ≠ controllability</td>
+</tr>
+</tbody></table>
+<p>不能横向比较三篇的绝对分数；它们的数据、指标和 predictor 生命周期完全不同。真正可比的是研究设计：是否有同骨干对照、是否把系统增益拆开、是否公开反例与复现入口。</p>
+<h2 id="值得继续追的问题"><a href="#值得继续追的问题" class="headerlink" title="值得继续追的问题"></a>值得继续追的问题</h2><ol>
+<li><strong>BioM-JEPA overlap audit</strong>：代码发布后能否用 accession-resolved、真正 temporal holdout 的单细胞数据重跑？如果消除潜在 pretraining overlap，perturbation 优势还保留多少？</li>
+<li><strong>预测单元消融</strong>：固定相同 block sizes、regularizer 和 aggregation，只把 STRING &#x2F; coexpression &#x2F; random adjacency 逐一替换，才能回答“生物图”是否 load-bearing。</li>
+<li><strong>Bar-JEPA matched SSL</strong>：同 ViT-H、同 100k charts、同 50 epochs 比 I-JEPA、MAE、DINO&#x2F;self-distillation 与监督 chart pretraining；否则只能确认领域继续训练有效。</li>
+<li><strong>Bar-JEPA small-test uncertainty</strong>：139 张 UB PMC test 应给 bootstrap interval，并做 chart-source &#x2F; stacked &#x2F; error-bar &#x2F; clutter 分层。</li>
+<li><strong>PhyLatent 去 privileged state</strong>：可否用 optical flow、keypoint tracks、inverse dynamics 或 foundation-model pseudo-state 替代 simulator state，并保持 Cube&#x2F;TwoRooms 增益？</li>
+<li><strong>PushT 反例</strong>：为什么三类 failure rates 都降低却 MPC success 下降？需要把 contact transition error、cost calibration、candidate coverage 与 latent geometry 分开测。</li>
+<li><strong>SR-JEPA predictor 接口</strong>：去掉 oracle target centroid，接入 object proposal&#x2F;discovery 后 <code>43.13%</code> identity completion 和 <code>41.15 AP</code> 能保留多少？</li>
+<li><strong>HERA 总体不确定性</strong>：公开 seed-level results、paired confidence interval 与代码后，再判断 <code>+1.78pp</code> 是否稳健；子组结果还需考虑多重比较。</li>
+<li><strong>A-JEPA &#x2F; 音频线</strong>：下一轮继续深审 Helping Music 的生成评测与数据切分；本轮无新的 A-JEPA direct-use 投稿。</li>
+</ol>
+<h2 id="博客价值判断"><a href="#博客价值判断" class="headerlink" title="博客价值判断"></a>博客价值判断</h2><h3 id="当日追踪博客"><a href="#当日追踪博客" class="headerlink" title="当日追踪博客"></a>当日追踪博客</h3><p>三篇均应进入 2026-08-07 追踪日报，排序建议：</p>
+<ol>
+<li>BioM-JEPA：证据面最宽，且“matched controls 强、broad annotation 非 SOTA”的张力最适合严谨追踪；</li>
+<li>Bar-JEPA：ICDAR accepted，资源公开，读者可以实际复现；</li>
+<li>PhyLatent：机制价值高，用 PushT 反例防止把控制增益写成普遍结论。</li>
+</ol>
+<h3 id="区别于追踪日报的原创博客优先级"><a href="#区别于追踪日报的原创博客优先级" class="headerlink" title="区别于追踪日报的原创博客优先级"></a>区别于追踪日报的原创博客优先级</h3><ol>
+<li><strong>首选：BioM-JEPA 的 prediction unit</strong>——“基因不是 patch：JEPA 应预测 gene，还是预测 programme？”</li>
+<li><strong>次选：可复现的 Bar-JEPA 归因审计</strong>——“I-JEPA 如何变成图表读数器：真正起作用的三层组件”。</li>
+<li><strong>主题型首选：PhyLatent + 既有 LeWM 变体</strong>——“non-collapse、local geometry 与 planner cost 是三件不同的事”。</li>
+</ol>
+<h3 id="本日配图"><a href="#本日配图" class="headerlink" title="本日配图"></a>本日配图</h3><p>本日博客引用 Bar-JEPA 的官方 Figure 4（完整 encoder–decoder–heatmap pipeline）：</p>
+<ul>
+<li>URL：<a target="_blank" rel="noopener" href="https://arxiv.org/html/2608.06062v1/figures/Decoder.png">https://arxiv.org/html/2608.06062v1/figures/Decoder.png</a></li>
+<li>原始尺寸：<code>1822×1014</code></li>
+<li>官方 HTML 文件大小：<code>229,991 bytes</code>（约 225 KiB），已比 BioM-JEPA Figure 1 的约 1.21 MiB 小很多；适合外链并设置 <code>max-width:820px; width:100%; height:auto</code> 与 <code>loading=&quot;lazy&quot;</code>，无需增加第三个仓库文件。</li>
+<li>若更强调 JEPA 本体，可选 Bar-JEPA Figure 2：<a target="_blank" rel="noopener" href="https://arxiv.org/html/2608.06062v1/figures/JEPA.png">https://arxiv.org/html/2608.06062v1/figures/JEPA.png</a>，<code>2913×2705</code>、约 270 KiB；但它更像通用 I-JEPA 流程图，信息密度不如 Figure 4。</li>
+</ul>
+<h2 id="来源链接"><a href="#来源链接" class="headerlink" title="来源链接"></a>来源链接</h2><h3 id="今日三篇主论文"><a href="#今日三篇主论文" class="headerlink" title="今日三篇主论文"></a>今日三篇主论文</h3><ul>
+<li>BioM-JEPA：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2608.05928">arXiv &#x2F; 提交历史</a> · <a target="_blank" rel="noopener" href="https://arxiv.org/html/2608.05928v1">HTML 全文</a> · <a target="_blank" rel="noopener" href="https://arxiv.org/html/2608.05928v1#S0.F1">方法图</a> · <a target="_blank" rel="noopener" href="https://arxiv.org/html/2608.05928v1#S1.F3">matched controls</a> · <a target="_blank" rel="noopener" href="https://arxiv.org/html/2608.05928v1#A3.T7">九数据集 summary</a> · <a target="_blank" rel="noopener" href="https://arxiv.org/html/2608.05928v1#A2.SS2.SSS3">overlap audit</a></li>
+<li>Bar-JEPA：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2608.06062">arXiv &#x2F; 提交历史</a> · <a target="_blank" rel="noopener" href="https://arxiv.org/html/2608.06062v1">HTML 全文</a> · <a target="_blank" rel="noopener" href="https://arxiv.org/html/2608.06062v1#S4.T1">Table 1</a> · <a target="_blank" rel="noopener" href="https://github.com/epplea/Bar-JEPA">官方代码&#x2F;数据&#x2F;checkpoint</a> · <a target="_blank" rel="noopener" href="https://huggingface.co/datasets/dralois/Bar-JEPA">Hugging Face 资源</a></li>
+<li>PhyLatent：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2608.05720">arXiv &#x2F; 提交历史</a> · <a target="_blank" rel="noopener" href="https://arxiv.org/html/2608.05720v1">HTML 全文</a> · <a target="_blank" rel="noopener" href="https://arxiv.org/html/2608.05720v1#S5.T4">规划结果</a> · <a target="_blank" rel="noopener" href="https://arxiv.org/html/2608.05720v1#S5.T5">Cube ablation</a> · <a target="_blank" rel="noopener" href="https://arxiv.org/html/2608.05720v1#A3.SS3">PushT 反例</a></li>
+</ul>
+<h3 id="实际使用但未主解读"><a href="#实际使用但未主解读" class="headerlink" title="实际使用但未主解读"></a>实际使用但未主解读</h3><ul>
+<li><a target="_blank" rel="noopener" href="https://arxiv.org/abs/2608.05774">SR-JEPA arXiv</a> · <a target="_blank" rel="noopener" href="https://arxiv.org/html/2608.05774v1">HTML</a></li>
+<li><a target="_blank" rel="noopener" href="https://arxiv.org/abs/2608.05523">HERA arXiv</a> · <a target="_blank" rel="noopener" href="https://arxiv.org/html/2608.05523v1">HTML</a></li>
+<li><a target="_blank" rel="noopener" href="https://arxiv.org/html/2608.04378v1">Helping Music Co-Creation Agents ‘Listen’ Well</a></li>
+<li><a target="_blank" rel="noopener" href="https://arxiv.org/html/2608.04060v1">SJEPA</a></li>
+<li><a target="_blank" rel="noopener" href="https://arxiv.org/abs/2608.01049">FactorJEPA</a></li>
+<li><a target="_blank" rel="noopener" href="https://arxiv.org/abs/2608.00114">EEG-JEPA</a></li>
+<li><a target="_blank" rel="noopener" href="https://arxiv.org/abs/2608.00491">HP-JEPA</a></li>
+</ul>
+<h3 id="检索与边界项"><a href="#检索与边界项" class="headerlink" title="检索与边界项"></a>检索与边界项</h3><ul>
+<li><a target="_blank" rel="noopener" href="https://arxiv.org/search/?query=JEPA&searchtype=all&abstracts=show&order=-announced_date_first&size=100">arXiv：JEPA 最新排序</a></li>
+<li><a target="_blank" rel="noopener" href="https://arxiv.org/search/?query=%22joint-embedding+predictive%22&searchtype=all&abstracts=show&order=-announced_date_first&size=100">arXiv：<code>&quot;joint-embedding predictive&quot;</code> 最新排序</a></li>
+<li><a target="_blank" rel="noopener" href="https://arxiv.org/abs/2608.05437">Discrete energy &#x2F; FE-JEPA theory note</a></li>
+</ul>
+</div><div class="article-tags is-size-7 mb-4"><span class="mr-2">#</span><a class="link-muted mr-2" rel="tag" href="/tags/JEPA/">JEPA</a><a class="link-muted mr-2" rel="tag" href="/tags/JEPA%E8%BF%BD%E8%B8%AA/">JEPA追踪</a></div><!--!--></article></div><!--!--><nav class="post-navigation mt-4 level is-mobile"><div class="level-start"><a class="article-nav-prev level level-item link-muted" href="/2026/08/08/jepa-research-tracking/"><i class="level-item fas fa-chevron-left"></i><span class="level-item">JEPA 下游研究追踪 · 2026-08-08</span></a></div><div class="level-end"><a class="article-nav-next level level-item link-muted" href="/2026/08/06/jepa-research-tracking/"><span class="level-item">JEPA 下游研究追踪 · 2026-08-06</span><i class="level-item fas fa-chevron-right"></i></a></div></nav><!--!--></div><div class="column column-left is-4-tablet is-4-desktop is-4-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar is-rounded" src="/img/conan-avatar.svg" alt="Lu Zhongqiu"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">Lu Zhongqiu</p><p class="is-size-6 is-block">Builder · Thinker · Writer</p><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>分享已知的是无趣的，我只研究我当前不知道的，顺便分享</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">文章</p><a href="/archives/"><p class="title">55</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">分类</p><a href="/categories/"><p class="title">6</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">标签</p><a href="/tags/"><p class="title">77</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/luzhongqiu" target="_blank" rel="me noopener">关注我</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="me noopener" title="Github" href="https://github.com/luzhongqiu"><i class="fab fa-github"></i></a></div></div></div><!--!--><div class="card widget" data-type="categories"><div class="card-content"><div class="menu"><h3 class="menu-label">分类</h3><ul class="menu-list"><li><a class="level is-mobile" href="/categories/AI/"><span class="level-start"><span class="level-item">AI</span></span><span class="level-end"><span class="level-item tag">14</span></span></a></li><li><a class="level is-mobile" href="/categories/JEPA%E7%A0%94%E7%A9%B6%E8%BF%BD%E8%B8%AA/"><span class="level-start"><span class="level-item">JEPA研究追踪</span></span><span class="level-end"><span class="level-item tag">37</span></span></a></li><li><a class="level is-mobile" href="/categories/%E5%8C%BB%E5%AD%A6%E7%A7%91%E7%A0%94/"><span class="level-start"><span class="level-item">医学科研</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/%E5%B7%A5%E4%BD%9C/"><span class="level-start"><span class="level-item">工作</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/%E6%99%BA%E8%83%BD%E4%BD%93%E5%B7%A5%E7%A8%8B/"><span class="level-start"><span class="level-item">智能体工程</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/"><span class="level-start"><span class="level-item">深度学习</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></div></div></div><div class="card widget" data-type="recent-posts"><div class="card-content"><h3 class="menu-label">最新文章</h3><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-08-24T02:00:00.000Z">2026-08-24</time></p><p class="title"><a href="/2026/08/24/jepa-research-tracking/">JEPA 下游研究追踪 · 2026-08-24</a></p><p class="categories"><a href="/categories/JEPA%E7%A0%94%E7%A9%B6%E8%BF%BD%E8%B8%AA/">JEPA研究追踪</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-08-23T02:00:00.000Z">2026-08-23</time></p><p class="title"><a href="/2026/08/23/jepa-research-tracking/">JEPA 下游研究追踪 · 2026-08-23</a></p><p class="categories"><a href="/categories/JEPA%E7%A0%94%E7%A9%B6%E8%BF%BD%E8%B8%AA/">JEPA研究追踪</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-08-22T02:00:00.000Z">2026-08-22</time></p><p class="title"><a href="/2026/08/22/jepa-research-tracking/">JEPA 下游研究追踪 · 2026-08-22</a></p><p class="categories"><a href="/categories/JEPA%E7%A0%94%E7%A9%B6%E8%BF%BD%E8%B8%AA/">JEPA研究追踪</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-08-21T02:00:00.000Z">2026-08-21</time></p><p class="title"><a href="/2026/08/21/jepa-research-tracking/">JEPA 下游研究追踪 · 2026-08-21</a></p><p class="categories"><a href="/categories/JEPA%E7%A0%94%E7%A9%B6%E8%BF%BD%E8%B8%AA/">JEPA研究追踪</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-08-19T02:00:00.000Z">2026-08-19</time></p><p class="title"><a href="/2026/08/19/jepa-research-tracking/">JEPA 下游研究追踪 · 2026-08-19</a></p><p class="categories"><a href="/categories/JEPA%E7%A0%94%E7%A9%B6%E8%BF%BD%E8%B8%AA/">JEPA研究追踪</a></p></div></article></div></div><div class="card widget" data-type="archives"><div class="card-content"><div class="menu"><h3 class="menu-label">归档</h3><ul class="menu-list"><li><a class="level is-mobile" href="/archives/2026/08/"><span class="level-start"><span class="level-item">八月 2026</span></span><span class="level-end"><span class="level-item tag">21</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/07/"><span class="level-start"><span class="level-item">七月 2026</span></span><span class="level-end"><span class="level-item tag">18</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/04/"><span class="level-start"><span class="level-item">四月 2026</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/03/"><span class="level-start"><span class="level-item">三月 2026</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/02/"><span class="level-start"><span class="level-item">二月 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li></ul></div></div></div><div class="card widget" data-type="tags"><div class="card-content"><div class="menu"><h3 class="menu-label">标签</h3><div class="field is-grouped is-grouped-multiline"><div class="control"><a class="tags has-addons" href="/tags/ACP/"><span class="tag">ACP</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-Agent/"><span class="tag">AI Agent</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI%E5%8A%A8%E6%80%81/"><span class="tag">AI动态</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI%E5%B7%A5%E5%85%B7/"><span class="tag">AI工具</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI%E7%BC%96%E7%A8%8B/"><span class="tag">AI编程</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI%E8%8A%AF%E7%89%87/"><span class="tag">AI芯片</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Agent/"><span class="tag">Agent</span><span class="tag">5</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AgentSkills/"><span class="tag">AgentSkills</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Agentic-Workflow/"><span class="tag">Agentic Workflow</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/CLI/"><span class="tag">CLI</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Claude/"><span class="tag">Claude</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Claude-Code/"><span class="tag">Claude Code</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Codex/"><span class="tag">Codex</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/DeepSeek/"><span class="tag">DeepSeek</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/GPT-5/"><span class="tag">GPT-5</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/GitAgent/"><span class="tag">GitAgent</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/I-JEPA/"><span class="tag">I-JEPA</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/IDE/"><span class="tag">IDE</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/JEPA/"><span class="tag">JEPA</span><span class="tag">39</span></a></div><div class="control"><a class="tags has-addons" href="/tags/JEPA%E8%BF%BD%E8%B8%AA/"><span class="tag">JEPA追踪</span><span class="tag">37</span></a></div><div class="control"><a class="tags has-addons" href="/tags/KnowS/"><span class="tag">KnowS</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/LLM/"><span class="tag">LLM</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/LLM-JEPA/"><span class="tag">LLM-JEPA</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/LeCun/"><span class="tag">LeCun</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/MCP/"><span class="tag">MCP</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/MiniCPM/"><span class="tag">MiniCPM</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/NVIDIA/"><span class="tag">NVIDIA</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Omni-Flow/"><span class="tag">Omni-Flow</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/OpenClaw/"><span class="tag">OpenClaw</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/OpenViking/"><span class="tag">OpenViking</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Protocol/"><span class="tag">Protocol</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Skill/"><span class="tag">Skill</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Taalas/"><span class="tag">Taalas</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/TypeScript/"><span class="tag">TypeScript</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Vibe-Coding/"><span class="tag">Vibe Coding</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/WeCom/"><span class="tag">WeCom</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/YOLO/"><span class="tag">YOLO</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/kimi-cli/"><span class="tag">kimi-cli</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/oh-my-opencode/"><span class="tag">oh-my-opencode</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/openclaw/"><span class="tag">openclaw</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E4%B8%8A%E4%B8%8B%E6%96%87%E7%AE%A1%E7%90%86/"><span class="tag">上下文管理</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E4%B8%96%E7%95%8C%E6%A8%A1%E5%9E%8B/"><span class="tag">世界模型</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E4%BC%81%E4%B8%9A%E5%BE%AE%E4%BF%A1/"><span class="tag">企业微信</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E5%85%A8%E5%8F%8C%E5%B7%A5/"><span class="tag">全双工</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E5%85%B7%E8%BA%AB%E6%99%BA%E8%83%BD/"><span class="tag">具身智能</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E5%9B%BD%E8%87%AA%E7%84%B6/"><span class="tag">国自然</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E5%9F%BA%E9%87%91%E7%94%B3%E8%AF%B7/"><span class="tag">基金申请</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E5%A4%9A%E6%A8%A1%E6%80%81/"><span class="tag">多模态</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E5%A4%9A%E7%A7%9F%E6%88%B7%E6%9E%B6%E6%9E%84/"><span class="tag">多租户架构</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E5%A4%A7%E6%A8%A1%E5%9E%8B/"><span class="tag">大模型</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E5%B7%A5%E4%BD%9C/"><span class="tag">工作</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E5%B7%A5%E4%BD%9C%E6%B5%81/"><span class="tag">工作流</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E5%BC%80%E6%BA%90/"><span class="tag">开源</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/"><span class="tag">强化学习</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E5%BE%AE%E4%BF%A1%E5%85%AC%E4%BC%97%E5%8F%B7/"><span class="tag">微信公众号</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E6%80%9D%E8%80%83/"><span class="tag">思考</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E6%8E%A8%E7%90%86/"><span class="tag">推理</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E6%8F%92%E4%BB%B6/"><span class="tag">插件</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E6%95%99%E7%A8%8B/"><span class="tag">教程</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E6%96%87%E7%8C%AE%E7%BB%BC%E8%BF%B0/"><span class="tag">文献综述</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E6%97%A5%E6%8A%A5/"><span class="tag">日报</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E6%98%A5%E8%8A%82/"><span class="tag">春节</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E6%99%BA%E8%83%BD%E4%BD%93%E8%B0%83%E5%BA%A6/"><span class="tag">智能体调度</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/"><span class="tag">架构设计</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/"><span class="tag">源码解析</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E7%9B%AE%E6%A0%87%E6%A3%80%E6%B5%8B/"><span class="tag">目标检测</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E7%A1%AC%E4%BB%B6/"><span class="tag">硬件</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E7%A7%91%E6%99%AE/"><span class="tag">科普</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E7%A7%91%E7%A0%94%E5%B7%A5%E5%85%B7/"><span class="tag">科研工具</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E7%AB%AF%E4%BE%A7AI/"><span class="tag">端侧AI</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E8%85%BE%E8%AE%AF/"><span class="tag">腾讯</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E8%87%AA%E7%9B%91%E7%9D%A3%E5%AD%A6%E4%B9%A0/"><span class="tag">自监督学习</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E8%A1%A8%E5%BE%81%E5%AD%A6%E4%B9%A0/"><span class="tag">表征学习</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E8%A7%86%E8%A7%89/"><span class="tag">计算机视觉</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E9%80%9A%E7%94%A8%E6%99%BA%E8%83%BD%E4%BD%93/"><span class="tag">通用智能体</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E9%81%BF%E5%9D%91/"><span class="tag">避坑</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E9%98%BF%E9%87%8C/"><span class="tag">阿里</span><span class="tag">1</span></a></div></div></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">订阅更新</h3><form action="https://feedburner.google.com/fb/a/mailverify" method="post" target="popupwindow" onsubmit="window.open(&#039;https://feedburner.google.com/fb/a/mailverify?uri=&#039;,&#039;popupwindow&#039;,&#039;scrollbars=yes,width=550,height=520&#039;);return true"><input type="hidden" value="" name="uri"><input type="hidden" name="loc" value="en_US"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="订阅"></div></div></form></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">follow.it</h3><form action="" method="post" target="_blank"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="订阅"></div></div></form></div></div></div></div><!--!--></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><p class="is-size-7"><span>&copy; 2026 Lu Zhongqiu</span></p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="GitHub" href="https://github.com/luzhongqiu"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("zh-cn");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script data-pjax src="/js/column.js"></script><script src="/js/animation.js"></script><a id="back-to-top" title="回到顶端" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script data-pjax src="/js/back_to_top.js" defer></script><!--!--><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.js" defer></script><script>window.addEventListener("load", () => {
+      window.cookieconsent.initialise({
+        type: "info",
+        theme: "edgeless",
+        static: false,
+        position: "bottom-left",
+        content: {
+          message: "此网站使用Cookie来改善您的体验。",
+          dismiss: "知道了！",
+          allow: "允许使用Cookie",
+          deny: "拒绝",
+          link: "了解更多",
+          policy: "Cookie政策",
+          href: "https://www.cookiesandyou.com/",
+        },
+        palette: {
+          popup: {
+            background: "#edeff5",
+            text: "#838391"
+          },
+          button: {
+            background: "#4b81e8"
+          },
+        },
+      });
+    });</script><script src="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/js/lightgallery.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/js/jquery.justifiedGallery.min.js" defer></script><script>window.addEventListener("load", () => {
+            if (typeof $.fn.lightGallery === 'function') {
+                $('.article').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof $.fn.justifiedGallery === 'function') {
+                if ($('.justified-gallery > p > .gallery-item').length) {
+                    $('.justified-gallery > p > .gallery-item').unwrap();
+                }
+                $('.justified-gallery').justifiedGallery();
+            }
+        });</script><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/pjax@0.2.8/pjax.min.js"></script><script src="/js/pjax.js"></script><!--!--><!--!--><!--!--><script data-pjax src="/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="想要查找什么..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script data-pjax src="/js/insight.js" defer></script><script data-pjax>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/content.json"}, {"hint":"想要查找什么...","untitled":"(无标题)","posts":"文章","pages":"页面","categories":"分类","tags":"标签"});
+        });</script></body></html>

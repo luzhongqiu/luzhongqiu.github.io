@@ -1,0 +1,94 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 520" width="720" height="520" role="img" aria-labelledby="title desc">
+  <title id="title">LLM-JEPA 的训练与推理分流</title>
+  <desc id="desc">训练期保留 next-token prediction，并用 PRED token 的隐藏状态对齐目标序列表示；推理期移除 JEPA 对齐分支，只保留普通自回归生成。</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f6f8fa"/>
+      <stop offset="1" stop-color="#ffffff"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#1f2328" flood-opacity="0.10"/>
+    </filter>
+    <marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+      <path d="M0,0 L8,4 L0,8 Z" fill="#57606a"/>
+    </marker>
+    <style>
+      text { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; }
+      .headline { font-size: 21px; font-weight: 700; fill: #1f2328; }
+      .section { font-size: 14px; font-weight: 700; fill: #1f2328; }
+      .box-title { font-size: 13px; font-weight: 700; }
+      .body { font-size: 11px; fill: #1f2328; }
+      .tiny { font-size: 10px; fill: #57606a; }
+      .pill { font-size: 11px; font-weight: 600; }
+    </style>
+  </defs>
+
+  <rect width="720" height="520" rx="16" fill="url(#bg)"/>
+  <text x="360" y="34" text-anchor="middle" class="headline">LLM-JEPA：训练时多一条约束，推理时还是原来的 LLM</text>
+
+  <rect x="24" y="55" width="672" height="318" rx="14" fill="#ffffff" stroke="#d0d7de" filter="url(#shadow)"/>
+  <rect x="24" y="55" width="672" height="38" rx="14" fill="#f6f8fa"/>
+  <text x="43" y="80" class="section">训练期 TRAINING</text>
+  <rect x="575" y="65" width="99" height="20" rx="10" fill="#dafbe1"/>
+  <text x="624.5" y="79" text-anchor="middle" class="tiny" fill="#1a7f37">联合优化</text>
+
+  <rect x="46" y="145" width="105" height="60" rx="10" fill="#ddf4ff" stroke="#54aeff"/>
+  <text x="98.5" y="169" text-anchor="middle" class="box-title" fill="#0969da">Text / Prompt</text>
+  <text x="98.5" y="190" text-anchor="middle" class="tiny">自然语言输入</text>
+  <path d="M151 175H190" stroke="#57606a" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <rect x="200" y="118" width="145" height="115" rx="12" fill="#fbefff" stroke="#a475f9" stroke-width="1.5"/>
+  <text x="272.5" y="146" text-anchor="middle" class="box-title" fill="#8250df">同一个 LLM</text>
+  <rect x="218" y="163" width="36" height="28" rx="6" fill="#ffffff" stroke="#d8b9ff"/>
+  <rect x="258" y="163" width="36" height="28" rx="6" fill="#ffffff" stroke="#d8b9ff"/>
+  <rect x="298" y="163" width="31" height="28" rx="6" fill="#fff8c5" stroke="#d4a72c"/>
+  <text x="236" y="181" text-anchor="middle" class="tiny">t₁</text>
+  <text x="276" y="181" text-anchor="middle" class="tiny">t₂</text>
+  <text x="313.5" y="181" text-anchor="middle" class="tiny">…</text>
+  <rect x="218" y="198" width="111" height="24" rx="7" fill="#eddeff" stroke="#a475f9"/>
+  <text x="273.5" y="214" text-anchor="middle" class="pill" fill="#8250df">[PRED] tokens</text>
+
+  <path d="M345 145 C375 145, 374 121, 401 121" fill="none" stroke="#bf8700" stroke-width="2" marker-end="url(#arrow)"/>
+  <rect x="410" y="96" width="142" height="52" rx="10" fill="#fff8c5" stroke="#d4a72c"/>
+  <text x="481" y="118" text-anchor="middle" class="box-title" fill="#9a6700">Next-token prediction</text>
+  <text x="481" y="137" text-anchor="middle" class="tiny">生成 Code / Answer</text>
+  <path d="M552 122H580" stroke="#bf8700" stroke-width="2" marker-end="url(#arrow)"/>
+  <rect x="590" y="101" width="78" height="42" rx="9" fill="#fff8c5" stroke="#d4a72c"/>
+  <text x="629" y="127" text-anchor="middle" class="box-title" fill="#9a6700">L_NTP</text>
+
+  <path d="M345 208 C376 208, 375 229, 401 229" fill="none" stroke="#8250df" stroke-width="2" marker-end="url(#arrow)"/>
+  <rect x="410" y="201" width="142" height="56" rx="10" fill="#fbefff" stroke="#a475f9"/>
+  <text x="481" y="223" text-anchor="middle" class="box-title" fill="#8250df">[PRED] hidden state</text>
+  <text x="481" y="243" text-anchor="middle" class="tiny">预测整体表示</text>
+
+  <rect x="410" y="286" width="142" height="56" rx="10" fill="#ddf4ff" stroke="#54aeff"/>
+  <text x="481" y="308" text-anchor="middle" class="box-title" fill="#0969da">Target embedding</text>
+  <text x="481" y="328" text-anchor="middle" class="tiny">Code / Answer 的表示</text>
+  <path d="M552 229H580" stroke="#8250df" stroke-width="2" marker-end="url(#arrow)"/>
+  <path d="M552 314 C575 314, 570 251, 580 251" fill="none" stroke="#0969da" stroke-width="2" marker-end="url(#arrow)"/>
+  <rect x="590" y="211" width="78" height="80" rx="10" fill="#fbefff" stroke="#a475f9"/>
+  <text x="629" y="240" text-anchor="middle" class="box-title" fill="#8250df">cosine</text>
+  <text x="629" y="258" text-anchor="middle" class="tiny">alignment</text>
+  <text x="629" y="279" text-anchor="middle" class="box-title" fill="#8250df">L_JEPA</text>
+
+  <path d="M272 233V313H401" fill="none" stroke="#54aeff" stroke-width="1.5" stroke-dasharray="5 4" marker-end="url(#arrow)"/>
+  <text x="287" y="305" class="tiny">同一 LLM 编码目标序列</text>
+  <text x="46" y="350" class="body">关键：NTP 是语言能力的锚；JEPA 是训练期的序列级表示正则。</text>
+
+  <rect x="24" y="392" width="672" height="103" rx="14" fill="#ffffff" stroke="#d0d7de" filter="url(#shadow)"/>
+  <text x="43" y="418" class="section">推理期 INFERENCE</text>
+  <rect x="56" y="437" width="91" height="38" rx="9" fill="#ddf4ff" stroke="#54aeff"/>
+  <text x="101.5" y="461" text-anchor="middle" class="box-title" fill="#0969da">Prompt</text>
+  <path d="M147 456H203" stroke="#57606a" stroke-width="2" marker-end="url(#arrow)"/>
+  <rect x="214" y="431" width="126" height="50" rx="10" fill="#fbefff" stroke="#a475f9"/>
+  <text x="277" y="453" text-anchor="middle" class="box-title" fill="#8250df">同一个 LLM</text>
+  <text x="277" y="470" text-anchor="middle" class="tiny">自回归解码</text>
+  <path d="M340 456H396" stroke="#57606a" stroke-width="2" marker-end="url(#arrow)"/>
+  <rect x="407" y="437" width="116" height="38" rx="9" fill="#fff8c5" stroke="#d4a72c"/>
+  <text x="465" y="461" text-anchor="middle" class="box-title" fill="#9a6700">生成结果</text>
+  <rect x="551" y="430" width="121" height="52" rx="9" fill="#f6f8fa" stroke="#afb8c1" stroke-dasharray="5 4"/>
+  <path d="M565 443L658 469 M658 443L565 469" stroke="#cf222e" stroke-width="1.5" opacity="0.7"/>
+  <text x="611.5" y="452" text-anchor="middle" class="tiny">[PRED] / cosine</text>
+  <text x="611.5" y="471" text-anchor="middle" class="tiny">branch removed</text>
+  <text x="360" y="512" text-anchor="middle" class="tiny">推理路径不变 · 无额外在线开销</text>
+</svg>

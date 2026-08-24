@@ -1,0 +1,85 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 520" width="680" height="520">
+  <defs>
+    <style>
+      .box { rx: 8; ry: 8; }
+      .title { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 14px; font-weight: 600; }
+      .desc { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 11px; }
+      .arrow { fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    </style>
+    <marker id="ah2" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#57606a"/>
+    </marker>
+  </defs>
+
+  <rect width="680" height="520" fill="#ffffff"/>
+
+  <!-- Title -->
+  <text x="340" y="28" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="16" font-weight="600" fill="#24292f">自主智能体决策架构</text>
+
+  <!-- Cost Module -->
+  <rect x="240" y="48" width="200" height="58" fill="#ddf4ff" stroke="#54aeff" stroke-width="2" class="box"/>
+  <text x="340" y="74" text-anchor="middle" class="title" fill="#0969da">目标 / 代价模块 Cost</text>
+  <text x="340" y="94" text-anchor="middle" class="desc" fill="#57606a">"我要把箱子推到门口"</text>
+
+  <!-- Arrow down -->
+  <line x1="340" y1="106" x2="340" y2="128" class="arrow" stroke="#57606a" marker-end="url(#ah2)"/>
+
+  <!-- Inference / Planning -->
+  <rect x="240" y="134" width="200" height="58" fill="#f6f8fa" stroke="#d0d7de" stroke-width="2" class="box"/>
+  <text x="340" y="160" text-anchor="middle" class="title" fill="#24292f">推理 / 规划 Inference</text>
+  <text x="340" y="180" text-anchor="middle" class="desc" fill="#57606a">"逐个想象不同动作的后果"</text>
+
+  <!-- Arrow down -->
+  <line x1="340" y1="192" x2="340" y2="208" class="arrow" stroke="#57606a" marker-end="url(#ah2)"/>
+
+  <!-- Action candidates branching -->
+  <text x="340" y="222" text-anchor="middle" class="desc" fill="#57606a">生成候选动作 a₁, a₂, a₃ ...</text>
+
+  <!-- Branch lines to World Model -->
+  <line x1="180" y1="232" x2="180" y2="252" class="arrow" stroke="#57606a" marker-end="url(#ah2)"/>
+  <line x1="340" y1="232" x2="340" y2="252" class="arrow" stroke="#57606a" marker-end="url(#ah2)"/>
+  <line x1="500" y1="232" x2="500" y2="252" class="arrow" stroke="#57606a" marker-end="url(#ah2)"/>
+
+  <!-- World Model Boxes -->
+  <rect x="90" y="258" width="180" height="64" fill="#fff8c5" stroke="#d4a72c" stroke-width="2" class="box"/>
+  <text x="180" y="284" text-anchor="middle" class="title" fill="#7d4e00">World Model</text>
+  <text x="180" y="304" text-anchor="middle" class="desc" fill="#7d4e00">"如果我做 a₁，会发生什么"</text>
+
+  <rect x="250" y="258" width="180" height="64" fill="#fff8c5" stroke="#d4a72c" stroke-width="2" class="box"/>
+  <text x="340" y="284" text-anchor="middle" class="title" fill="#7d4e00">World Model</text>
+  <text x="340" y="304" text-anchor="middle" class="desc" fill="#7d4e00">"如果我做 a₂，会发生什么"</text>
+
+  <rect x="410" y="258" width="180" height="64" fill="#fff8c5" stroke="#d4a72c" stroke-width="2" class="box"/>
+  <text x="500" y="284" text-anchor="middle" class="title" fill="#7d4e00">World Model</text>
+  <text x="500" y="304" text-anchor="middle" class="desc" fill="#7d4e00">"如果我做 a₃，会发生什么"</text>
+
+  <!-- Output predictions -->
+  <text x="180" y="338" text-anchor="middle" class="desc" fill="#57606a">预测未来状态 ŝ₁</text>
+  <text x="340" y="338" text-anchor="middle" class="desc" fill="#57606a">预测未来状态 ŝ₂</text>
+  <text x="500" y="338" text-anchor="middle" class="desc" fill="#57606a">预测未来状态 ŝ₃</text>
+
+  <!-- Arrows to Cost Evaluation -->
+  <line x1="180" y1="348" x2="180" y2="368" class="arrow" stroke="#57606a" marker-end="url(#ah2)"/>
+  <line x1="340" y1="348" x2="340" y2="368" class="arrow" stroke="#57606a" marker-end="url(#ah2)"/>
+  <line x1="500" y1="348" x2="500" y2="368" class="arrow" stroke="#57606a" marker-end="url(#ah2)"/>
+
+  <!-- Cost Evaluation -->
+  <rect x="120" y="374" width="440" height="54" fill="#ffebe9" stroke="#ff8182" stroke-width="2" class="box"/>
+  <text x="340" y="398" text-anchor="middle" class="title" fill="#cf222e">代价评估 Cost Evaluation</text>
+  <text x="340" y="416" text-anchor="middle" class="desc" fill="#cf222e">"哪个未来最符合目标？代价最小？"</text>
+
+  <!-- Arrow to execute -->
+  <line x1="340" y1="428" x2="340" y2="450" class="arrow" stroke="#57606a" marker-end="url(#ah2)"/>
+
+  <!-- Execute -->
+  <rect x="250" y="456" width="180" height="46" fill="#dafbe1" stroke="#2da44e" stroke-width="2" class="box"/>
+  <text x="340" y="484" text-anchor="middle" class="title" fill="#1a7f37">执行最优动作 a*</text>
+
+  <!-- Side label -->
+  <text x="600" y="400" text-anchor="start" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" fill="#57606a">
+    <tspan x="600" dy="0">循环：</tspan>
+    <tspan x="600" dy="16">执行 → 感知新状态</tspan>
+    <tspan x="600" dy="16">→ 重新规划</tspan>
+  </text>
+  <path d="M580,484 L580,510 L270,510 L270,502" fill="none" stroke="#d0d7de" stroke-width="1.5" stroke-dasharray="4,4" marker-end="url(#ah2)"/>
+</svg>

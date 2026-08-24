@@ -1,0 +1,333 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>OpenViking、GitAgent 与 kimi-cli：一次关于云端 Agent 上下文管理的深度调研 - Lu Zhongqiu</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="Lu Zhongqiu"><meta name="msapplication-TileImage" content="/img/favicon.svg"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Lu Zhongqiu"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="给 AI Agent 接了个开源的上下文数据库之后，任务完成率提升了 43%，同时 token 消耗降低了 91%。不是大模型升级，不是 prompt 优化，只是换了个存储方式。 这个数据来自字节跳动开源项目 OpenViking 的 README。最近在搭一个多用户云端 AI 助手平台，一直在纠结怎么解决三个核心问题：每个用户的上下文怎么完全隔离、怎么让 Agent 记住用户的偏好、怎么把几千字"><meta property="og:type" content="blog"><meta property="og:title" content="OpenViking、GitAgent 与 kimi-cli：一次关于云端 Agent 上下文管理的深度调研"><meta property="og:url" content="https://luzhongqiu.github.io/2026/03/15/openviking-gitagent-agent-context-deep-dive/"><meta property="og:site_name" content="Lu Zhongqiu"><meta property="og:description" content="给 AI Agent 接了个开源的上下文数据库之后，任务完成率提升了 43%，同时 token 消耗降低了 91%。不是大模型升级，不是 prompt 优化，只是换了个存储方式。 这个数据来自字节跳动开源项目 OpenViking 的 README。最近在搭一个多用户云端 AI 助手平台，一直在纠结怎么解决三个核心问题：每个用户的上下文怎么完全隔离、怎么让 Agent 记住用户的偏好、怎么把几千字"><meta property="og:locale" content="zh_CN"><meta property="og:image" content="https://luzhongqiu.github.io/img/og_image.png"><meta property="article:published_time" content="2026-03-15T14:00:00.000Z"><meta property="article:modified_time" content="2026-08-24T03:21:27.963Z"><meta property="article:author" content="Lu Zhongqiu"><meta property="article:tag" content="Agent"><meta property="article:tag" content="OpenViking"><meta property="article:tag" content="GitAgent"><meta property="article:tag" content="kimi-cli"><meta property="article:tag" content="多租户架构"><meta property="article:tag" content="上下文管理"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="https://luzhongqiu.github.io/img/og_image.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"https://luzhongqiu.github.io/2026/03/15/openviking-gitagent-agent-context-deep-dive/"},"headline":"OpenViking、GitAgent 与 kimi-cli：一次关于云端 Agent 上下文管理的深度调研","image":["https://luzhongqiu.github.io/img/og_image.png"],"datePublished":"2026-03-15T14:00:00.000Z","dateModified":"2026-08-24T03:21:27.963Z","author":{"@type":"Person","name":"Lu Zhongqiu"},"publisher":{"@type":"Organization","name":"Lu Zhongqiu","logo":{"@type":"ImageObject","url":"https://luzhongqiu.github.io/img/logo.svg"}},"description":"给 AI Agent 接了个开源的上下文数据库之后，任务完成率提升了 43%，同时 token 消耗降低了 91%。不是大模型升级，不是 prompt 优化，只是换了个存储方式。 这个数据来自字节跳动开源项目 OpenViking 的 README。最近在搭一个多用户云端 AI 助手平台，一直在纠结怎么解决三个核心问题：每个用户的上下文怎么完全隔离、怎么让 Agent 记住用户的偏好、怎么把几千字"}</script><link rel="canonical" href="https://luzhongqiu.github.io/2026/03/15/openviking-gitagent-agent-context-deep-dive/"><link rel="icon" href="/img/favicon.svg"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.0.0/css/all.css"><link data-pjax rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/atom-one-light.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;600&amp;family=Source+Code+Pro"><link data-pjax rel="stylesheet" href="/css/default.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"><!--!--><!--!--><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><!--!--><!--!--><!-- hexo injector head_end start --><script>
+  (function () {
+      function switchTab() {
+          if (!location.hash) {
+            return;
+          }
+
+          const id = '#' + CSS.escape(location.hash.substring(1));
+          const $tabMenu = document.querySelector(`.tabs a[href="${id}"]`);
+          if (!$tabMenu) {
+            return;
+          }
+
+          const $tabMenuContainer = $tabMenu.parentElement.parentElement;
+          Array.from($tabMenuContainer.children).forEach($menu => $menu.classList.remove('is-active'));
+          Array.from($tabMenuContainer.querySelectorAll('a'))
+              .map($menu => document.getElementById($menu.getAttribute("href").substring(1)))
+              .forEach($content => $content.classList.add('is-hidden'));
+
+          if ($tabMenu) {
+              $tabMenu.parentElement.classList.add('is-active');
+          }
+          const $activeTab = document.querySelector(id);
+          if ($activeTab) {
+              $activeTab.classList.remove('is-hidden');
+          }
+      }
+      switchTab();
+      window.addEventListener('hashchange', switchTab, false);
+  })();
+  </script><link rel="stylesheet" href="/css/custom.css"><!-- hexo injector head_end end --><meta name="generator" content="Hexo 8.1.2"></head><body class="is-2-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/">Lu Zhongqiu</a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a><a class="navbar-item" href="/about">About</a></div><div class="navbar-end"><a class="navbar-item search" title="搜索" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-8-widescreen"><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item"><time dateTime="2026-03-15T14:00:00.000Z" title="3/15/2026, 2:00:00 PM">2026-03-15</time>发表</span><span class="level-item"><time dateTime="2026-08-24T03:21:27.963Z" title="8/24/2026, 3:21:27 AM">2026-08-24</time>更新</span><span class="level-item"><a class="link-muted" href="/categories/AI/">AI</a></span><span class="level-item">26 分钟读完 (大约3833个字)</span></div></div><h1 class="title is-3 is-size-4-mobile">OpenViking、GitAgent 与 kimi-cli：一次关于云端 Agent 上下文管理的深度调研</h1><div class="content"><p>给 AI Agent 接了个开源的上下文数据库之后，任务完成率提升了 43%，同时 token 消耗降低了 91%。不是大模型升级，不是 prompt 优化，只是换了个存储方式。</p>
+<p>这个数据来自字节跳动开源项目 OpenViking 的 README。最近在搭一个多用户云端 AI 助手平台，一直在纠结怎么解决三个核心问题：每个用户的上下文怎么完全隔离、怎么让 Agent 记住用户的偏好、怎么把几千字的对话历史压到合理的 token 数量。今天挖了一整天 GitHub 和源码，挖到了两个宝贝项目，还从一个不起眼的工具里抠出了一个绝妙的架构方案。这篇文章把所有研究成果整合在一起。</p>
+<hr>
+<h2 id="一、两个项目：解决的根本不是同一个问题"><a href="#一、两个项目：解决的根本不是同一个问题" class="headerlink" title="一、两个项目：解决的根本不是同一个问题"></a>一、两个项目：解决的根本不是同一个问题</h2><p>先看一张对比表，把两个项目的定位说清楚：</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>OpenViking</th>
+<th>GitAgent</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>本质是什么</td>
+<td>上下文数据库（运行时基础设施）</td>
+<td>Agent 定义规范（格式标准）</td>
+</tr>
+<tr>
+<td>类比</td>
+<td>MySQL &#x2F; PostgreSQL</td>
+<td>Dockerfile</td>
+</tr>
+<tr>
+<td>解决什么痛</td>
+<td>token 爆炸、RAG 黑盒、记忆碎片化</td>
+<td>框架锁定、无版本控制、Prompt 散落各处</td>
+</tr>
+<tr>
+<td>有没有 Server</td>
+<td>✅ FastAPI HTTP Server</td>
+<td>❌ 仅 CLI 工具</td>
+</tr>
+<tr>
+<td>多租户 &#x2F; 用户隔离</td>
+<td>✅ 三级隔离，设计完整</td>
+<td>❌ 需自己实现</td>
+</tr>
+<tr>
+<td>语义检索</td>
+<td>✅ L0&#x2F;L1&#x2F;L2 + 向量 + 目录递归</td>
+<td>❌ 无，靠 LLM 读 markdown</td>
+</tr>
+<tr>
+<td>框架可移植</td>
+<td>❌ 绑定 OpenViking 生态</td>
+<td>✅ Claude&#x2F;OpenAI&#x2F;CrewAI 等</td>
+</tr>
+<tr>
+<td>版本控制 Agent 行为</td>
+<td>❌ 无内建支持</td>
+<td>✅ git 天然支持</td>
+</tr>
+<tr>
+<td>成熟度</td>
+<td>⭐ 11K stars，v0.2.6，60 贡献者，字节背书</td>
+<td>⭐ 145 stars，v0.1.7，3 周前发布</td>
+</tr>
+<tr>
+<td>能不能用于生产</td>
+<td>🟡 核心可用，多租户实施中</td>
+<td>🔴 极早期，不建议</td>
+</tr>
+</tbody></table>
+<p>一句话总结：<strong>OpenViking 是数据库，GitAgent 是 Dockerfile。</strong> 不是竞争关系，是互补关系。</p>
+<h3 id="OpenViking：把-Agent-的一切都变成”文件系统”"><a href="#OpenViking：把-Agent-的一切都变成”文件系统”" class="headerlink" title="OpenViking：把 Agent 的一切都变成”文件系统”"></a>OpenViking：把 Agent 的一切都变成”文件系统”</h3><p>OpenViking（字节跳动，Apache 2.0）最厉害的不是它是个数据库，而是它的核心设计思路：<strong>文件系统范式</strong>。</p>
+<p>我们平时管理文件用路径，比如 <code>/Users/nic/Documents/project/README.md</code>。OpenViking 说，Agent 的记忆、资源、技能，为什么不能也用路径来管理？于是它定义了一套 <code>viking://</code> URI 规范：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">viking://</span><br><span class="line">├── resources/          # 知识资源（项目文档、代码库、网页）</span><br><span class="line">│   └── my_project/</span><br><span class="line">│       ├── .abstract   # L0：一句话摘要（~100 tokens）</span><br><span class="line">│       ├── .overview   # L1：结构概览（~2K tokens）</span><br><span class="line">│       └── src/        # L2：完整内容，按需加载</span><br><span class="line">├── user/               # 用户维度：偏好、习惯</span><br><span class="line">│   └── memories/</span><br><span class="line">│       ├── preferences/    # &quot;我喜欢 TypeScript&quot;</span><br><span class="line">│       └── coding_habits/  # &quot;我习惯先写测试&quot;</span><br><span class="line">└── agent/              # Agent 维度：技能、任务记忆</span><br><span class="line">    ├── skills/</span><br><span class="line">    │   └── debug_pattern   # &quot;这个项目的调试套路&quot;</span><br><span class="line">    └── memories/           # 任务执行经验</span><br></pre></td></tr></table></figure>
+
+<p>这个设计聪明在哪里？文件系统是每个人都刻在 DNA 里的抽象，不用学新的 API，不用记复杂的数据结构，就像操作本地文件一样管理 Agent 的全部上下文。</p>
+<p>它还顺手解决了几个 Agent 领域的老大难：</p>
+<p><strong>Token 爆炸</strong>：L0&#x2F;L1&#x2F;L2 分层加载。L0 是一句话摘要（<del>100 tokens），每次都带；L1 是结构概览（</del>2K tokens），按需加载；L2 是完整内容，只有真的需要深读才加载。把一个 100 多页的项目文档扔进去，问问题时只加载最相关的几段，token 消耗大幅下降。</p>
+<p><strong>RAG 黑盒</strong>：可观测检索轨迹。每次检索都记录完整路径——先找了哪个目录、下钻到哪里、向量搜索命中了哪几行——一清二楚，调试 Agent 行为再也不抓瞎。</p>
+<p><strong>自进化</strong>：用得越多越聪明。Agent 的每次成功经验会自动蒸馏沉淀回记忆库，下次遇到类似任务直接复用。</p>
+<p>部署也很简单：<code>pip install openviking</code>，启动 FastAPI HTTP Server，跟着文档走就能跑通一个带记忆的对话 Agent。</p>
+<h3 id="GitAgent：Git-Repo-就是-Agent-的定义"><a href="#GitAgent：Git-Repo-就是-Agent-的定义" class="headerlink" title="GitAgent：Git Repo 就是 Agent 的定义"></a>GitAgent：Git Repo 就是 Agent 的定义</h3><p>GitAgent（Lyzr 团队，MIT，3 周前发布）的核心是”Git Repo 即 Agent 定义”。怎么定义一个 Agent？只要三个文件：</p>
+<ul>
+<li><code>agent.yaml</code>：基础配置（用什么模型、挂什么技能）</li>
+<li><code>SOUL.md</code>：Agent 的灵魂——人设、目标、约束，相当于 System Prompt</li>
+<li><code>SKILL.md</code>：技能定义，放在 <code>skills/</code> 子目录下，每个技能模块化管理</li>
+</ul>
+<p>把这三个文件往 Git 仓库里一推，你直接获得了一堆免费的能力：</p>
+<ul>
+<li><strong>版本回滚</strong>：Agent 改坏了？<code>git reset</code> 回上一个版本，就像回退代码</li>
+<li><strong>分支部署</strong>：<code>dev → staging → main</code> 环境晋升，跟发布软件一模一样</li>
+<li><strong>PR 人工审核</strong>：修改 SOUL 或 SKILL 时提交 PR，人工审核后才合并，避免”教坏”Agent</li>
+<li><strong>审计追踪</strong>：<code>git blame</code> 一看就知道谁改了什么、什么时候改的</li>
+</ul>
+<p>而且它是<strong>框架无关</strong>的，定义一次，导出到 Claude Code、OpenAI、CrewAI、LangChain 等各框架运行。</p>
+<p>不过它现在只是规范加 CLI，没有自己的运行时和数据库，目前不适合用于生产。</p>
+<hr>
+<h2 id="二、效果数据：换个存储方式能有多大差距？"><a href="#二、效果数据：换个存储方式能有多大差距？" class="headerlink" title="二、效果数据：换个存储方式能有多大差距？"></a>二、效果数据：换个存储方式能有多大差距？</h2><p>OpenViking README 里有一组 OpenClaw 实验数据，非常有说服力：</p>
+<table>
+<thead>
+<tr>
+<th>对比组</th>
+<th>任务完成率</th>
+<th>Input Tokens</th>
+<th>vs 原始</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>原始 OpenClaw</td>
+<td>35.65%</td>
+<td>24,611,530</td>
+<td>基准</td>
+</tr>
+<tr>
+<td>+ LanceDB</td>
+<td>44.55%</td>
+<td>51,574,530</td>
+<td>+25% 任务，但 <strong>token 翻倍</strong></td>
+</tr>
+<tr>
+<td>+ OpenViking（有 native memory）</td>
+<td><strong>51.23%</strong></td>
+<td><strong>2,099,622</strong></td>
+<td><strong>+43% 任务，-91% token</strong></td>
+</tr>
+<tr>
+<td>+ OpenViking（无 native memory）</td>
+<td><strong>52.08%</strong></td>
+<td><strong>4,264,396</strong></td>
+<td><strong>+46% 任务，-83% token</strong></td>
+</tr>
+</tbody></table>
+<p>LanceDB 的做法是”加更多 context”——把所有相关文件都塞进 Prompt，效果提升有限且成本暴增。</p>
+<p>OpenViking 的做法是”更聪明地管理 context”——分层加载 + 语义检索，只把最相关的信息放进 Prompt，效果更好，成本反而大降。</p>
+<p>这才是正确的方向。</p>
+<hr>
+<h2 id="三、从-kimi-cli-源码里挖出的架构方案"><a href="#三、从-kimi-cli-源码里挖出的架构方案" class="headerlink" title="三、从 kimi-cli 源码里挖出的架构方案"></a>三、从 kimi-cli 源码里挖出的架构方案</h2><p>背景：我想做一个云端 AI 助手平台，每个用户有自己的 Agent，三个难题：隔离、持久化、规模化。</p>
+<p>在研究 kimi-cli（月之暗面，7.2K stars）源码时，在 <code>packages/kaos/</code> 里发现了一个绝妙的设计。</p>
+<h3 id="kimi-cli-的-kaos-抽象层"><a href="#kimi-cli-的-kaos-抽象层" class="headerlink" title="kimi-cli 的 kaos 抽象层"></a>kimi-cli 的 kaos 抽象层</h3><p><code>kaos</code> 是一个<strong>操作系统抽象层</strong>，定义了 <code>Kaos</code> Protocol：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Kaos</span>(<span class="title class_ inherited__">Protocol</span>):</span><br><span class="line">    <span class="keyword">async</span> <span class="keyword">def</span> <span class="title function_">readtext</span>(<span class="params">self, path: <span class="built_in">str</span>, ...</span>) -&gt; <span class="built_in">str</span>: ...</span><br><span class="line">    <span class="keyword">async</span> <span class="keyword">def</span> <span class="title function_">writetext</span>(<span class="params">self, path: <span class="built_in">str</span>, data: <span class="built_in">str</span>, ...</span>) -&gt; <span class="built_in">int</span>: ...</span><br><span class="line">    <span class="keyword">async</span> <span class="keyword">def</span> <span class="title function_">readbytes</span>(<span class="params">self, path: <span class="built_in">str</span>, ...</span>) -&gt; <span class="built_in">bytes</span>: ...</span><br><span class="line">    <span class="keyword">async</span> <span class="keyword">def</span> <span class="title function_">writebytes</span>(<span class="params">self, path: <span class="built_in">str</span>, data: <span class="built_in">bytes</span>, ...</span>) -&gt; <span class="built_in">int</span>: ...</span><br><span class="line">    <span class="keyword">async</span> <span class="keyword">def</span> <span class="title function_">mkdir</span>(<span class="params">self, path: <span class="built_in">str</span>, ...</span>) -&gt; <span class="literal">None</span>: ...</span><br><span class="line">    <span class="keyword">async</span> <span class="keyword">def</span> <span class="title function_">iterdir</span>(<span class="params">self, path: <span class="built_in">str</span>, ...</span>) -&gt; AsyncGenerator: ...</span><br><span class="line">    <span class="keyword">async</span> <span class="keyword">def</span> <span class="title function_">glob</span>(<span class="params">self, path: <span class="built_in">str</span>, pattern: <span class="built_in">str</span>, ...</span>) -&gt; AsyncGenerator: ...</span><br><span class="line">    <span class="keyword">async</span> <span class="keyword">def</span> <span class="title function_">stat</span>(<span class="params">self, path: <span class="built_in">str</span>, ...</span>) -&gt; StatResult: ...</span><br><span class="line">    <span class="keyword">async</span> <span class="keyword">def</span> <span class="title function_">chdir</span>(<span class="params">self, path: <span class="built_in">str</span></span>) -&gt; <span class="literal">None</span>: ...</span><br><span class="line">    <span class="keyword">async</span> <span class="keyword">def</span> <span class="title function_">exec</span>(<span class="params">self, *args: <span class="built_in">str</span>, ...</span>) -&gt; KaosProcess: ...</span><br></pre></td></tr></table></figure>
+
+<p>关键是它用 Python 的 <strong><code>ContextVar</code></strong> 来注入当前实现：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># _current.py</span></span><br><span class="line">current_kaos = ContextVar[Kaos](<span class="string">&quot;current_kaos&quot;</span>, default=local_kaos)</span><br></pre></td></tr></table></figure>
+
+<p>完整调用链：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Agent LLM → ReadFile tool → KaosPath.read_lines()</span><br><span class="line">  → get_current_kaos().readlines(path)</span><br><span class="line">    → LocalKaos.readlines()（默认，直接读本地磁盘）</span><br></pre></td></tr></table></figure>
+
+<p><code>get_current_kaos()</code> 这里，就是我们的切入点。</p>
+<h3 id="OpenVikingKaos：把文件操作路由到-OpenViking"><a href="#OpenVikingKaos：把文件操作路由到-OpenViking" class="headerlink" title="OpenVikingKaos：把文件操作路由到 OpenViking"></a>OpenVikingKaos：把文件操作路由到 OpenViking</h3><p>自定义一个 <code>OpenVikingKaos</code> 类，实现 Kaos Protocol，把所有文件操作路由到 OpenViking：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">OpenVikingKaos</span>:</span><br><span class="line">    name = <span class="string">&quot;openviking&quot;</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, ov_client, user_id: <span class="built_in">str</span>, agent_id: <span class="built_in">str</span></span>):</span><br><span class="line">        <span class="variable language_">self</span>._ov = ov_client  <span class="comment"># 已持有 user_key，天然隔离</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">_to_uri</span>(<span class="params">self, path: <span class="built_in">str</span></span>) -&gt; <span class="built_in">str</span>:</span><br><span class="line">        <span class="comment"># Agent 以为在写 &quot;/workspace/src/main.py&quot;</span></span><br><span class="line">        <span class="comment"># 实际存到用户自己的命名空间：</span></span><br><span class="line">        <span class="comment">#   viking://resources/workspace/src/main.py</span></span><br><span class="line">        <span class="keyword">return</span> <span class="string">f&quot;viking://resources/<span class="subst">&#123;<span class="built_in">str</span>(path).lstrip(<span class="string">&#x27;/&#x27;</span>)&#125;</span>&quot;</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">async</span> <span class="keyword">def</span> <span class="title function_">readtext</span>(<span class="params">self, path, encoding=<span class="string">&quot;utf-8&quot;</span>, **kwargs</span>) -&gt; <span class="built_in">str</span>:</span><br><span class="line">        <span class="keyword">return</span> (<span class="keyword">await</span> <span class="variable language_">self</span>._ov.read(<span class="variable language_">self</span>._to_uri(path))).decode(encoding)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">async</span> <span class="keyword">def</span> <span class="title function_">writetext</span>(<span class="params">self, path, data, **kwargs</span>) -&gt; <span class="built_in">int</span>:</span><br><span class="line">        <span class="keyword">await</span> <span class="variable language_">self</span>._ov.write(<span class="variable language_">self</span>._to_uri(path), data.encode())</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">len</span>(data)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">async</span> <span class="keyword">def</span> <span class="title function_">exec</span>(<span class="params">self, *args, **kwargs</span>) -&gt; KaosProcess:</span><br><span class="line">        <span class="comment"># 严格模式：禁止执行 shell 命令，消除逃逸风险</span></span><br><span class="line">        <span class="keyword">raise</span> PermissionError(<span class="string">&quot;exec disabled in isolated mode&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>每次用户请求进来时注入：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">async</span> <span class="keyword">def</span> <span class="title function_">handle_user_request</span>(<span class="params">user_key, request</span>):</span><br><span class="line">    user_kaos = OpenVikingKaos(ov_client_with_user_key, user_id, agent_id)</span><br><span class="line">    token = set_current_kaos(user_kaos)  <span class="comment"># 注入到当前协程上下文</span></span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">await</span> run_agent_session(request)</span><br><span class="line">    <span class="keyword">finally</span>:</span><br><span class="line">        reset_current_kaos(token)  <span class="comment"># 协程结束清理</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="为什么-ContextVar-是点睛之笔"><a href="#为什么-ContextVar-是点睛之笔" class="headerlink" title="为什么 ContextVar 是点睛之笔"></a>为什么 ContextVar 是点睛之笔</h3><p>同一进程里有 1000 个并发协程，每个处理一个用户的请求：</p>
+<ul>
+<li>全局变量 → 必然串号</li>
+<li>加锁 → 性能差</li>
+<li><strong>ContextVar → 协程本地存储</strong>，每个协程有独立的 <code>current_kaos</code>，无锁无竞态</li>
+</ul>
+<p>1000 个用户，同一个进程，完全隔离，不需要容器。</p>
+<h3 id="完整架构图"><a href="#完整架构图" class="headerlink" title="完整架构图"></a>完整架构图</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">用户请求层（Web / API / CLI）</span><br><span class="line">          │</span><br><span class="line">          ▼</span><br><span class="line">会话管理 + ContextVar 注入层</span><br><span class="line">（每个协程独立绑定 OpenVikingKaos(user_key)）</span><br><span class="line">          │</span><br><span class="line">          ▼</span><br><span class="line">    Agent 运行时层</span><br><span class="line">    （LLM 调用 + Tool 调用）</span><br><span class="line">          │</span><br><span class="line">          ▼</span><br><span class="line">    Kaos Protocol 抽象层</span><br><span class="line">    （统一文件系统接口）</span><br><span class="line">       ┌──┴──┐</span><br><span class="line">       ▼     ▼</span><br><span class="line">  LocalKaos  OpenVikingKaos</span><br><span class="line">  （本地）   （路由到 OpenViking）</span><br><span class="line">                  │</span><br><span class="line">                  ▼</span><br><span class="line">         OpenViking Server</span><br><span class="line">         account/user/agent 三级隔离</span><br><span class="line">         语义检索 + 分层加载</span><br></pre></td></tr></table></figure>
+
+<p>文件读写（ReadFile&#x2F;WriteFile&#x2F;GlobFiles&#x2F;mkdir）全部隔离。唯一的逃逸点是 <code>exec()</code>——执行 shell 命令时会绕过 Kaos 层。严格模式直接禁用；如果必须支持，路由到独立容器即可。</p>
+<hr>
+<h2 id="四、kimi-cli-没用上-OpenViking-的-5-个核心能力"><a href="#四、kimi-cli-没用上-OpenViking-的-5-个核心能力" class="headerlink" title="四、kimi-cli 没用上 OpenViking 的 5 个核心能力"></a>四、kimi-cli 没用上 OpenViking 的 5 个核心能力</h2><p>读了 kimi-cli 的 <code>session.py</code> 和 <code>session_state.py</code> 源码，发现它的”记忆”就是：<strong>原始对话 <code>context.jsonl</code> + 4 个布尔值</strong>。换个 session 全忘光，无任何语义处理。</p>
+<table>
+<thead>
+<tr>
+<th>能力</th>
+<th>kimi-cli 现状</th>
+<th>接入 OpenViking 后</th>
+<th>改造难度</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>跨 session 用户记忆</td>
+<td>❌ 每次白板，偏好重复交代</td>
+<td>✅ <code>viking://user/memories/</code> 永久记忆</td>
+<td>低（MCP 接入）</td>
+</tr>
+<tr>
+<td>会话经验蒸馏</td>
+<td>❌ 原始对话流水账，换 session 全忘</td>
+<td>✅ <code>memcommit</code> 自动提炼精华</td>
+<td>低（session 结束触发）</td>
+</tr>
+<tr>
+<td>知识库语义检索</td>
+<td>⚠️ grep 关键词，靠 LLM 猜文件位置</td>
+<td>✅ 语义定位到具体代码行</td>
+<td>低（MCP 接入）</td>
+</tr>
+<tr>
+<td>动态技能积累</td>
+<td>⚠️ 静态预置 Markdown，不自更新</td>
+<td>✅ 边用边学，写回 skill 库</td>
+<td>中</td>
+</tr>
+<tr>
+<td>检索可观测性</td>
+<td>❌ RAG 黑盒，不知道读了什么</td>
+<td>✅ 完整检索路径记录</td>
+<td>低（接入自带）</td>
+</tr>
+</tbody></table>
+<p>逐个展开：</p>
+<p><strong>Gap 1：跨 Session 用户记忆</strong></p>
+<p>kimi-cli 这次说”我只用 uv”，下次再问”怎么安装依赖”，它又推荐 pip。用户每次都要重新交代偏好。</p>
+<p>OpenViking 有 <code>viking://user/memories/</code>，说一次永久记住。相当于动态版的 <code>.cursorrules</code>，而且跨项目生效。</p>
+<p><strong>Gap 2：会话记忆蒸馏</strong></p>
+<p>kimi-cli 的记忆是原始对话流水账，几千字的历史每次都要全喂给 LLM，既浪费 token，又容易让模型分心。</p>
+<p>OpenViking 的 <code>memcommit</code> 在 session 结束时异步分析整段对话，从一次 debug 对话里提炼出”认证逻辑在 <code>jwt_verify.py:L23</code>，测试时记得 mock token”这一句精华，下次直接用这一句，不是几千字的完整记录。</p>
+<p><strong>Gap 3：知识库语义检索</strong></p>
+<p>kimi-cli 找文件靠 grep，你得记得文件名或关键词。说”帮我看看认证逻辑在哪”，可能搜不到。</p>
+<p>OpenViking 的 <code>add_resource</code> 对文档做语义分析和向量化索引，递归检索策略——先定位目录，再精细向量搜索——能直接定位到 <code>src/middleware/jwt_verify.py:L23</code>。对大型代码库来说，这个差距极其显著。</p>
+<p><strong>Gap 4：动态技能积累</strong></p>
+<p>kimi-cli 的 <code>skills/</code> 是开发者预置的静态 Markdown，出厂是什么样就是什么样，不会自我更新。</p>
+<p>OpenViking 的 <code>viking://agent/skills/</code> 可以写入。Agent 成功完成一类任务后，把”最佳做法”写回 skill 库，下次遇到类似任务直接复用。一个越用越聪明的 Agent，和一个永远从零开始的 Agent，体验差距不用多说。</p>
+<p><strong>Gap 5：可观测检索轨迹</strong></p>
+<p>kimi-cli 的 RAG 完全黑盒——Agent 为什么给了这个答案？读了哪些文件？你只能从对话消息里猜。出了问题没法 debug。</p>
+<p>OpenViking 记录每次检索的完整路径：先找了哪个目录 → 下钻到哪里 → 向量搜索命中哪几行 → 最终加载了哪些内容。一清二楚。</p>
+<p><strong>接入路径</strong></p>
+<p>OpenViking 官方已经做了 OpenCode memory plugin，暴露 4 个工具：</p>
+<table>
+<thead>
+<tr>
+<th>工具</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>memsearch</code></td>
+<td>跨 memories&#x2F;resources&#x2F;skills 统一语义搜索</td>
+</tr>
+<tr>
+<td><code>memread</code></td>
+<td>按 <code>viking://</code> URI 读取内容，支持 L0&#x2F;L1&#x2F;L2 层级</td>
+</tr>
+<tr>
+<td><code>membrowse</code></td>
+<td>浏览 viking:&#x2F;&#x2F; 文件系统结构</td>
+</tr>
+<tr>
+<td><code>memcommit</code></td>
+<td>触发当前 session 的记忆蒸馏</td>
+</tr>
+</tbody></table>
+<p>kimi-cli 支持 MCP，直接把这 4 个工具接进去就能补上前 3 个 gap。Gap 2（蒸馏）和 Gap 4（技能积累）需要在 session cleanup 流程里额外触发 <code>memcommit</code>，改动很小。</p>
+<hr>
+<h2 id="五、总结：三条具体建议"><a href="#五、总结：三条具体建议" class="headerlink" title="五、总结：三条具体建议"></a>五、总结：三条具体建议</h2><p>挖了一天，给三个 actionable 的建议：</p>
+<p><strong>1. 在做 Coding Agent 或 AI 助手类产品？</strong><br>→ OpenViking 值得现在就接进去。文件系统范式解决了 token 爆炸、RAG 黑盒、记忆碎片化三个核心痛点，11K stars 相对成熟，通过 MCP 接入改造成本很低。实测任务完成率 +43%，token -91%。</p>
+<p><strong>2. 在做 Agent 定义 &#x2F; 分发 &#x2F; 多框架支持？</strong><br>→ 关注 GitAgent，思路有价值但等它再成熟。”Git Repo 即 Agent 定义”的思路非常好，但现在只有规范加 CLI，没有运行时，不建议用于生产。</p>
+<p><strong>3. 在做云端多用户 Agent 系统？</strong><br>→ <code>kimi-cli kaos</code> + <code>OpenVikingKaos</code> + <code>ContextVar</code> 这套方案可以直接参考。用 ContextVar 解决同一进程内多用户隔离，无锁无竞态，1000 个并发用户同一进程，数据完全隔离。</p>
+<p>两个项目的组合图景是这样的：用 GitAgent 定义 Agent 的灵魂和技能（<code>SOUL.md</code>、<code>SKILL.md</code>），用 OpenViking 存储它的运行时记忆和知识库，用 kimi-cli 的 kaos 层做文件操作隔离——三者各司其职，正好覆盖了”定义 Agent”、”管理上下文”、”多用户隔离”三个不同层次的问题。</p>
+<p>最后一个更底层的感悟：这三个项目最让我印象深刻的，其实是它们各自的<strong>抽象选择</strong>——OpenViking 选了”文件系统”，kimi-cli 选了”OS Protocol + ContextVar”，GitAgent 选了”Git Repo”。每一个都是把复杂的新问题，映射到了开发者最熟悉的已有抽象上，然后事情就变简单了。</p>
+<p>这大概是做技术产品最难也最值钱的能力：不是”我能实现什么”，而是”我能用什么已有的抽象来表达它”。</p>
+<hr>
+<p><strong>项目地址</strong></p>
+<ul>
+<li>OpenViking：<a target="_blank" rel="noopener" href="https://github.com/volcengine/OpenViking">https://github.com/volcengine/OpenViking</a></li>
+<li>GitAgent：<a target="_blank" rel="noopener" href="https://github.com/open-gitagent/gitagent">https://github.com/open-gitagent/gitagent</a></li>
+<li>kimi-cli：<a target="_blank" rel="noopener" href="https://github.com/MoonshotAI/kimi-cli">https://github.com/MoonshotAI/kimi-cli</a></li>
+</ul>
+</div><div class="article-tags is-size-7 mb-4"><span class="mr-2">#</span><a class="link-muted mr-2" rel="tag" href="/tags/Agent/">Agent</a><a class="link-muted mr-2" rel="tag" href="/tags/OpenViking/">OpenViking</a><a class="link-muted mr-2" rel="tag" href="/tags/GitAgent/">GitAgent</a><a class="link-muted mr-2" rel="tag" href="/tags/kimi-cli/">kimi-cli</a><a class="link-muted mr-2" rel="tag" href="/tags/%E5%A4%9A%E7%A7%9F%E6%88%B7%E6%9E%B6%E6%9E%84/">多租户架构</a><a class="link-muted mr-2" rel="tag" href="/tags/%E4%B8%8A%E4%B8%8B%E6%96%87%E7%AE%A1%E7%90%86/">上下文管理</a></div><!--!--></article></div><!--!--><nav class="post-navigation mt-4 level is-mobile"><div class="level-start"><a class="article-nav-prev level level-item link-muted" href="/2026/04/02/claude-code-source-code-deep-dive/"><i class="level-item fas fa-chevron-left"></i><span class="level-item">拆解 Claude Code：一个 AI 编程助手的硬核源码解析</span></a></div><div class="level-end"><a class="article-nav-next level level-item link-muted" href="/2026/03/15/ai-ecosystem-daily-0315/"><span class="level-item">AI 生态日报 · 2026-03-15：GPT-5 多版本轰炸，Agent 基建元年正式开幕</span><i class="level-item fas fa-chevron-right"></i></a></div></nav><!--!--></div><div class="column column-left is-4-tablet is-4-desktop is-4-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar is-rounded" src="/img/conan-avatar.svg" alt="Lu Zhongqiu"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">Lu Zhongqiu</p><p class="is-size-6 is-block">Builder · Thinker · Writer</p><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>分享已知的是无趣的，我只研究我当前不知道的，顺便分享</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">文章</p><a href="/archives/"><p class="title">55</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">分类</p><a href="/categories/"><p class="title">6</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">标签</p><a href="/tags/"><p class="title">77</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/luzhongqiu" target="_blank" rel="me noopener">关注我</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="me noopener" title="Github" href="https://github.com/luzhongqiu"><i class="fab fa-github"></i></a></div></div></div><!--!--><div class="card widget" data-type="categories"><div class="card-content"><div class="menu"><h3 class="menu-label">分类</h3><ul class="menu-list"><li><a class="level is-mobile" href="/categories/AI/"><span class="level-start"><span class="level-item">AI</span></span><span class="level-end"><span class="level-item tag">14</span></span></a></li><li><a class="level is-mobile" href="/categories/JEPA%E7%A0%94%E7%A9%B6%E8%BF%BD%E8%B8%AA/"><span class="level-start"><span class="level-item">JEPA研究追踪</span></span><span class="level-end"><span class="level-item tag">37</span></span></a></li><li><a class="level is-mobile" href="/categories/%E5%8C%BB%E5%AD%A6%E7%A7%91%E7%A0%94/"><span class="level-start"><span class="level-item">医学科研</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/%E5%B7%A5%E4%BD%9C/"><span class="level-start"><span class="level-item">工作</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/%E6%99%BA%E8%83%BD%E4%BD%93%E5%B7%A5%E7%A8%8B/"><span class="level-start"><span class="level-item">智能体工程</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/"><span class="level-start"><span class="level-item">深度学习</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></div></div></div><div class="card widget" data-type="recent-posts"><div class="card-content"><h3 class="menu-label">最新文章</h3><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-08-24T02:00:00.000Z">2026-08-24</time></p><p class="title"><a href="/2026/08/24/jepa-research-tracking/">JEPA 下游研究追踪 · 2026-08-24</a></p><p class="categories"><a href="/categories/JEPA%E7%A0%94%E7%A9%B6%E8%BF%BD%E8%B8%AA/">JEPA研究追踪</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-08-23T02:00:00.000Z">2026-08-23</time></p><p class="title"><a href="/2026/08/23/jepa-research-tracking/">JEPA 下游研究追踪 · 2026-08-23</a></p><p class="categories"><a href="/categories/JEPA%E7%A0%94%E7%A9%B6%E8%BF%BD%E8%B8%AA/">JEPA研究追踪</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-08-22T02:00:00.000Z">2026-08-22</time></p><p class="title"><a href="/2026/08/22/jepa-research-tracking/">JEPA 下游研究追踪 · 2026-08-22</a></p><p class="categories"><a href="/categories/JEPA%E7%A0%94%E7%A9%B6%E8%BF%BD%E8%B8%AA/">JEPA研究追踪</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-08-21T02:00:00.000Z">2026-08-21</time></p><p class="title"><a href="/2026/08/21/jepa-research-tracking/">JEPA 下游研究追踪 · 2026-08-21</a></p><p class="categories"><a href="/categories/JEPA%E7%A0%94%E7%A9%B6%E8%BF%BD%E8%B8%AA/">JEPA研究追踪</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-08-19T02:00:00.000Z">2026-08-19</time></p><p class="title"><a href="/2026/08/19/jepa-research-tracking/">JEPA 下游研究追踪 · 2026-08-19</a></p><p class="categories"><a href="/categories/JEPA%E7%A0%94%E7%A9%B6%E8%BF%BD%E8%B8%AA/">JEPA研究追踪</a></p></div></article></div></div><div class="card widget" data-type="archives"><div class="card-content"><div class="menu"><h3 class="menu-label">归档</h3><ul class="menu-list"><li><a class="level is-mobile" href="/archives/2026/08/"><span class="level-start"><span class="level-item">八月 2026</span></span><span class="level-end"><span class="level-item tag">21</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/07/"><span class="level-start"><span class="level-item">七月 2026</span></span><span class="level-end"><span class="level-item tag">18</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/04/"><span class="level-start"><span class="level-item">四月 2026</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/03/"><span class="level-start"><span class="level-item">三月 2026</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/02/"><span class="level-start"><span class="level-item">二月 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li></ul></div></div></div><div class="card widget" data-type="tags"><div class="card-content"><div class="menu"><h3 class="menu-label">标签</h3><div class="field is-grouped is-grouped-multiline"><div class="control"><a class="tags has-addons" href="/tags/ACP/"><span class="tag">ACP</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-Agent/"><span class="tag">AI Agent</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI%E5%8A%A8%E6%80%81/"><span class="tag">AI动态</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI%E5%B7%A5%E5%85%B7/"><span class="tag">AI工具</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI%E7%BC%96%E7%A8%8B/"><span class="tag">AI编程</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI%E8%8A%AF%E7%89%87/"><span class="tag">AI芯片</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Agent/"><span class="tag">Agent</span><span class="tag">5</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AgentSkills/"><span class="tag">AgentSkills</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Agentic-Workflow/"><span class="tag">Agentic Workflow</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/CLI/"><span class="tag">CLI</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Claude/"><span class="tag">Claude</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Claude-Code/"><span class="tag">Claude Code</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Codex/"><span class="tag">Codex</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/DeepSeek/"><span class="tag">DeepSeek</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/GPT-5/"><span class="tag">GPT-5</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/GitAgent/"><span class="tag">GitAgent</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/I-JEPA/"><span class="tag">I-JEPA</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/IDE/"><span class="tag">IDE</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/JEPA/"><span class="tag">JEPA</span><span class="tag">39</span></a></div><div class="control"><a class="tags has-addons" href="/tags/JEPA%E8%BF%BD%E8%B8%AA/"><span class="tag">JEPA追踪</span><span class="tag">37</span></a></div><div class="control"><a class="tags has-addons" href="/tags/KnowS/"><span class="tag">KnowS</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/LLM/"><span class="tag">LLM</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/LLM-JEPA/"><span class="tag">LLM-JEPA</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/LeCun/"><span class="tag">LeCun</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/MCP/"><span class="tag">MCP</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/MiniCPM/"><span class="tag">MiniCPM</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/NVIDIA/"><span class="tag">NVIDIA</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Omni-Flow/"><span class="tag">Omni-Flow</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/OpenClaw/"><span class="tag">OpenClaw</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/OpenViking/"><span class="tag">OpenViking</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Protocol/"><span class="tag">Protocol</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Skill/"><span class="tag">Skill</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Taalas/"><span class="tag">Taalas</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/TypeScript/"><span class="tag">TypeScript</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Vibe-Coding/"><span class="tag">Vibe Coding</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/WeCom/"><span class="tag">WeCom</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/YOLO/"><span class="tag">YOLO</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/kimi-cli/"><span class="tag">kimi-cli</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/oh-my-opencode/"><span class="tag">oh-my-opencode</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/openclaw/"><span class="tag">openclaw</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E4%B8%8A%E4%B8%8B%E6%96%87%E7%AE%A1%E7%90%86/"><span class="tag">上下文管理</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E4%B8%96%E7%95%8C%E6%A8%A1%E5%9E%8B/"><span class="tag">世界模型</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E4%BC%81%E4%B8%9A%E5%BE%AE%E4%BF%A1/"><span class="tag">企业微信</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E5%85%A8%E5%8F%8C%E5%B7%A5/"><span class="tag">全双工</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E5%85%B7%E8%BA%AB%E6%99%BA%E8%83%BD/"><span class="tag">具身智能</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E5%9B%BD%E8%87%AA%E7%84%B6/"><span class="tag">国自然</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E5%9F%BA%E9%87%91%E7%94%B3%E8%AF%B7/"><span class="tag">基金申请</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E5%A4%9A%E6%A8%A1%E6%80%81/"><span class="tag">多模态</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E5%A4%9A%E7%A7%9F%E6%88%B7%E6%9E%B6%E6%9E%84/"><span class="tag">多租户架构</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E5%A4%A7%E6%A8%A1%E5%9E%8B/"><span class="tag">大模型</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E5%B7%A5%E4%BD%9C/"><span class="tag">工作</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E5%B7%A5%E4%BD%9C%E6%B5%81/"><span class="tag">工作流</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E5%BC%80%E6%BA%90/"><span class="tag">开源</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/"><span class="tag">强化学习</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E5%BE%AE%E4%BF%A1%E5%85%AC%E4%BC%97%E5%8F%B7/"><span class="tag">微信公众号</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E6%80%9D%E8%80%83/"><span class="tag">思考</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E6%8E%A8%E7%90%86/"><span class="tag">推理</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E6%8F%92%E4%BB%B6/"><span class="tag">插件</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E6%95%99%E7%A8%8B/"><span class="tag">教程</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E6%96%87%E7%8C%AE%E7%BB%BC%E8%BF%B0/"><span class="tag">文献综述</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E6%97%A5%E6%8A%A5/"><span class="tag">日报</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E6%98%A5%E8%8A%82/"><span class="tag">春节</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E6%99%BA%E8%83%BD%E4%BD%93%E8%B0%83%E5%BA%A6/"><span class="tag">智能体调度</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/"><span class="tag">架构设计</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/"><span class="tag">源码解析</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E7%9B%AE%E6%A0%87%E6%A3%80%E6%B5%8B/"><span class="tag">目标检测</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E7%A1%AC%E4%BB%B6/"><span class="tag">硬件</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E7%A7%91%E6%99%AE/"><span class="tag">科普</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E7%A7%91%E7%A0%94%E5%B7%A5%E5%85%B7/"><span class="tag">科研工具</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E7%AB%AF%E4%BE%A7AI/"><span class="tag">端侧AI</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E8%85%BE%E8%AE%AF/"><span class="tag">腾讯</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E8%87%AA%E7%9B%91%E7%9D%A3%E5%AD%A6%E4%B9%A0/"><span class="tag">自监督学习</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E8%A1%A8%E5%BE%81%E5%AD%A6%E4%B9%A0/"><span class="tag">表征学习</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E8%A7%86%E8%A7%89/"><span class="tag">计算机视觉</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E9%80%9A%E7%94%A8%E6%99%BA%E8%83%BD%E4%BD%93/"><span class="tag">通用智能体</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E9%81%BF%E5%9D%91/"><span class="tag">避坑</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E9%98%BF%E9%87%8C/"><span class="tag">阿里</span><span class="tag">1</span></a></div></div></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">订阅更新</h3><form action="https://feedburner.google.com/fb/a/mailverify" method="post" target="popupwindow" onsubmit="window.open(&#039;https://feedburner.google.com/fb/a/mailverify?uri=&#039;,&#039;popupwindow&#039;,&#039;scrollbars=yes,width=550,height=520&#039;);return true"><input type="hidden" value="" name="uri"><input type="hidden" name="loc" value="en_US"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="订阅"></div></div></form></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">follow.it</h3><form action="" method="post" target="_blank"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="订阅"></div></div></form></div></div></div></div><!--!--></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><p class="is-size-7"><span>&copy; 2026 Lu Zhongqiu</span></p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="GitHub" href="https://github.com/luzhongqiu"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("zh-cn");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script data-pjax src="/js/column.js"></script><script src="/js/animation.js"></script><a id="back-to-top" title="回到顶端" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script data-pjax src="/js/back_to_top.js" defer></script><!--!--><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.js" defer></script><script>window.addEventListener("load", () => {
+      window.cookieconsent.initialise({
+        type: "info",
+        theme: "edgeless",
+        static: false,
+        position: "bottom-left",
+        content: {
+          message: "此网站使用Cookie来改善您的体验。",
+          dismiss: "知道了！",
+          allow: "允许使用Cookie",
+          deny: "拒绝",
+          link: "了解更多",
+          policy: "Cookie政策",
+          href: "https://www.cookiesandyou.com/",
+        },
+        palette: {
+          popup: {
+            background: "#edeff5",
+            text: "#838391"
+          },
+          button: {
+            background: "#4b81e8"
+          },
+        },
+      });
+    });</script><script src="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/js/lightgallery.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/js/jquery.justifiedGallery.min.js" defer></script><script>window.addEventListener("load", () => {
+            if (typeof $.fn.lightGallery === 'function') {
+                $('.article').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof $.fn.justifiedGallery === 'function') {
+                if ($('.justified-gallery > p > .gallery-item').length) {
+                    $('.justified-gallery > p > .gallery-item').unwrap();
+                }
+                $('.justified-gallery').justifiedGallery();
+            }
+        });</script><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/pjax@0.2.8/pjax.min.js"></script><script src="/js/pjax.js"></script><!--!--><!--!--><!--!--><script data-pjax src="/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="想要查找什么..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script data-pjax src="/js/insight.js" defer></script><script data-pjax>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/content.json"}, {"hint":"想要查找什么...","untitled":"(无标题)","posts":"文章","pages":"页面","categories":"分类","tags":"标签"});
+        });</script></body></html>

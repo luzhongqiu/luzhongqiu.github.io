@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>JEPA 专题追踪 · 纯文本 Embedding 检索 - Lu Zhongqiu</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="Lu Zhongqiu"><meta name="msapplication-TileImage" content="/img/favicon.svg"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Lu Zhongqiu"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="本文属于「JEPA追踪」系列，记录每日论文检索、原文核验与阶段性判断；它保留研究日志的证据密度，与经过主题化重写的原创博客区分。  JEPA 在纯文本 Embedding 检索中的进展：2026-07-16 专题检索"><meta property="og:type" content="blog"><meta property="og:title" content="JEPA 专题追踪 · 纯文本 Embedding 检索"><meta property="og:url" content="https://luzhongqiu.github.io/2026/07/16/jepa-text-embedding-retrieval-tracking/"><meta property="og:site_name" content="Lu Zhongqiu"><meta property="og:description" content="本文属于「JEPA追踪」系列，记录每日论文检索、原文核验与阶段性判断；它保留研究日志的证据密度，与经过主题化重写的原创博客区分。  JEPA 在纯文本 Embedding 检索中的进展：2026-07-16 专题检索"><meta property="og:locale" content="zh_CN"><meta property="og:image" content="https://luzhongqiu.github.io/img/og_image.png"><meta property="article:published_time" content="2026-07-16T10:00:00.000Z"><meta property="article:modified_time" content="2026-08-24T03:21:27.963Z"><meta property="article:author" content="Lu Zhongqiu"><meta property="article:tag" content="JEPA"><meta property="article:tag" content="JEPA追踪"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="https://luzhongqiu.github.io/img/og_image.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"https://luzhongqiu.github.io/2026/07/16/jepa-text-embedding-retrieval-tracking/"},"headline":"JEPA 专题追踪 · 纯文本 Embedding 检索","image":["https://luzhongqiu.github.io/img/og_image.png"],"datePublished":"2026-07-16T10:00:00.000Z","dateModified":"2026-08-24T03:21:27.963Z","author":{"@type":"Person","name":"Lu Zhongqiu"},"publisher":{"@type":"Organization","name":"Lu Zhongqiu","logo":{"@type":"ImageObject","url":"https://luzhongqiu.github.io/img/logo.svg"}},"description":"本文属于「JEPA追踪」系列，记录每日论文检索、原文核验与阶段性判断；它保留研究日志的证据密度，与经过主题化重写的原创博客区分。  JEPA 在纯文本 Embedding 检索中的进展：2026-07-16 专题检索"}</script><link rel="canonical" href="https://luzhongqiu.github.io/2026/07/16/jepa-text-embedding-retrieval-tracking/"><link rel="icon" href="/img/favicon.svg"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.0.0/css/all.css"><link data-pjax rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/atom-one-light.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;600&amp;family=Source+Code+Pro"><link data-pjax rel="stylesheet" href="/css/default.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"><!--!--><!--!--><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><!--!--><!--!--><!-- hexo injector head_end start --><script>
+  (function () {
+      function switchTab() {
+          if (!location.hash) {
+            return;
+          }
+
+          const id = '#' + CSS.escape(location.hash.substring(1));
+          const $tabMenu = document.querySelector(`.tabs a[href="${id}"]`);
+          if (!$tabMenu) {
+            return;
+          }
+
+          const $tabMenuContainer = $tabMenu.parentElement.parentElement;
+          Array.from($tabMenuContainer.children).forEach($menu => $menu.classList.remove('is-active'));
+          Array.from($tabMenuContainer.querySelectorAll('a'))
+              .map($menu => document.getElementById($menu.getAttribute("href").substring(1)))
+              .forEach($content => $content.classList.add('is-hidden'));
+
+          if ($tabMenu) {
+              $tabMenu.parentElement.classList.add('is-active');
+          }
+          const $activeTab = document.querySelector(id);
+          if ($activeTab) {
+              $activeTab.classList.remove('is-hidden');
+          }
+      }
+      switchTab();
+      window.addEventListener('hashchange', switchTab, false);
+  })();
+  </script><link rel="stylesheet" href="/css/custom.css"><!-- hexo injector head_end end --><meta name="generator" content="Hexo 8.1.2"></head><body class="is-2-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/">Lu Zhongqiu</a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a><a class="navbar-item" href="/about">About</a></div><div class="navbar-end"><a class="navbar-item search" title="搜索" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-8-widescreen"><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item"><time dateTime="2026-07-16T10:00:00.000Z" title="7/16/2026, 10:00:00 AM">2026-07-16</time>发表</span><span class="level-item"><time dateTime="2026-08-24T03:21:27.963Z" title="8/24/2026, 3:21:27 AM">2026-08-24</time>更新</span><span class="level-item"><a class="link-muted" href="/categories/JEPA%E7%A0%94%E7%A9%B6%E8%BF%BD%E8%B8%AA/">JEPA研究追踪</a></span><span class="level-item">22 分钟读完 (大约3328个字)</span></div></div><h1 class="title is-3 is-size-4-mobile">JEPA 专题追踪 · 纯文本 Embedding 检索</h1><div class="content"><blockquote>
+<p>本文属于「JEPA追踪」系列，记录每日论文检索、原文核验与阶段性判断；它保留研究日志的证据密度，与经过主题化重写的原创博客区分。</p>
+</blockquote>
+<h1 id="JEPA-在纯文本-Embedding-检索中的进展：2026-07-16-专题检索"><a href="#JEPA-在纯文本-Embedding-检索中的进展：2026-07-16-专题检索" class="headerlink" title="JEPA 在纯文本 Embedding 检索中的进展：2026-07-16 专题检索"></a>JEPA 在纯文本 Embedding 检索中的进展：2026-07-16 专题检索</h1><blockquote>
+<p>检索时间：2026-07-16（Asia&#x2F;Shanghai）<br>范围：纯文本语义检索、dense retrieval、BEIR&#x2F;MTEB、MS MARCO、RAG 检索。明确排除图文、视频、遥感图像、音频等跨模态检索。<br>判定标准：只有在论文中实际复用或改造 JEPA、用于文本 query-document 检索，并报告 Recall&#x2F;MRR&#x2F;nDCG 等标准指标的工作，才算直接证据。</p>
+</blockquote>
+<h2 id="今日结论"><a href="#今日结论" class="headerlink" title="今日结论"></a>今日结论</h2><p>截至 2026-07-16，<strong>JEPA 在纯文本信息检索中出现了一个值得关注的突破口，但还没有形成通用 embedding 模型层面的公认突破</strong>。</p>
+<ul>
+<li>最强直接证据是 ICMR 2026 的 <strong>Rabtriever</strong>：它用 JEPA 式潜变量预测，把交叉编码器的“query-document 联合理解”蒸馏进较轻的检索器。在需要隐含推理的检索任务上，Rabtriever 明显超过常规双塔模型，并把论文所测的单对在线延迟从教师模型的 980 ms 降到 95 ms。</li>
+<li>但 Rabtriever <strong>不是可直接替换 E5&#x2F;BGE&#x2F;GTE、再接 FAISS&#x2F;Milvus 的静态向量模型</strong>。它虽然能离线缓存文档编码，在线仍让每个文档向量参与 query 的轻量预测&#x2F;打分，理论式中保留对候选数 <code>n</code> 的线性项。因此更准确的定位是“JEPA 式高效交互检索器”，而非标准 ANN embedding 模型。</li>
+<li>在传统通用检索上，它没有统治 BEIR：13 个 BEIR 子任务平均 nDCG@10 为 <strong>58.2</strong>，低于 GritLM 的 <strong>59.2</strong> 和 E5-Mistral 的 <strong>59.0</strong>。按论文表格它应是所列双塔中的第三名，而正文却称“second-best averaged result”，两者不一致。因此不能据此声称“JEPA 已超过主流文本 embedding”。</li>
+<li>BERT-JEPA 和 LLM-JEPA 表明 JEPA 已进入语言表示学习，但前者只评测 XNLI&#x2F;MLQA&#x2F;GLUE，后者主要评测生成与推理；两者都没有给出 BEIR&#x2F;MTEB 检索证据。</li>
+</ul>
+<h2 id="JEPA-方向最新进展"><a href="#JEPA-方向最新进展" class="headerlink" title="JEPA 方向最新进展"></a>JEPA 方向最新进展</h2><p>文本方向正在出现两条不同路线：</p>
+<ol>
+<li><strong>改善语言隐空间本身</strong>：LLM-JEPA、BERT-JEPA 用潜空间预测或对齐，让语言表示更结构化、跨语言更一致，但尚未证明这种结构能稳定转化为通用检索收益。</li>
+<li><strong>把交叉编码器知识压入检索阶段</strong>：Rabtriever 不试图从零训练一个通用句向量，而是把 document-conditioned query embedding 当成 JEPA 目标，直接优化复杂相关性判断。这条路线更接近真实 IR 问题，也产生了目前最强的下游证据。</li>
+</ol>
+<p>一个关键变化是：JEPA 在文本检索中的价值，可能不在“学习一个更好的固定余弦空间”，而在“用很小的预测器近似昂贵的 query-document 联合表征”。这也是 Rabtriever 最有研究价值、同时最不应与标准 embedding API 混淆的地方。</p>
+<h2 id="新增下游论文解读"><a href="#新增下游论文解读" class="headerlink" title="新增下游论文解读"></a>新增下游论文解读</h2><h3 id="1-Efficient-Rationale-based-Retrieval-On-policy-Distillation-from-Generative-Rerankers-based-on-JEPA"><a href="#1-Efficient-Rationale-based-Retrieval-On-policy-Distillation-from-Generative-Rerankers-based-on-JEPA" class="headerlink" title="1. Efficient Rationale-based Retrieval: On-policy Distillation from Generative Rerankers based on JEPA"></a>1. Efficient Rationale-based Retrieval: On-policy Distillation from Generative Rerankers based on JEPA</h3><ul>
+<li><strong>作者与机构</strong>：Teng Chen、Sheng Xu、Feixiang Guo、Xiaoyu Wang、Qingqing Gu、Hongyan Li、Luo Ji；Geely AI Lab（宁波）。</li>
+<li><strong>时间与出处</strong>：arXiv v3，2026-06-12；ICMR 2026（2026-06-16 至 06-19，Amsterdam）；DOI <code>10.1145/3805622.3810780</code>。</li>
+<li><strong>JEPA 使用方式</strong>：实际改造并使用 JEPA，而非仅在相关工作引用。论文先训练一个 Qwen2-7B-Instruct 生成式交叉编码教师 LaHoRe，再冻结由教师初始化的学生骨干；学生中的两层 MLP 预测器以文档 embedding 为潜变量，把独立编码的 query embedding 投影到教师的 document-conditioned query 隐空间。训练同时最小化潜表示 MSE（论文对应 JEPA&#x2F;energy objective）和教师—学生 logits 的 reverse KL。</li>
+<li><strong>下游任务</strong>：<ul>
+<li>rationale-based retrieval：情感支持策略检索 ESConv、心理咨询策略检索 PsyQA、机器人技能检索 SayCan；</li>
+<li>传统事实检索：MS MARCO passage ranking 与 BEIR 13 个零样本子任务；</li>
+<li>窄域端到端 RAG：在 ESConv 上检索对话策略，再由 Qwen2-70B-Instruct 生成回复。</li>
+</ul>
+</li>
+<li><strong>训练与复现条件</strong>：Qwen2-7B-Instruct；8 张 A100，训练少于 10 小时；学生仅训练轻量 MLP；推理使用 vLLM prefix cache。论文未提供官方代码或模型链接，本次检索也未找到可核验的作者代码仓库。</li>
+</ul>
+<h4 id="关键实验结果"><a href="#关键实验结果" class="headerlink" title="关键实验结果"></a>关键实验结果</h4><table>
+<thead>
+<tr>
+<th>场景</th>
+<th align="right">Rabtriever</th>
+<th align="right">关键对照</th>
+<th>解释</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>ESConv R@1</td>
+<td align="right">32.8</td>
+<td align="right">LLaMA2Vec 23.9；教师 34.4</td>
+<td>明显超过强双塔，接近交叉编码教师</td>
+</tr>
+<tr>
+<td>PsyQA R@1 &#x2F; MRR</td>
+<td align="right">32.8 &#x2F; 55.1</td>
+<td align="right">LLaMA2Vec 34.3 &#x2F; 57.5</td>
+<td>并非所有 rationale 任务都领先</td>
+</tr>
+<tr>
+<td>SayCan R@1</td>
+<td align="right">67.3</td>
+<td align="right">OneGen 44.2；教师 71.2</td>
+<td>最有说服力的任务收益</td>
+</tr>
+<tr>
+<td>单 query-document 在线延迟</td>
+<td align="right">95 ms</td>
+<td align="right">LLaMA2Vec 93 ms；教师 980 ms</td>
+<td>约为教师的 1&#x2F;10.3，接近双塔延迟</td>
+</tr>
+<tr>
+<td>MS MARCO MRR@10</td>
+<td align="right">49.30</td>
+<td align="right">教师 52.4</td>
+<td>论文称超过所列 retriever 基线，但仍低于教师</td>
+</tr>
+<tr>
+<td>BEIR 13 任务平均 nDCG@10</td>
+<td align="right">58.2</td>
+<td align="right">GritLM 59.2；E5-Mistral 59.0</td>
+<td>通用零样本检索没有刷新最佳结果</td>
+</tr>
+</tbody></table>
+<p>论文的组件消融为 JEPA 归因提供了一定支持：去掉潜表示 MSE 后，PsyQA 的 R@1 从 32.8 降至 0.0，SayCan 从 67.3 降至 23.1；去掉 reverse KL 也显著下降。这说明潜表示预测是必要组件，但完整收益来自 <strong>JEPA MSE + reverse KL 蒸馏 + 文档条件交互</strong> 的组合，不能全部归功于 JEPA 标签。</p>
+<h4 id="事实、作者主张与本研究推断"><a href="#事实、作者主张与本研究推断" class="headerlink" title="事实、作者主张与本研究推断"></a>事实、作者主张与本研究推断</h4><ul>
+<li><strong>事实</strong>：论文被 ICMR 2026 接收；包含 MS MARCO、BEIR 和三个 rationale-based retrieval 数据集；报告了标准 IR 指标、消融和延迟；BEIR 平均分低于 GritLM&#x2F;E5-Mistral。</li>
+<li><strong>作者主张</strong>：Rabtriever 在 rationale-based retrieval 上实现接近 reranker 的准确率和接近 retriever 的速度，并在 MS MARCO&#x2F;BEIR 上达到有竞争力的表现。</li>
+<li><strong>本研究推断</strong>：它可以称为“JEPA 在文本检索结构上的首个高可信突破口”，但不能称为“JEPA embedding 已经取代对比学习 embedding”。原因是在线评分仍依赖候选文档 embedding，并非一次 query 编码后直接做标准余弦 ANN；传统 BEIR 平均分也没有领先。</li>
+</ul>
+<h4 id="创新、局限与风险"><a href="#创新、局限与风险" class="headerlink" title="创新、局限与风险"></a>创新、局限与风险</h4><ul>
+<li><strong>创新</strong>：不直接蒸馏相关性分数，而是预测教师的文档条件 query 隐表示；让昂贵交叉编码器的大部分计算移到离线文档编码和轻量在线交互。</li>
+<li><strong>局限</strong>：训练依赖高质量交叉编码教师；比无交互双塔多一个预测器；主体 rationale 数据集的候选池很小——ESConv 只有 8 个策略、PsyQA 7 个策略、SayCan 551 个技能；论文自己也承认超大规模通用检索尚未验证。</li>
+<li><strong>工程风险</strong>：理论复杂度仍含每个候选一次轻量打分的 <code>n·O(1)</code> 项，未展示百万&#x2F;十亿级语料上的 ANN recall-latency、索引大小、吞吐或分布式检索；95 ms 是 query-document pair 的实验延迟，不能直接外推为全库检索延迟。</li>
+<li><strong>报告一致性风险</strong>：BEIR 表中 GritLM 59.2、E5-Mistral 59.0、Rabtriever 58.2，和正文“second-best bi-encoder”的表述矛盾；且论文没有在标准 BEIR 上单独报告 JEPA MSE 的消融。</li>
+<li><strong>复现风险</strong>：截至本次检索未发现官方代码&#x2F;权重；若教师训练、负样本构造或 prompt 细节不完全公开，复现实验可能偏离。</li>
+</ul>
+<h3 id="2-BERT-JEPA-Reorganizing-CLS-Embeddings-for-Language-Invariant-Semantics（相关但未达到检索证据门槛）"><a href="#2-BERT-JEPA-Reorganizing-CLS-Embeddings-for-Language-Invariant-Semantics（相关但未达到检索证据门槛）" class="headerlink" title="2. BERT-JEPA: Reorganizing CLS Embeddings for Language-Invariant Semantics（相关但未达到检索证据门槛）"></a>2. BERT-JEPA: Reorganizing CLS Embeddings for Language-Invariant Semantics（相关但未达到检索证据门槛）</h3><ul>
+<li><strong>作者</strong>：Taj Gillin、Adam Lalani、Kenneth Zhang、Marcel Mateos Salles。</li>
+<li><strong>时间与出处</strong>：arXiv:2601.00366，2026-01；论文页面仅标注 “Machine Learning, ICML”，本次未核验到正式会议接收信息，按预印本处理。</li>
+<li><strong>方法</strong>：在 XLM-RoBERTa 上联合 MLM 和跨语言 <code>[CLS]</code> 对齐；使用翻译对作为正样本、批内其他句子作为负样本，实际最有效损失是 InfoNCE，预测器为 identity。</li>
+<li><strong>结果</strong>：XNLI 15 种语言平均准确率从 XLM-RoBERTa 的 0.728 提升到双语 BEPA 的 0.744；另评测 MLQA 和 GLUE，并用 PCA&#x2F;t-SNE&#x2F;余弦相似度分析 embedding 空间。</li>
+<li><strong>为什么不算检索突破</strong>：没有报告 BEIR、MTEB Retrieval、MS MARCO、nDCG&#x2F;MRR&#x2F;Recall@K；方法核心又是翻译对上的 InfoNCE 对齐，和经典对比式 sentence embedding 很接近。它只能证明“JEPA 命名下的语言表示重组有潜力”，不能证明检索突破。</li>
+</ul>
+<h3 id="3-LLM-JEPA-Large-Language-Models-Meet-Joint-Embedding-Predictive-Architectures（基础进展，不是检索论文）"><a href="#3-LLM-JEPA-Large-Language-Models-Meet-Joint-Embedding-Predictive-Architectures（基础进展，不是检索论文）" class="headerlink" title="3. LLM-JEPA: Large Language Models Meet Joint Embedding Predictive Architectures（基础进展，不是检索论文）"></a>3. LLM-JEPA: Large Language Models Meet Joint Embedding Predictive Architectures（基础进展，不是检索论文）</h3><ul>
+<li><strong>作者与机构</strong>：Hai Huang（Atlassian）、Yann LeCun（NYU）、Randall Balestriero（Brown University）。</li>
+<li><strong>时间与出处</strong>：arXiv:2509.14252；ICLR 2026。</li>
+<li><strong>方法与任务</strong>：把成对“同一知识的不同视图”（如自然语言描述与代码&#x2F;SQL）加入 JEPA 潜空间预测，同时保留 next-token loss；在 NL-RX、Spider、GSM8K、RottenTomatoes、NQ-Open、HellaSwag 等生成&#x2F;推理任务评测。</li>
+<li><strong>为什么不算检索突破</strong>：论文讨论了 embedding 结构和句向量相关工作，但没有检索 benchmark。它证明 JEPA 能改善语言模型训练，不能回答通用文本 embedding 检索是否更强。</li>
+</ul>
+<h2 id="横向比较"><a href="#横向比较" class="headerlink" title="横向比较"></a>横向比较</h2><table>
+<thead>
+<tr>
+<th>工作</th>
+<th>真正做文本检索</th>
+<th>标准 IR benchmark</th>
+<th>可作静态 ANN embedding</th>
+<th>JEPA 贡献可单独归因</th>
+<th>当前判断</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Rabtriever</td>
+<td>是</td>
+<td>MS MARCO、BEIR + rationale tasks</td>
+<td>否，仍有逐候选轻交互</td>
+<td>部分；与 reverse KL、教师蒸馏共同作用</td>
+<td>最强突破口，但不是通用 embedding 突破</td>
+</tr>
+<tr>
+<td>BERT-JEPA &#x2F; BEPA</td>
+<td>否</td>
+<td>无；XNLI&#x2F;MLQA&#x2F;GLUE</td>
+<td>理论上能输出 <code>[CLS]</code>，但未做检索验证</td>
+<td>弱；核心使用 InfoNCE + identity predictor</td>
+<td>表示学习先导证据</td>
+</tr>
+<tr>
+<td>LLM-JEPA</td>
+<td>否</td>
+<td>无；主要生成&#x2F;推理任务</td>
+<td>未验证</td>
+<td>有消融，但目标不是检索</td>
+<td>语言 JEPA 基础工作</td>
+</tr>
+</tbody></table>
+<h2 id="值得继续追的问题"><a href="#值得继续追的问题" class="headerlink" title="值得继续追的问题"></a>值得继续追的问题</h2><ol>
+<li><strong>能否去掉逐文档 predictor？</strong> 如果把教师的 document-conditioned query 表示蒸馏成一次性 query embedding，才可能接入 HNSW&#x2F;IVF&#x2F;PQ 等标准 ANN。</li>
+<li><strong>是否能在 MTEB&#x2F;BEIR 全套和多语言 MIRACL 上稳定领先？</strong> 当前 Rabtriever 的 BEIR 均值仍不如 GritLM&#x2F;E5-Mistral。</li>
+<li><strong>收益究竟来自 JEPA 还是知识蒸馏？</strong> 需要同教师、同数据、同参数量下，与 logits-only KD、embedding regression、ColBERT 式 late interaction 做严格对照。</li>
+<li><strong>百万级以上语料的真实延迟如何？</strong> 需要报告召回率—吞吐—索引大小曲线，而不是只测单个 query-document pair。</li>
+<li><strong>能否针对 RAG 的“隐含依据”构造可信公开 benchmark？</strong> ESConv&#x2F;SayCan 很有启发，但与开放域知识检索仍有明显距离。</li>
+</ol>
+<h2 id="博客价值判断"><a href="#博客价值判断" class="headerlink" title="博客价值判断"></a>博客价值判断</h2><p>值得写，但标题应保持克制，例如：<strong>《JEPA 进入文本检索了吗？从 Rabtriever 看“预测 embedding”如何蒸馏 reranker》</strong>。</p>
+<p>推荐博客切入点不是宣称 JEPA 已打败 BGE&#x2F;E5，而是解释三件事：</p>
+<ul>
+<li>JEPA 如何把“相关性分数蒸馏”改成“上下文化隐表示预测”；</li>
+<li>为什么 Rabtriever 在隐含推理检索上很强，却仍不是标准向量数据库 embedding；</li>
+<li>真正的下一步突破，需要同时满足 BEIR&#x2F;MTEB 领先、ANN 兼容、百万级伸缩和开源复现。</li>
+</ul>
+<h2 id="检索范围与未纳入结果"><a href="#检索范围与未纳入结果" class="headerlink" title="检索范围与未纳入结果"></a>检索范围与未纳入结果</h2><ul>
+<li>检索组合包括 <code>JEPA + text retrieval / dense retriever / semantic search / BEIR / MTEB / MS MARCO / RAG / sentence embedding</code>，并交叉核验 arXiv、ACM DOI、ICLR&#x2F;OpenReview 与作者代码页。</li>
+<li>VL-JEPA、M3-JEPA、TC-JEPA 及遥感 X-JEPA&#x2F;CR-JEPA 虽有 retrieval 结果，但属于视觉&#x2F;跨模态检索，按用户限定排除。</li>
+<li>PRIME&#x2F;prime-rag 等项目声称受 JEPA 启发，但没有同行评议论文与标准 IR 评测，不纳入高可信证据。</li>
+<li>Text-JEPA、JEPA4Rec、R-JEPA 等名称相近工作分别面向形式逻辑生成、序列推荐或关系实例任务，不属于这里定义的开放域文本 embedding&#x2F;RAG 检索；AAR 等仅称受 JEPA 启发、实际使用对比式转导重排的工作也不算 JEPA 直接证据。</li>
+<li>未发现其它同时满足“实际使用 JEPA + 纯文本 query-document 检索 + 标准 IR 指标 + 一手全文可核验”的论文。</li>
+</ul>
+<h2 id="一手来源链接"><a href="#一手来源链接" class="headerlink" title="一手来源链接"></a>一手来源链接</h2><ul>
+<li>Rabtriever：<a target="_blank" rel="noopener" href="https://arxiv.org/html/2604.23336">arXiv 全文</a>；<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2604.23336">arXiv 摘要</a>；<a target="_blank" rel="noopener" href="https://doi.org/10.1145/3805622.3810780">ACM DOI</a></li>
+<li>BERT-JEPA：<a target="_blank" rel="noopener" href="https://arxiv.org/html/2601.00366">arXiv 全文</a>；<a target="_blank" rel="noopener" href="https://anonymous.4open.science/r/bert-jepa-translation-3EB8/README.md">匿名代码仓库</a></li>
+<li>LLM-JEPA：<a target="_blank" rel="noopener" href="https://arxiv.org/html/2509.14252">arXiv 全文</a>；<a target="_blank" rel="noopener" href="https://github.com/galilai-group/llm-jepa">官方代码</a></li>
+</ul>
+</div><div class="article-tags is-size-7 mb-4"><span class="mr-2">#</span><a class="link-muted mr-2" rel="tag" href="/tags/JEPA/">JEPA</a><a class="link-muted mr-2" rel="tag" href="/tags/JEPA%E8%BF%BD%E8%B8%AA/">JEPA追踪</a></div><!--!--></article></div><!--!--><nav class="post-navigation mt-4 level is-mobile"><div class="level-start"><a class="article-nav-prev level level-item link-muted" href="/2026/07/17/jepa-research-tracking/"><i class="level-item fas fa-chevron-left"></i><span class="level-item">JEPA 下游研究追踪 · 2026-07-17</span></a></div><div class="level-end"><a class="article-nav-next level level-item link-muted" href="/2026/07/16/jepa-research-tracking/"><span class="level-item">JEPA 下游研究追踪 · 2026-07-16</span><i class="level-item fas fa-chevron-right"></i></a></div></nav><!--!--></div><div class="column column-left is-4-tablet is-4-desktop is-4-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar is-rounded" src="/img/conan-avatar.svg" alt="Lu Zhongqiu"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">Lu Zhongqiu</p><p class="is-size-6 is-block">Builder · Thinker · Writer</p><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>分享已知的是无趣的，我只研究我当前不知道的，顺便分享</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">文章</p><a href="/archives/"><p class="title">55</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">分类</p><a href="/categories/"><p class="title">6</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">标签</p><a href="/tags/"><p class="title">77</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/luzhongqiu" target="_blank" rel="me noopener">关注我</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="me noopener" title="Github" href="https://github.com/luzhongqiu"><i class="fab fa-github"></i></a></div></div></div><!--!--><div class="card widget" data-type="categories"><div class="card-content"><div class="menu"><h3 class="menu-label">分类</h3><ul class="menu-list"><li><a class="level is-mobile" href="/categories/AI/"><span class="level-start"><span class="level-item">AI</span></span><span class="level-end"><span class="level-item tag">14</span></span></a></li><li><a class="level is-mobile" href="/categories/JEPA%E7%A0%94%E7%A9%B6%E8%BF%BD%E8%B8%AA/"><span class="level-start"><span class="level-item">JEPA研究追踪</span></span><span class="level-end"><span class="level-item tag">37</span></span></a></li><li><a class="level is-mobile" href="/categories/%E5%8C%BB%E5%AD%A6%E7%A7%91%E7%A0%94/"><span class="level-start"><span class="level-item">医学科研</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/%E5%B7%A5%E4%BD%9C/"><span class="level-start"><span class="level-item">工作</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/%E6%99%BA%E8%83%BD%E4%BD%93%E5%B7%A5%E7%A8%8B/"><span class="level-start"><span class="level-item">智能体工程</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/"><span class="level-start"><span class="level-item">深度学习</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></div></div></div><div class="card widget" data-type="recent-posts"><div class="card-content"><h3 class="menu-label">最新文章</h3><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-08-24T02:00:00.000Z">2026-08-24</time></p><p class="title"><a href="/2026/08/24/jepa-research-tracking/">JEPA 下游研究追踪 · 2026-08-24</a></p><p class="categories"><a href="/categories/JEPA%E7%A0%94%E7%A9%B6%E8%BF%BD%E8%B8%AA/">JEPA研究追踪</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-08-23T02:00:00.000Z">2026-08-23</time></p><p class="title"><a href="/2026/08/23/jepa-research-tracking/">JEPA 下游研究追踪 · 2026-08-23</a></p><p class="categories"><a href="/categories/JEPA%E7%A0%94%E7%A9%B6%E8%BF%BD%E8%B8%AA/">JEPA研究追踪</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-08-22T02:00:00.000Z">2026-08-22</time></p><p class="title"><a href="/2026/08/22/jepa-research-tracking/">JEPA 下游研究追踪 · 2026-08-22</a></p><p class="categories"><a href="/categories/JEPA%E7%A0%94%E7%A9%B6%E8%BF%BD%E8%B8%AA/">JEPA研究追踪</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-08-21T02:00:00.000Z">2026-08-21</time></p><p class="title"><a href="/2026/08/21/jepa-research-tracking/">JEPA 下游研究追踪 · 2026-08-21</a></p><p class="categories"><a href="/categories/JEPA%E7%A0%94%E7%A9%B6%E8%BF%BD%E8%B8%AA/">JEPA研究追踪</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-08-19T02:00:00.000Z">2026-08-19</time></p><p class="title"><a href="/2026/08/19/jepa-research-tracking/">JEPA 下游研究追踪 · 2026-08-19</a></p><p class="categories"><a href="/categories/JEPA%E7%A0%94%E7%A9%B6%E8%BF%BD%E8%B8%AA/">JEPA研究追踪</a></p></div></article></div></div><div class="card widget" data-type="archives"><div class="card-content"><div class="menu"><h3 class="menu-label">归档</h3><ul class="menu-list"><li><a class="level is-mobile" href="/archives/2026/08/"><span class="level-start"><span class="level-item">八月 2026</span></span><span class="level-end"><span class="level-item tag">21</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/07/"><span class="level-start"><span class="level-item">七月 2026</span></span><span class="level-end"><span class="level-item tag">18</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/04/"><span class="level-start"><span class="level-item">四月 2026</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/03/"><span class="level-start"><span class="level-item">三月 2026</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/02/"><span class="level-start"><span class="level-item">二月 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li></ul></div></div></div><div class="card widget" data-type="tags"><div class="card-content"><div class="menu"><h3 class="menu-label">标签</h3><div class="field is-grouped is-grouped-multiline"><div class="control"><a class="tags has-addons" href="/tags/ACP/"><span class="tag">ACP</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-Agent/"><span class="tag">AI Agent</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI%E5%8A%A8%E6%80%81/"><span class="tag">AI动态</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI%E5%B7%A5%E5%85%B7/"><span class="tag">AI工具</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI%E7%BC%96%E7%A8%8B/"><span class="tag">AI编程</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI%E8%8A%AF%E7%89%87/"><span class="tag">AI芯片</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Agent/"><span class="tag">Agent</span><span class="tag">5</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AgentSkills/"><span class="tag">AgentSkills</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Agentic-Workflow/"><span class="tag">Agentic Workflow</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/CLI/"><span class="tag">CLI</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Claude/"><span class="tag">Claude</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Claude-Code/"><span class="tag">Claude Code</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Codex/"><span class="tag">Codex</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/DeepSeek/"><span class="tag">DeepSeek</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/GPT-5/"><span class="tag">GPT-5</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/GitAgent/"><span class="tag">GitAgent</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/I-JEPA/"><span class="tag">I-JEPA</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/IDE/"><span class="tag">IDE</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/JEPA/"><span class="tag">JEPA</span><span class="tag">39</span></a></div><div class="control"><a class="tags has-addons" href="/tags/JEPA%E8%BF%BD%E8%B8%AA/"><span class="tag">JEPA追踪</span><span class="tag">37</span></a></div><div class="control"><a class="tags has-addons" href="/tags/KnowS/"><span class="tag">KnowS</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/LLM/"><span class="tag">LLM</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/LLM-JEPA/"><span class="tag">LLM-JEPA</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/LeCun/"><span class="tag">LeCun</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/MCP/"><span class="tag">MCP</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/MiniCPM/"><span class="tag">MiniCPM</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/NVIDIA/"><span class="tag">NVIDIA</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Omni-Flow/"><span class="tag">Omni-Flow</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/OpenClaw/"><span class="tag">OpenClaw</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/OpenViking/"><span class="tag">OpenViking</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Protocol/"><span class="tag">Protocol</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Skill/"><span class="tag">Skill</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Taalas/"><span class="tag">Taalas</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/TypeScript/"><span class="tag">TypeScript</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Vibe-Coding/"><span class="tag">Vibe Coding</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/WeCom/"><span class="tag">WeCom</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/YOLO/"><span class="tag">YOLO</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/kimi-cli/"><span class="tag">kimi-cli</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/oh-my-opencode/"><span class="tag">oh-my-opencode</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/openclaw/"><span class="tag">openclaw</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E4%B8%8A%E4%B8%8B%E6%96%87%E7%AE%A1%E7%90%86/"><span class="tag">上下文管理</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E4%B8%96%E7%95%8C%E6%A8%A1%E5%9E%8B/"><span class="tag">世界模型</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E4%BC%81%E4%B8%9A%E5%BE%AE%E4%BF%A1/"><span class="tag">企业微信</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E5%85%A8%E5%8F%8C%E5%B7%A5/"><span class="tag">全双工</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E5%85%B7%E8%BA%AB%E6%99%BA%E8%83%BD/"><span class="tag">具身智能</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E5%9B%BD%E8%87%AA%E7%84%B6/"><span class="tag">国自然</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E5%9F%BA%E9%87%91%E7%94%B3%E8%AF%B7/"><span class="tag">基金申请</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E5%A4%9A%E6%A8%A1%E6%80%81/"><span class="tag">多模态</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E5%A4%9A%E7%A7%9F%E6%88%B7%E6%9E%B6%E6%9E%84/"><span class="tag">多租户架构</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E5%A4%A7%E6%A8%A1%E5%9E%8B/"><span class="tag">大模型</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E5%B7%A5%E4%BD%9C/"><span class="tag">工作</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E5%B7%A5%E4%BD%9C%E6%B5%81/"><span class="tag">工作流</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E5%BC%80%E6%BA%90/"><span class="tag">开源</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/"><span class="tag">强化学习</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E5%BE%AE%E4%BF%A1%E5%85%AC%E4%BC%97%E5%8F%B7/"><span class="tag">微信公众号</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E6%80%9D%E8%80%83/"><span class="tag">思考</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E6%8E%A8%E7%90%86/"><span class="tag">推理</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E6%8F%92%E4%BB%B6/"><span class="tag">插件</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E6%95%99%E7%A8%8B/"><span class="tag">教程</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E6%96%87%E7%8C%AE%E7%BB%BC%E8%BF%B0/"><span class="tag">文献综述</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E6%97%A5%E6%8A%A5/"><span class="tag">日报</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E6%98%A5%E8%8A%82/"><span class="tag">春节</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E6%99%BA%E8%83%BD%E4%BD%93%E8%B0%83%E5%BA%A6/"><span class="tag">智能体调度</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/"><span class="tag">架构设计</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/"><span class="tag">源码解析</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E7%9B%AE%E6%A0%87%E6%A3%80%E6%B5%8B/"><span class="tag">目标检测</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E7%A1%AC%E4%BB%B6/"><span class="tag">硬件</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E7%A7%91%E6%99%AE/"><span class="tag">科普</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E7%A7%91%E7%A0%94%E5%B7%A5%E5%85%B7/"><span class="tag">科研工具</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E7%AB%AF%E4%BE%A7AI/"><span class="tag">端侧AI</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E8%85%BE%E8%AE%AF/"><span class="tag">腾讯</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E8%87%AA%E7%9B%91%E7%9D%A3%E5%AD%A6%E4%B9%A0/"><span class="tag">自监督学习</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E8%A1%A8%E5%BE%81%E5%AD%A6%E4%B9%A0/"><span class="tag">表征学习</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E8%A7%86%E8%A7%89/"><span class="tag">计算机视觉</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E9%80%9A%E7%94%A8%E6%99%BA%E8%83%BD%E4%BD%93/"><span class="tag">通用智能体</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E9%81%BF%E5%9D%91/"><span class="tag">避坑</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E9%98%BF%E9%87%8C/"><span class="tag">阿里</span><span class="tag">1</span></a></div></div></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">订阅更新</h3><form action="https://feedburner.google.com/fb/a/mailverify" method="post" target="popupwindow" onsubmit="window.open(&#039;https://feedburner.google.com/fb/a/mailverify?uri=&#039;,&#039;popupwindow&#039;,&#039;scrollbars=yes,width=550,height=520&#039;);return true"><input type="hidden" value="" name="uri"><input type="hidden" name="loc" value="en_US"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="订阅"></div></div></form></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">follow.it</h3><form action="" method="post" target="_blank"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="订阅"></div></div></form></div></div></div></div><!--!--></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><p class="is-size-7"><span>&copy; 2026 Lu Zhongqiu</span></p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="GitHub" href="https://github.com/luzhongqiu"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("zh-cn");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script data-pjax src="/js/column.js"></script><script src="/js/animation.js"></script><a id="back-to-top" title="回到顶端" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script data-pjax src="/js/back_to_top.js" defer></script><!--!--><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.js" defer></script><script>window.addEventListener("load", () => {
+      window.cookieconsent.initialise({
+        type: "info",
+        theme: "edgeless",
+        static: false,
+        position: "bottom-left",
+        content: {
+          message: "此网站使用Cookie来改善您的体验。",
+          dismiss: "知道了！",
+          allow: "允许使用Cookie",
+          deny: "拒绝",
+          link: "了解更多",
+          policy: "Cookie政策",
+          href: "https://www.cookiesandyou.com/",
+        },
+        palette: {
+          popup: {
+            background: "#edeff5",
+            text: "#838391"
+          },
+          button: {
+            background: "#4b81e8"
+          },
+        },
+      });
+    });</script><script src="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/js/lightgallery.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/js/jquery.justifiedGallery.min.js" defer></script><script>window.addEventListener("load", () => {
+            if (typeof $.fn.lightGallery === 'function') {
+                $('.article').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof $.fn.justifiedGallery === 'function') {
+                if ($('.justified-gallery > p > .gallery-item').length) {
+                    $('.justified-gallery > p > .gallery-item').unwrap();
+                }
+                $('.justified-gallery').justifiedGallery();
+            }
+        });</script><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/pjax@0.2.8/pjax.min.js"></script><script src="/js/pjax.js"></script><!--!--><!--!--><!--!--><script data-pjax src="/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="想要查找什么..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script data-pjax src="/js/insight.js" defer></script><script data-pjax>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/content.json"}, {"hint":"想要查找什么...","untitled":"(无标题)","posts":"文章","pages":"页面","categories":"分类","tags":"标签"});
+        });</script></body></html>

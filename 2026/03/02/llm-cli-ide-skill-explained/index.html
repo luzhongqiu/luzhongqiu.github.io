@@ -1,0 +1,338 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>你用的那些 AI 工具，到底是什么关系？ - Lu Zhongqiu</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="Lu Zhongqiu"><meta name="msapplication-TileImage" content="/img/favicon.svg"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Lu Zhongqiu"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="写在前面最近身边的业务同学普遍陷入一种新型焦虑："><meta property="og:type" content="blog"><meta property="og:title" content="你用的那些 AI 工具，到底是什么关系？"><meta property="og:url" content="https://luzhongqiu.github.io/2026/03/02/llm-cli-ide-skill-explained/"><meta property="og:site_name" content="Lu Zhongqiu"><meta property="og:description" content="写在前面最近身边的业务同学普遍陷入一种新型焦虑："><meta property="og:locale" content="zh_CN"><meta property="og:image" content="https://luzhongqiu.github.io/img/og_image.png"><meta property="article:published_time" content="2026-03-02T07:00:00.000Z"><meta property="article:modified_time" content="2026-08-24T03:21:27.963Z"><meta property="article:author" content="Lu Zhongqiu"><meta property="article:tag" content="Agent"><meta property="article:tag" content="Skill"><meta property="article:tag" content="IDE"><meta property="article:tag" content="LLM"><meta property="article:tag" content="CLI"><meta property="article:tag" content="科普"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="https://luzhongqiu.github.io/img/og_image.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"https://luzhongqiu.github.io/2026/03/02/llm-cli-ide-skill-explained/"},"headline":"你用的那些 AI 工具，到底是什么关系？","image":["https://luzhongqiu.github.io/img/og_image.png"],"datePublished":"2026-03-02T07:00:00.000Z","dateModified":"2026-08-24T03:21:27.963Z","author":{"@type":"Person","name":"Lu Zhongqiu"},"publisher":{"@type":"Organization","name":"Lu Zhongqiu","logo":{"@type":"ImageObject","url":"https://luzhongqiu.github.io/img/logo.svg"}},"description":"写在前面最近身边的业务同学普遍陷入一种新型焦虑："}</script><link rel="canonical" href="https://luzhongqiu.github.io/2026/03/02/llm-cli-ide-skill-explained/"><link rel="icon" href="/img/favicon.svg"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.0.0/css/all.css"><link data-pjax rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/atom-one-light.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;600&amp;family=Source+Code+Pro"><link data-pjax rel="stylesheet" href="/css/default.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"><!--!--><!--!--><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><!--!--><!--!--><!-- hexo injector head_end start --><script>
+  (function () {
+      function switchTab() {
+          if (!location.hash) {
+            return;
+          }
+
+          const id = '#' + CSS.escape(location.hash.substring(1));
+          const $tabMenu = document.querySelector(`.tabs a[href="${id}"]`);
+          if (!$tabMenu) {
+            return;
+          }
+
+          const $tabMenuContainer = $tabMenu.parentElement.parentElement;
+          Array.from($tabMenuContainer.children).forEach($menu => $menu.classList.remove('is-active'));
+          Array.from($tabMenuContainer.querySelectorAll('a'))
+              .map($menu => document.getElementById($menu.getAttribute("href").substring(1)))
+              .forEach($content => $content.classList.add('is-hidden'));
+
+          if ($tabMenu) {
+              $tabMenu.parentElement.classList.add('is-active');
+          }
+          const $activeTab = document.querySelector(id);
+          if ($activeTab) {
+              $activeTab.classList.remove('is-hidden');
+          }
+      }
+      switchTab();
+      window.addEventListener('hashchange', switchTab, false);
+  })();
+  </script><link rel="stylesheet" href="/css/custom.css"><!-- hexo injector head_end end --><meta name="generator" content="Hexo 8.1.2"></head><body class="is-2-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/">Lu Zhongqiu</a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a><a class="navbar-item" href="/about">About</a></div><div class="navbar-end"><a class="navbar-item search" title="搜索" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-8-widescreen"><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item"><time dateTime="2026-03-02T07:00:00.000Z" title="3/2/2026, 7:00:00 AM">2026-03-02</time>发表</span><span class="level-item"><time dateTime="2026-08-24T03:21:27.963Z" title="8/24/2026, 3:21:27 AM">2026-08-24</time>更新</span><span class="level-item"><a class="link-muted" href="/categories/AI/">AI</a></span><span class="level-item">23 分钟读完 (大约3387个字)</span></div></div><h1 class="title is-3 is-size-4-mobile">你用的那些 AI 工具，到底是什么关系？</h1><div class="content"><h1 id="写在前面"><a href="#写在前面" class="headerlink" title="写在前面"></a>写在前面</h1><p>最近身边的业务同学普遍陷入一种新型焦虑：</p>
+<blockquote>
+<p>“我知道 Claude Code，我也知道 Cursor，我也知道要用 Skill，但我搞不清楚它们是什么关系。我就像在一个没有地图的城市里乱走，知道这个街道叫什么，但不知道它通向哪里。”</p>
+</blockquote>
+<p>这篇文章就是那张地图。</p>
+<p>我不会给你讲技术原理，也不会推荐你”最好用的工具”——我只想帮你搞清楚<strong>这些东西分别是什么层次的东西</strong>，以及它们之间是如何配合工作的。</p>
+<p>看完之后，你应该能清楚地说出：”哦，原来我在用的这些玩意儿，是这么回事。”</p>
+<hr>
+<h1 id="一、先建立一个框架：三层结构"><a href="#一、先建立一个框架：三层结构" class="headerlink" title="一、先建立一个框架：三层结构"></a>一、先建立一个框架：三层结构</h1><p>整个 AI 编程&#x2F;AI 工作 的工具生态，可以用三层来理解：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">┌─────────────────────────────────────────┐</span><br><span class="line">│          第三层：增强层（Skill / MCP）     │  ← 技能包、插件、外挂</span><br><span class="line">├─────────────────────────────────────────┤</span><br><span class="line">│       第二层：宿主层（CLI / IDE）          │  ← 你每天打开的那个东西</span><br><span class="line">├─────────────────────────────────────────┤</span><br><span class="line">│          第一层：模型层（LLM）             │  ← 真正的大脑</span><br><span class="line">└─────────────────────────────────────────┘</span><br></pre></td></tr></table></figure>
+
+<p>这三层缺一不可，但它们是完全不同性质的东西。混淆它们，是大多数困惑的根源。</p>
+<hr>
+<h1 id="二、第一层：模型层（LLM）——真正的大脑"><a href="#二、第一层：模型层（LLM）——真正的大脑" class="headerlink" title="二、第一层：模型层（LLM）——真正的大脑"></a>二、第一层：模型层（LLM）——真正的大脑</h1><p><strong>LLM（Large Language Model，大语言模型）</strong> 是整个生态的核心。它是真正在”思考”的部分。</p>
+<p>你现在能叫得出名字的主流 LLM 大概是这些：</p>
+<table>
+<thead>
+<tr>
+<th>公司</th>
+<th>模型系列</th>
+<th>常见名字</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Anthropic</td>
+<td>Claude 系列</td>
+<td>Claude 3.5 Sonnet、Claude 3 Opus</td>
+</tr>
+<tr>
+<td>OpenAI</td>
+<td>GPT &#x2F; o 系列</td>
+<td>GPT-4o、o3、o1</td>
+</tr>
+<tr>
+<td>Google</td>
+<td>Gemini 系列</td>
+<td>Gemini 2.0 Flash、Gemini Ultra</td>
+</tr>
+<tr>
+<td>DeepSeek</td>
+<td>DeepSeek 系列</td>
+<td>DeepSeek-V3、DeepSeek-R1</td>
+</tr>
+<tr>
+<td>阿里</td>
+<td>Qwen（通义）系列</td>
+<td>Qwen2.5、QwQ</td>
+</tr>
+<tr>
+<td>月之暗面</td>
+<td>Kimi 系列</td>
+<td>Moonshot-v1</td>
+</tr>
+</tbody></table>
+<p><strong>关键理解</strong>：LLM 本身只是一个”大脑”，它不会主动打开文件、不会执行命令、也不会显示在你的屏幕上。它接受文字输入，返回文字输出，仅此而已。</p>
+<p>一个很重要的区分：<strong>你花钱买的 API（比如 Claude API、OpenAI API），本质上就是在买访问这个大脑的权限</strong>。你发一段话给它，它回你一段话，按字数计费。</p>
+<p>所以，LLM 是原材料，不是产品。</p>
+<hr>
+<h1 id="三、第二层：宿主层（CLI-IDE）——你操作-AI-的界面"><a href="#三、第二层：宿主层（CLI-IDE）——你操作-AI-的界面" class="headerlink" title="三、第二层：宿主层（CLI &#x2F; IDE）——你操作 AI 的界面"></a>三、第二层：宿主层（CLI &#x2F; IDE）——你操作 AI 的界面</h1><p>大脑有了，但你没法直接跟大脑说话。你需要一个<strong>界面</strong>，也叫<strong>宿主（Host）</strong>。</p>
+<p>这一层有两种形态：</p>
+<h2 id="形态一：CLI（命令行工具）"><a href="#形态一：CLI（命令行工具）" class="headerlink" title="形态一：CLI（命令行工具）"></a>形态一：CLI（命令行工具）</h2><p>CLI（Command Line Interface，命令行界面）是你在终端里打命令用的工具。</p>
+<p>常见的 AI CLI 工具：</p>
+<table>
+<thead>
+<tr>
+<th>工具名</th>
+<th>背后公司</th>
+<th>底层模型</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Claude Code</strong></td>
+<td>Anthropic</td>
+<td>Claude 系列</td>
+</tr>
+<tr>
+<td><strong>Codex CLI</strong></td>
+<td>OpenAI</td>
+<td>GPT &#x2F; o 系列</td>
+</tr>
+<tr>
+<td><strong>Gemini CLI</strong></td>
+<td>Google</td>
+<td>Gemini 系列</td>
+</tr>
+<tr>
+<td><strong>oh-my-opencode</strong></td>
+<td>社区</td>
+<td>可配置（Claude&#x2F;GPT 等）</td>
+</tr>
+<tr>
+<td><strong>Kimi CLI</strong></td>
+<td>月之暗面</td>
+<td>Moonshot 系列</td>
+</tr>
+</tbody></table>
+<p>这类工具的特点是：你在终端里跟 AI 对话，AI 可以帮你读文件、写代码、执行命令。<strong>核心能力是操作文件系统和终端</strong>——这是它跟普通聊天框的本质区别。</p>
+<h2 id="形态二：IDE（集成开发环境）"><a href="#形态二：IDE（集成开发环境）" class="headerlink" title="形态二：IDE（集成开发环境）"></a>形态二：IDE（集成开发环境）</h2><p>IDE 是带图形界面的编辑器，AI 功能集成在里面。</p>
+<p>常见的 AI IDE 工具：</p>
+<table>
+<thead>
+<tr>
+<th>工具名</th>
+<th>形态</th>
+<th>特点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Cursor</strong></td>
+<td>独立 IDE</td>
+<td>基于 VS Code，深度 AI 集成</td>
+</tr>
+<tr>
+<td><strong>GitHub Copilot</strong></td>
+<td>VS Code &#x2F; JetBrains 插件</td>
+<td>主要做代码补全和对话</td>
+</tr>
+<tr>
+<td><strong>Windsurf</strong></td>
+<td>独立 IDE</td>
+<td>主打”Agentic”体验</td>
+</tr>
+<tr>
+<td><strong>Zed</strong></td>
+<td>独立 IDE</td>
+<td>轻量，原生 AI 支持</td>
+</tr>
+<tr>
+<td><strong>Trae</strong></td>
+<td>独立 IDE（字节）</td>
+<td>国内，面向中国开发者</td>
+</tr>
+</tbody></table>
+<h2 id="CLI-和-IDE-的关系"><a href="#CLI-和-IDE-的关系" class="headerlink" title="CLI 和 IDE 的关系"></a>CLI 和 IDE 的关系</h2><p>很多人以为这两者是竞争关系，其实<strong>它们是不同使用场景下的同类工具</strong>。</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>CLI</th>
+<th>IDE</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>界面</td>
+<td>纯文字终端</td>
+<td>图形界面</td>
+</tr>
+<tr>
+<td>适合谁</td>
+<td>习惯命令行的工程师</td>
+<td>所有人</td>
+</tr>
+<tr>
+<td>能力边界</td>
+<td>偏向自动化、批处理</td>
+<td>偏向交互式编辑</td>
+</tr>
+<tr>
+<td>可定制性</td>
+<td>更高（脚本组合）</td>
+<td>较低</td>
+</tr>
+</tbody></table>
+<p><strong>本质上，CLI 和 IDE 都是”宿主”</strong>——它们负责把你的需求传给 LLM，再把 LLM 的输出呈现给你，同时提供文件读写、终端执行等能力。</p>
+<p>一个容易混淆的点：<strong>底层用的 LLM 和宿主是分开的</strong>。Cursor 默认用 Claude，但你也可以配置成用 GPT-4。Claude Code 默认用 Claude，但理论上也能接其他模型。<strong>“我在用 Cursor” ≠ “我在用 Claude”</strong>，这是两回事。</p>
+<hr>
+<h1 id="四、第三层：增强层（Skill-MCP）——给-AI-装上工具箱"><a href="#四、第三层：增强层（Skill-MCP）——给-AI-装上工具箱" class="headerlink" title="四、第三层：增强层（Skill &#x2F; MCP）——给 AI 装上工具箱"></a>四、第三层：增强层（Skill &#x2F; MCP）——给 AI 装上工具箱</h1><p>光有大脑和界面还不够。你希望 AI 不只是”说说话”，还能真正干事情——查数据库、调 API、执行特定的业务流程。</p>
+<p>这就是第三层的价值：<strong>给 AI 扩展能力</strong>。</p>
+<h2 id="Skill：给-AI-的”操作手册”"><a href="#Skill：给-AI-的”操作手册”" class="headerlink" title="Skill：给 AI 的”操作手册”"></a>Skill：给 AI 的”操作手册”</h2><p><strong>Skill（技能包）</strong> 本质上是一份写给 AI 的说明书，告诉它遇到某类任务时该怎么做、用什么脚本、遵循什么流程。</p>
+<p>一个 Skill 通常长这样：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">my-skill/</span><br><span class="line">├── SKILL.md      ← 核心：写给 AI 读的说明文档</span><br><span class="line">├── scripts/      ← 可执行脚本（Python、Shell 等）</span><br><span class="line">└── references/   ← 参考资料（API 文档、业务规则等）</span><br></pre></td></tr></table></figure>
+
+<p><code>SKILL.md</code> 里写的是自然语言的指令，比如：</p>
+<blockquote>
+<p>“当用户让你查询订单状态时，调用 <code>scripts/query_order.py</code>，参数是订单号，返回格式是 JSON。”</p>
+</blockquote>
+<p>AI 读到这份说明书，就知道遇到”查订单”这类需求时该怎么做。</p>
+<p>这就是 Skill 的本质：<strong>不是给人看的代码，而是给 AI 看的说明书</strong>。</p>
+<p>目前 Skill 有一套统一规范（<a target="_blank" rel="noopener" href="https://agentskills.io/">agentskills.io</a>），主流 CLI 工具——Claude Code、Codex、oh-my-opencode 等——都支持这套格式，写一份 Skill 可以跑在多个 CLI 上。</p>
+<h2 id="MCP：给-AI-的”标准接口”"><a href="#MCP：给-AI-的”标准接口”" class="headerlink" title="MCP：给 AI 的”标准接口”"></a>MCP：给 AI 的”标准接口”</h2><p><strong>MCP（Model Context Protocol）</strong> 是另一种扩展方式，但层次更低，更技术性。</p>
+<p>如果说 Skill 是”操作手册”，那 MCP 是”标准插头”。</p>
+<p>MCP 解决的问题是：AI 怎么连接外部系统（数据库、Web 服务、文件系统、各种 API）？每次都要从头集成太麻烦，于是 Anthropic 提出了 MCP 这个标准协议——任何外部系统，只要实现了 MCP 接口，AI 就能直接调用，不需要重复开发。</p>
+<p>常见的 MCP Server 有：读文件的、查数据库的、调 GitHub 的、搜索网页的……</p>
+<p><strong>对业务人员的简单理解</strong>：</p>
+<ul>
+<li>MCP Server &#x3D; 封装好的”工具”，技术同学负责开发和维护</li>
+<li>AI 通过 MCP 调用这些工具，就像人类通过 App 访问各种服务</li>
+<li>你不需要知道 MCP 怎么实现，只需要知道”我们公司的某某系统已经接了 MCP，AI 可以直接用”</li>
+</ul>
+<h2 id="Skill-和-MCP-的区别"><a href="#Skill-和-MCP-的区别" class="headerlink" title="Skill 和 MCP 的区别"></a>Skill 和 MCP 的区别</h2><table>
+<thead>
+<tr>
+<th>维度</th>
+<th>Skill</th>
+<th>MCP</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>本质</td>
+<td>给 AI 的说明书 + 脚本</td>
+<td>标准化的工具接口协议</td>
+</tr>
+<tr>
+<td>谁来写</td>
+<td>任何人（Markdown + 脚本）</td>
+<td>技术人员（实现协议）</td>
+</tr>
+<tr>
+<td>灵活性</td>
+<td>高，自然语言描述流程</td>
+<td>中，需要按协议格式实现</td>
+</tr>
+<tr>
+<td>适合场景</td>
+<td>定义 AI 的工作流程</td>
+<td>连接外部系统和数据源</td>
+</tr>
+</tbody></table>
+<hr>
+<h1 id="五、把三层串起来：一个完整的例子"><a href="#五、把三层串起来：一个完整的例子" class="headerlink" title="五、把三层串起来：一个完整的例子"></a>五、把三层串起来：一个完整的例子</h1><p>假设你是一个运营同学，想让 AI 帮你每天早上自动拉取前一天的 GMV 数据，然后生成一份简报发到飞书群。</p>
+<p>这件事在三层结构里是这样运作的：</p>
+<p><strong>第一层（LLM）</strong>：选用 Claude 3.5 Sonnet，它负责理解你的需求、撰写简报文字、判断数据异常。</p>
+<p><strong>第二层（宿主&#x2F;CLI）</strong>：你用 Claude Code 或 oh-my-opencode 作为宿主，它负责调度整个流程、执行脚本、管理对话。</p>
+<p><strong>第三层（增强）</strong>：</p>
+<ul>
+<li>一个 MCP Server 连接你们公司的数据仓库（技术同学搭建），AI 可以通过它查 GMV 数据。</li>
+<li>一个 Skill 定义了”GMV 简报”的工作流程：先拉数据、再生成分析、最后调用飞书 API 发消息。</li>
+</ul>
+<p>整个链路：<strong>你发出一条指令 → 宿主接收 → LLM 理解和规划 → 通过 Skill 的脚本拉取数据（MCP 提供数据库访问）→ LLM 生成文字 → 宿主执行飞书 API 发送简报</strong>。</p>
+<p>每一层做自己擅长的事，没有哪一层可以替代另一层。</p>
+<hr>
+<h1 id="六、常见的混淆和误区"><a href="#六、常见的混淆和误区" class="headerlink" title="六、常见的混淆和误区"></a>六、常见的混淆和误区</h1><h2 id="误区一：”我在用-Cursor，我就是在用-Claude”"><a href="#误区一：”我在用-Cursor，我就是在用-Claude”" class="headerlink" title="误区一：”我在用 Cursor，我就是在用 Claude”"></a>误区一：”我在用 Cursor，我就是在用 Claude”</h2><p>不一定。Cursor 是宿主，它可以接 Claude，也可以接 GPT-4，也可以接本地模型。<strong>工具 ≠ 模型</strong>。</p>
+<h2 id="误区二：”Claude-Code-和-Cursor-是竞争产品”"><a href="#误区二：”Claude-Code-和-Cursor-是竞争产品”" class="headerlink" title="误区二：”Claude Code 和 Cursor 是竞争产品”"></a>误区二：”Claude Code 和 Cursor 是竞争产品”</h2><p>从某种角度看是，但它们属于不同形态。Cursor 是 IDE，带图形界面；Claude Code 是 CLI，在终端里用。你甚至可以同时用两者——在 Cursor 里做交互式编辑，在终端里用 Claude Code 做批量处理。</p>
+<h2 id="误区三：”Skill-是给工程师用的，我用不上”"><a href="#误区三：”Skill-是给工程师用的，我用不上”" class="headerlink" title="误区三：”Skill 是给工程师用的，我用不上”"></a>误区三：”Skill 是给工程师用的，我用不上”</h2><p>错。Skill 的设计初衷就是让非工程师也能定义 AI 的工作方式。一个 Skill 的核心是一份 Markdown 文档，你只需要用自然语言写清楚”遇到 XX 任务，按照 YY 步骤去做”，AI 就能照着执行。会写文档，就能写 Skill。</p>
+<h2 id="误区四：”换了-LLM，一切都要重来”"><a href="#误区四：”换了-LLM，一切都要重来”" class="headerlink" title="误区四：”换了 LLM，一切都要重来”"></a>误区四：”换了 LLM，一切都要重来”</h2><p>不是。这正是三层结构的价值所在。你的 Skill 是写给 AI 看的说明书，不依赖特定 LLM；你用的宿主（如 oh-my-opencode）通常支持切换底层模型。<strong>上层的东西不会因为你换了大脑就失效</strong>。</p>
+<h2 id="误区五：”MCP-和-Skill-是一回事”"><a href="#误区五：”MCP-和-Skill-是一回事”" class="headerlink" title="误区五：”MCP 和 Skill 是一回事”"></a>误区五：”MCP 和 Skill 是一回事”</h2><p>不是。MCP 是技术底层，负责”AI 怎么连接外部系统”；Skill 是业务上层，负责”AI 遇到这类任务该怎么做”。一个 Skill 里可能会用到 MCP 提供的工具，但两者是不同层次的概念。</p>
+<hr>
+<h1 id="七、给业务人员的实操建议"><a href="#七、给业务人员的实操建议" class="headerlink" title="七、给业务人员的实操建议"></a>七、给业务人员的实操建议</h1><p>如果你是一个业务人员，正在被这些概念搞晕，以下是一个简单的决策框架：</p>
+<p><strong>Step 1：先锁定你的宿主（CLI 或 IDE）</strong></p>
+<ul>
+<li>如果你在用 Mac&#x2F;Linux，且不怕命令行，试试 <strong>Claude Code</strong> 或 <strong>oh-my-opencode</strong></li>
+<li>如果你想要图形界面，用 <strong>Cursor</strong> 或 <strong>Trae</strong>（国内访问更稳定）</li>
+<li>不确定？先装 Cursor，门槛最低</li>
+</ul>
+<p><strong>Step 2：不要纠结底层用哪个 LLM</strong></p>
+<p>宿主通常会帮你选一个默认模型（比如 Cursor 默认 Claude）。在你刚开始用的阶段，不需要研究模型差异，先跑起来。</p>
+<p><strong>Step 3：Skill 是你”训练 AI 理解你业务”的核心工具</strong></p>
+<p>当你发现某类任务 AI 经常做不到位，或者每次都要重复给它解释背景，这时候就值得写一个 Skill——把背景、流程、规范一次性写清楚，让 AI 永远记得。</p>
+<p><strong>Step 4：MCP 交给技术同学</strong></p>
+<p>你不需要关心 MCP 怎么实现。你只需要告诉技术同学”我希望 AI 能访问 XXX 系统的数据”，让他们帮你搭好 MCP Server。</p>
+<hr>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>用一张图把三层关系固化在脑子里：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">你的需求</span><br><span class="line">   ↓</span><br><span class="line">第二层：宿主（Claude Code / Cursor / oh-my-opencode…）</span><br><span class="line">   ↓                              ↑</span><br><span class="line">第一层：LLM（Claude / GPT / Gemini / Qwen…）</span><br><span class="line">   ↓</span><br><span class="line">第三层：增强（Skill 定义流程 + MCP 连接系统）</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>LLM</strong> &#x3D; 大脑，真正思考的部分，你通过 API 访问它</li>
+<li><strong>CLI &#x2F; IDE</strong> &#x3D; 你操作 AI 的界面，不同形态，本质相同</li>
+<li><strong>Skill</strong> &#x3D; 给 AI 的操作手册，你写，AI 执行</li>
+<li><strong>MCP</strong> &#x3D; 标准插头，让 AI 能连接外部系统</li>
+</ul>
+<p>这四件东西，各司其职，层层叠加，组成了你每天在用的那些 AI 工具。</p>
+<p>下次再看到一个新工具的名字，先问自己：<strong>它属于哪一层？</strong>——这一个问题，能帮你排除 80% 的困惑。</p>
+</div><div class="article-tags is-size-7 mb-4"><span class="mr-2">#</span><a class="link-muted mr-2" rel="tag" href="/tags/Agent/">Agent</a><a class="link-muted mr-2" rel="tag" href="/tags/Skill/">Skill</a><a class="link-muted mr-2" rel="tag" href="/tags/IDE/">IDE</a><a class="link-muted mr-2" rel="tag" href="/tags/LLM/">LLM</a><a class="link-muted mr-2" rel="tag" href="/tags/CLI/">CLI</a><a class="link-muted mr-2" rel="tag" href="/tags/%E7%A7%91%E6%99%AE/">科普</a></div><!--!--></article></div><!--!--><nav class="post-navigation mt-4 level is-mobile"><div class="level-start"><a class="article-nav-prev level level-item link-muted" href="/2026/03/04/nsfc-deadline-4-steps-checklist-knows/"><i class="level-item fas fa-chevron-left"></i><span class="level-item">国自然倒计时 7 天！定稿前必做的 4 步终极排雷，KnowS 带你极速抢救</span></a></div><div class="level-end"><a class="article-nav-next level level-item link-muted" href="/2026/03/01/vibe-coding-perspectives/"><span class="level-item">强者 Vibe，弱者 Wipe</span><i class="level-item fas fa-chevron-right"></i></a></div></nav><!--!--></div><div class="column column-left is-4-tablet is-4-desktop is-4-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar is-rounded" src="/img/conan-avatar.svg" alt="Lu Zhongqiu"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">Lu Zhongqiu</p><p class="is-size-6 is-block">Builder · Thinker · Writer</p><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>分享已知的是无趣的，我只研究我当前不知道的，顺便分享</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">文章</p><a href="/archives/"><p class="title">55</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">分类</p><a href="/categories/"><p class="title">6</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">标签</p><a href="/tags/"><p class="title">77</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/luzhongqiu" target="_blank" rel="me noopener">关注我</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="me noopener" title="Github" href="https://github.com/luzhongqiu"><i class="fab fa-github"></i></a></div></div></div><!--!--><div class="card widget" data-type="categories"><div class="card-content"><div class="menu"><h3 class="menu-label">分类</h3><ul class="menu-list"><li><a class="level is-mobile" href="/categories/AI/"><span class="level-start"><span class="level-item">AI</span></span><span class="level-end"><span class="level-item tag">14</span></span></a></li><li><a class="level is-mobile" href="/categories/JEPA%E7%A0%94%E7%A9%B6%E8%BF%BD%E8%B8%AA/"><span class="level-start"><span class="level-item">JEPA研究追踪</span></span><span class="level-end"><span class="level-item tag">37</span></span></a></li><li><a class="level is-mobile" href="/categories/%E5%8C%BB%E5%AD%A6%E7%A7%91%E7%A0%94/"><span class="level-start"><span class="level-item">医学科研</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/%E5%B7%A5%E4%BD%9C/"><span class="level-start"><span class="level-item">工作</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/%E6%99%BA%E8%83%BD%E4%BD%93%E5%B7%A5%E7%A8%8B/"><span class="level-start"><span class="level-item">智能体工程</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/"><span class="level-start"><span class="level-item">深度学习</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></div></div></div><div class="card widget" data-type="recent-posts"><div class="card-content"><h3 class="menu-label">最新文章</h3><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-08-24T02:00:00.000Z">2026-08-24</time></p><p class="title"><a href="/2026/08/24/jepa-research-tracking/">JEPA 下游研究追踪 · 2026-08-24</a></p><p class="categories"><a href="/categories/JEPA%E7%A0%94%E7%A9%B6%E8%BF%BD%E8%B8%AA/">JEPA研究追踪</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-08-23T02:00:00.000Z">2026-08-23</time></p><p class="title"><a href="/2026/08/23/jepa-research-tracking/">JEPA 下游研究追踪 · 2026-08-23</a></p><p class="categories"><a href="/categories/JEPA%E7%A0%94%E7%A9%B6%E8%BF%BD%E8%B8%AA/">JEPA研究追踪</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-08-22T02:00:00.000Z">2026-08-22</time></p><p class="title"><a href="/2026/08/22/jepa-research-tracking/">JEPA 下游研究追踪 · 2026-08-22</a></p><p class="categories"><a href="/categories/JEPA%E7%A0%94%E7%A9%B6%E8%BF%BD%E8%B8%AA/">JEPA研究追踪</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-08-21T02:00:00.000Z">2026-08-21</time></p><p class="title"><a href="/2026/08/21/jepa-research-tracking/">JEPA 下游研究追踪 · 2026-08-21</a></p><p class="categories"><a href="/categories/JEPA%E7%A0%94%E7%A9%B6%E8%BF%BD%E8%B8%AA/">JEPA研究追踪</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-08-19T02:00:00.000Z">2026-08-19</time></p><p class="title"><a href="/2026/08/19/jepa-research-tracking/">JEPA 下游研究追踪 · 2026-08-19</a></p><p class="categories"><a href="/categories/JEPA%E7%A0%94%E7%A9%B6%E8%BF%BD%E8%B8%AA/">JEPA研究追踪</a></p></div></article></div></div><div class="card widget" data-type="archives"><div class="card-content"><div class="menu"><h3 class="menu-label">归档</h3><ul class="menu-list"><li><a class="level is-mobile" href="/archives/2026/08/"><span class="level-start"><span class="level-item">八月 2026</span></span><span class="level-end"><span class="level-item tag">21</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/07/"><span class="level-start"><span class="level-item">七月 2026</span></span><span class="level-end"><span class="level-item tag">18</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/04/"><span class="level-start"><span class="level-item">四月 2026</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/03/"><span class="level-start"><span class="level-item">三月 2026</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/02/"><span class="level-start"><span class="level-item">二月 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li></ul></div></div></div><div class="card widget" data-type="tags"><div class="card-content"><div class="menu"><h3 class="menu-label">标签</h3><div class="field is-grouped is-grouped-multiline"><div class="control"><a class="tags has-addons" href="/tags/ACP/"><span class="tag">ACP</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-Agent/"><span class="tag">AI Agent</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI%E5%8A%A8%E6%80%81/"><span class="tag">AI动态</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI%E5%B7%A5%E5%85%B7/"><span class="tag">AI工具</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI%E7%BC%96%E7%A8%8B/"><span class="tag">AI编程</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI%E8%8A%AF%E7%89%87/"><span class="tag">AI芯片</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Agent/"><span class="tag">Agent</span><span class="tag">5</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AgentSkills/"><span class="tag">AgentSkills</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Agentic-Workflow/"><span class="tag">Agentic Workflow</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/CLI/"><span class="tag">CLI</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Claude/"><span class="tag">Claude</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Claude-Code/"><span class="tag">Claude Code</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Codex/"><span class="tag">Codex</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/DeepSeek/"><span class="tag">DeepSeek</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/GPT-5/"><span class="tag">GPT-5</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/GitAgent/"><span class="tag">GitAgent</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/I-JEPA/"><span class="tag">I-JEPA</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/IDE/"><span class="tag">IDE</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/JEPA/"><span class="tag">JEPA</span><span class="tag">39</span></a></div><div class="control"><a class="tags has-addons" href="/tags/JEPA%E8%BF%BD%E8%B8%AA/"><span class="tag">JEPA追踪</span><span class="tag">37</span></a></div><div class="control"><a class="tags has-addons" href="/tags/KnowS/"><span class="tag">KnowS</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/LLM/"><span class="tag">LLM</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/LLM-JEPA/"><span class="tag">LLM-JEPA</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/LeCun/"><span class="tag">LeCun</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/MCP/"><span class="tag">MCP</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/MiniCPM/"><span class="tag">MiniCPM</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/NVIDIA/"><span class="tag">NVIDIA</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Omni-Flow/"><span class="tag">Omni-Flow</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/OpenClaw/"><span class="tag">OpenClaw</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/OpenViking/"><span class="tag">OpenViking</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Protocol/"><span class="tag">Protocol</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Skill/"><span class="tag">Skill</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Taalas/"><span class="tag">Taalas</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/TypeScript/"><span class="tag">TypeScript</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Vibe-Coding/"><span class="tag">Vibe Coding</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/WeCom/"><span class="tag">WeCom</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/YOLO/"><span class="tag">YOLO</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/kimi-cli/"><span class="tag">kimi-cli</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/oh-my-opencode/"><span class="tag">oh-my-opencode</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/openclaw/"><span class="tag">openclaw</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E4%B8%8A%E4%B8%8B%E6%96%87%E7%AE%A1%E7%90%86/"><span class="tag">上下文管理</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E4%B8%96%E7%95%8C%E6%A8%A1%E5%9E%8B/"><span class="tag">世界模型</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E4%BC%81%E4%B8%9A%E5%BE%AE%E4%BF%A1/"><span class="tag">企业微信</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E5%85%A8%E5%8F%8C%E5%B7%A5/"><span class="tag">全双工</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E5%85%B7%E8%BA%AB%E6%99%BA%E8%83%BD/"><span class="tag">具身智能</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E5%9B%BD%E8%87%AA%E7%84%B6/"><span class="tag">国自然</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E5%9F%BA%E9%87%91%E7%94%B3%E8%AF%B7/"><span class="tag">基金申请</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E5%A4%9A%E6%A8%A1%E6%80%81/"><span class="tag">多模态</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E5%A4%9A%E7%A7%9F%E6%88%B7%E6%9E%B6%E6%9E%84/"><span class="tag">多租户架构</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E5%A4%A7%E6%A8%A1%E5%9E%8B/"><span class="tag">大模型</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E5%B7%A5%E4%BD%9C/"><span class="tag">工作</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E5%B7%A5%E4%BD%9C%E6%B5%81/"><span class="tag">工作流</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E5%BC%80%E6%BA%90/"><span class="tag">开源</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/"><span class="tag">强化学习</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E5%BE%AE%E4%BF%A1%E5%85%AC%E4%BC%97%E5%8F%B7/"><span class="tag">微信公众号</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E6%80%9D%E8%80%83/"><span class="tag">思考</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E6%8E%A8%E7%90%86/"><span class="tag">推理</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E6%8F%92%E4%BB%B6/"><span class="tag">插件</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E6%95%99%E7%A8%8B/"><span class="tag">教程</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E6%96%87%E7%8C%AE%E7%BB%BC%E8%BF%B0/"><span class="tag">文献综述</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E6%97%A5%E6%8A%A5/"><span class="tag">日报</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E6%98%A5%E8%8A%82/"><span class="tag">春节</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E6%99%BA%E8%83%BD%E4%BD%93%E8%B0%83%E5%BA%A6/"><span class="tag">智能体调度</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/"><span class="tag">架构设计</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/"><span class="tag">源码解析</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E7%9B%AE%E6%A0%87%E6%A3%80%E6%B5%8B/"><span class="tag">目标检测</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E7%A1%AC%E4%BB%B6/"><span class="tag">硬件</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E7%A7%91%E6%99%AE/"><span class="tag">科普</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E7%A7%91%E7%A0%94%E5%B7%A5%E5%85%B7/"><span class="tag">科研工具</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E7%AB%AF%E4%BE%A7AI/"><span class="tag">端侧AI</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E8%85%BE%E8%AE%AF/"><span class="tag">腾讯</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E8%87%AA%E7%9B%91%E7%9D%A3%E5%AD%A6%E4%B9%A0/"><span class="tag">自监督学习</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E8%A1%A8%E5%BE%81%E5%AD%A6%E4%B9%A0/"><span class="tag">表征学习</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E8%A7%86%E8%A7%89/"><span class="tag">计算机视觉</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E9%80%9A%E7%94%A8%E6%99%BA%E8%83%BD%E4%BD%93/"><span class="tag">通用智能体</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E9%81%BF%E5%9D%91/"><span class="tag">避坑</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E9%98%BF%E9%87%8C/"><span class="tag">阿里</span><span class="tag">1</span></a></div></div></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">订阅更新</h3><form action="https://feedburner.google.com/fb/a/mailverify" method="post" target="popupwindow" onsubmit="window.open(&#039;https://feedburner.google.com/fb/a/mailverify?uri=&#039;,&#039;popupwindow&#039;,&#039;scrollbars=yes,width=550,height=520&#039;);return true"><input type="hidden" value="" name="uri"><input type="hidden" name="loc" value="en_US"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="订阅"></div></div></form></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">follow.it</h3><form action="" method="post" target="_blank"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="订阅"></div></div></form></div></div></div></div><!--!--></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><p class="is-size-7"><span>&copy; 2026 Lu Zhongqiu</span></p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="GitHub" href="https://github.com/luzhongqiu"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("zh-cn");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script data-pjax src="/js/column.js"></script><script src="/js/animation.js"></script><a id="back-to-top" title="回到顶端" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script data-pjax src="/js/back_to_top.js" defer></script><!--!--><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.js" defer></script><script>window.addEventListener("load", () => {
+      window.cookieconsent.initialise({
+        type: "info",
+        theme: "edgeless",
+        static: false,
+        position: "bottom-left",
+        content: {
+          message: "此网站使用Cookie来改善您的体验。",
+          dismiss: "知道了！",
+          allow: "允许使用Cookie",
+          deny: "拒绝",
+          link: "了解更多",
+          policy: "Cookie政策",
+          href: "https://www.cookiesandyou.com/",
+        },
+        palette: {
+          popup: {
+            background: "#edeff5",
+            text: "#838391"
+          },
+          button: {
+            background: "#4b81e8"
+          },
+        },
+      });
+    });</script><script src="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/js/lightgallery.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/js/jquery.justifiedGallery.min.js" defer></script><script>window.addEventListener("load", () => {
+            if (typeof $.fn.lightGallery === 'function') {
+                $('.article').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof $.fn.justifiedGallery === 'function') {
+                if ($('.justified-gallery > p > .gallery-item').length) {
+                    $('.justified-gallery > p > .gallery-item').unwrap();
+                }
+                $('.justified-gallery').justifiedGallery();
+            }
+        });</script><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/pjax@0.2.8/pjax.min.js"></script><script src="/js/pjax.js"></script><!--!--><!--!--><!--!--><script data-pjax src="/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="想要查找什么..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script data-pjax src="/js/insight.js" defer></script><script data-pjax>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/content.json"}, {"hint":"想要查找什么...","untitled":"(无标题)","posts":"文章","pages":"页面","categories":"分类","tags":"标签"});
+        });</script></body></html>

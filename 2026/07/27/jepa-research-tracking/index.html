@@ -1,0 +1,513 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>JEPA 下游研究追踪 · 2026-07-27 - Lu Zhongqiu</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="Lu Zhongqiu"><meta name="msapplication-TileImage" content="/img/favicon.svg"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Lu Zhongqiu"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="本文属于「JEPA追踪」系列，记录每日论文检索、原文核验与阶段性判断；它保留研究日志的证据密度，与经过主题化重写的原创博客区分。  JEPA 下游研究追踪（2026-07-27）"><meta property="og:type" content="blog"><meta property="og:title" content="JEPA 下游研究追踪 · 2026-07-27"><meta property="og:url" content="https://luzhongqiu.github.io/2026/07/27/jepa-research-tracking/"><meta property="og:site_name" content="Lu Zhongqiu"><meta property="og:description" content="本文属于「JEPA追踪」系列，记录每日论文检索、原文核验与阶段性判断；它保留研究日志的证据密度，与经过主题化重写的原创博客区分。  JEPA 下游研究追踪（2026-07-27）"><meta property="og:locale" content="zh_CN"><meta property="og:image" content="https://arxiv.org/html/2607.21644v1/figures/training_process.png"><meta property="article:published_time" content="2026-07-27T02:00:00.000Z"><meta property="article:modified_time" content="2026-08-24T03:21:27.964Z"><meta property="article:author" content="Lu Zhongqiu"><meta property="article:tag" content="JEPA"><meta property="article:tag" content="JEPA追踪"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="https://arxiv.org/html/2607.21644v1/figures/training_process.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"https://luzhongqiu.github.io/2026/07/27/jepa-research-tracking/"},"headline":"JEPA 下游研究追踪 · 2026-07-27","image":["https://arxiv.org/html/2607.21644v1/figures/training_process.png"],"datePublished":"2026-07-27T02:00:00.000Z","dateModified":"2026-08-24T03:21:27.964Z","author":{"@type":"Person","name":"Lu Zhongqiu"},"publisher":{"@type":"Organization","name":"Lu Zhongqiu","logo":{"@type":"ImageObject","url":"https://luzhongqiu.github.io/img/logo.svg"}},"description":"本文属于「JEPA追踪」系列，记录每日论文检索、原文核验与阶段性判断；它保留研究日志的证据密度，与经过主题化重写的原创博客区分。  JEPA 下游研究追踪（2026-07-27）"}</script><link rel="canonical" href="https://luzhongqiu.github.io/2026/07/27/jepa-research-tracking/"><link rel="icon" href="/img/favicon.svg"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.0.0/css/all.css"><link data-pjax rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/atom-one-light.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;600&amp;family=Source+Code+Pro"><link data-pjax rel="stylesheet" href="/css/default.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"><!--!--><!--!--><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><!--!--><!--!--><!-- hexo injector head_end start --><script>
+  (function () {
+      function switchTab() {
+          if (!location.hash) {
+            return;
+          }
+
+          const id = '#' + CSS.escape(location.hash.substring(1));
+          const $tabMenu = document.querySelector(`.tabs a[href="${id}"]`);
+          if (!$tabMenu) {
+            return;
+          }
+
+          const $tabMenuContainer = $tabMenu.parentElement.parentElement;
+          Array.from($tabMenuContainer.children).forEach($menu => $menu.classList.remove('is-active'));
+          Array.from($tabMenuContainer.querySelectorAll('a'))
+              .map($menu => document.getElementById($menu.getAttribute("href").substring(1)))
+              .forEach($content => $content.classList.add('is-hidden'));
+
+          if ($tabMenu) {
+              $tabMenu.parentElement.classList.add('is-active');
+          }
+          const $activeTab = document.querySelector(id);
+          if ($activeTab) {
+              $activeTab.classList.remove('is-hidden');
+          }
+      }
+      switchTab();
+      window.addEventListener('hashchange', switchTab, false);
+  })();
+  </script><link rel="stylesheet" href="/css/custom.css"><!-- hexo injector head_end end --><meta name="generator" content="Hexo 8.1.2"></head><body class="is-2-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/">Lu Zhongqiu</a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a><a class="navbar-item" href="/about">About</a></div><div class="navbar-end"><a class="navbar-item search" title="搜索" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-8-widescreen"><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item"><time dateTime="2026-07-27T02:00:00.000Z" title="7/27/2026, 2:00:00 AM">2026-07-27</time>发表</span><span class="level-item"><time dateTime="2026-08-24T03:21:27.964Z" title="8/24/2026, 3:21:27 AM">2026-08-24</time>更新</span><span class="level-item"><a class="link-muted" href="/categories/JEPA%E7%A0%94%E7%A9%B6%E8%BF%BD%E8%B8%AA/">JEPA研究追踪</a></span><span class="level-item">1 小时读完 (大约8100个字)</span></div></div><h1 class="title is-3 is-size-4-mobile">JEPA 下游研究追踪 · 2026-07-27</h1><div class="content"><blockquote>
+<p>本文属于「JEPA追踪」系列，记录每日论文检索、原文核验与阶段性判断；它保留研究日志的证据密度，与经过主题化重写的原创博客区分。</p>
+</blockquote>
+<h1 id="JEPA-下游研究追踪（2026-07-27）"><a href="#JEPA-下游研究追踪（2026-07-27）" class="headerlink" title="JEPA 下游研究追踪（2026-07-27）"></a>JEPA 下游研究追踪（2026-07-27）</h1><blockquote>
+<p>检索增量窗口：自上次运行 <code>2026-07-26T03:00:47.173Z</code> 起，至 2026-07-27 本次运行。<br>去重范围：自动化 memory，以及 <code>research/jepa/</code> 中 2026-07-15 至 2026-07-26 的全部既有记录。<br>纳入标准：论文必须实际复用、改造或直接评估 JEPA，并进入明确下游任务；只在 related work 引用 JEPA 的工作不算。搜索索引只用于发现，实质性结论回到论文原文、作者项目页或正式页面核验。<br>时间口径：今天是周一公告批次。三篇主稿的 arXiv v1 分别提交于 7 月 21 日和 7 月 24 日，但都在 7 月 27 日的新论文列表中首次进入本自动化的可检索窗口；下文称“今日新上榜”，不写成“今天才投稿”。</p>
+</blockquote>
+<h2 id="今日结论"><a href="#今日结论" class="headerlink" title="今日结论"></a>今日结论</h2><ol>
+<li><strong>今天确认 3 篇高可信新增，而且都属于“真正使用 JEPA 做下游任务”。</strong> 它们分别把 JEPA 接入 PDE 闭环控制、音乐理解与钢琴转录、定量超声反演；不是在相关工作中顺带引用。<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2607.21644">PDE-JEPA</a> · <a target="_blank" rel="noopener" href="https://arxiv.org/abs/2607.22000">Music-JEPA</a> · <a target="_blank" rel="noopener" href="https://arxiv.org/abs/2607.22351">IQ-JEPA</a></li>
+<li><strong>PDE 控制论文给出了今天最重要的方法论提醒：可预测 latent 不等于可直接作为控制代价的度量空间。</strong> 同一个冻结 JEPA 世界模型下，用线性动能（KE）探针构造物理量代价，比 latent L2 在 50 个配对 episode 上把原生 reward 从 <code>-12.084 ± 0.857</code> 提高到 <code>-10.901 ± 0.911</code>，并把末段速度场 RMSE 从 <code>0.07650</code> 降到 <code>0.06917</code>；但在三组非周期目标的 pooled native reward 上并没有赢，真正改善的是物理场跟踪。<a target="_blank" rel="noopener" href="https://arxiv.org/html/2607.21644v1">论文结果与讨论</a></li>
+<li><strong>Music-JEPA 首次把“动作”在音乐里定义得足够具体：声音是状态，pianoroll 与延音踏板是动作。</strong> 它在节拍、作曲家识别和调性任务上普遍优于同规模 audio-only JEPA，并能通过逆动作预测做钢琴转录；但音符级转录明显落后于监督模型，优势主要集中在连续踏板估计。<a target="_blank" rel="noopener" href="https://arxiv.org/html/2607.22000v1">论文原文</a></li>
+<li><strong>IQ-JEPA 是今天最强的领域归纳偏置案例。</strong> 它把 I-JEPA 式 masked latent prediction 移到复数 IQ 超声通道数据，并用 Hermitian attention、共轭乘积前馈和全局相位增强显式尊重相位对称性。10K 标签时声速 MAE 为 <code>15.60 m/s</code>，低于同一 Hermitian ViT 从头监督训练的 <code>23.46 m/s</code> 和 InversionNet 的 <code>34.73 m/s</code>；不过全部实验仍是单一频率、单一发射方式的 Fullwave 仿真，不能外推到临床。<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2607.22351">论文方法与 Table I</a></li>
+<li><strong>三篇共同指向一个阶段性趋势：JEPA 的价值正在从“换一种预训练损失”转向“怎样定义任务接口”。</strong> PDE-JEPA 用物理可观测量校准控制代价，Music-JEPA 用显式动作解释声音变化，IQ-JEPA 用信号对称性决定 encoder；真正决定下游价值的已经不是 JEPA 名称，而是 latent 与动作、物理量或测量机制如何对齐。</li>
+<li><strong>原创博客价值排序：IQ-JEPA 高，PDE-JEPA 高，Music-JEPA 中高。</strong> IQ-JEPA 适合写“领域物理如何进入 JEPA”；PDE-JEPA 适合写“latent geometry 不是控制目标”；Music-JEPA 适合写“从被动音频表征到动作条件世界模型”，但应避免把当前钢琴单域结果夸大为通用音乐世界模型。</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th>论文</th>
+<th>严格分类</th>
+<th>下游任务</th>
+<th>最强证据</th>
+<th>主要边界</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Goal-Agnostic JEPA Control of PDEs</td>
+<td>实际改造并部署 JEPA</td>
+<td>Navier–Stokes 闭环控制</td>
+<td>同一冻结模型、配对种子下物理量代价优于 latent L2</td>
+<td>单 PDE、单标量执行器、干净全状态观测</td>
+</tr>
+<tr>
+<td>Music-JEPA</td>
+<td>实际构造 action-conditioned JEPA</td>
+<td>MIR 表征、钢琴转录</td>
+<td>同规模 AO-JEPA 对照与动作扰动实验</td>
+<td>全部围绕 MAESTRO&#x2F;古典钢琴；转录落后监督方法</td>
+</tr>
+<tr>
+<td>IQ-JEPA</td>
+<td>实际改造 I-JEPA</td>
+<td>声速&#x2F;衰减系数估计</td>
+<td>匹配架构、标签规模、三种随机种子的监督与 SSL 对照</td>
+<td>纯仿真；无真实 IQ 验证</td>
+</tr>
+</tbody></table>
+<h2 id="JEPA-方向最新进展"><a href="#JEPA-方向最新进展" class="headerlink" title="JEPA 方向最新进展"></a>JEPA 方向最新进展</h2><h3 id="1-周一公告批次带来三个真正的下游分支"><a href="#1-周一公告批次带来三个真正的下游分支" class="headerlink" title="1. 周一公告批次带来三个真正的下游分支"></a>1. 周一公告批次带来三个真正的下游分支</h3><p>本轮检查了 arXiv 的 <code>cs.LG</code>、<code>cs.CV</code>、<code>cs.RO</code>、<code>cs.AI</code>、<code>eess.SP</code>、<code>eess.IV</code>、<code>cs.MM</code>、<code>cs.SD</code> 新论文列表，并以 JEPA 名称、I-JEPA&#x2F;V-JEPA&#x2F;A-JEPA 家族名、joint-embedding 与引用链交叉发现。最有价值的新增不是视觉 benchmark 的小变体，而是三个此前追踪尚未覆盖的具体系统：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://arxiv.org/abs/2607.21644">PDE-JEPA</a> 将 action-conditioned latent rollout 接入 MPPI，进入闭环 PDE 控制；</li>
+<li><a target="_blank" rel="noopener" href="https://arxiv.org/abs/2607.22000">Music-JEPA</a> 将音频、pianoroll 和踏板组成可预测的状态—动作系统；</li>
+<li><a target="_blank" rel="noopener" href="https://arxiv.org/abs/2607.22351">IQ-JEPA</a> 将 I-JEPA 的遮挡 latent 预测用于超声波场反演。</li>
+</ul>
+<p>三篇目前都是 arXiv v1 预印本，尚不能用“正式发表”或“已同行评审”描述。</p>
+<h3 id="2-严格区分“使用-JEPA”与“只讨论-JEPA”"><a href="#2-严格区分“使用-JEPA”与“只讨论-JEPA”" class="headerlink" title="2. 严格区分“使用 JEPA”与“只讨论 JEPA”"></a>2. 严格区分“使用 JEPA”与“只讨论 JEPA”</h3><p><strong>纳入主解读的三篇都实际使用了 JEPA。</strong></p>
+<ul>
+<li>PDE-JEPA 训练 masked field encoder、action-conditioned latent predictor 和防坍塌&#x2F;动作敏感正则，再冻结模型做 MPPI；</li>
+<li>Music-JEPA 使用 student&#x2F;EMA teacher state&#x2F;action encoder，并在 latent 中预测下一声音状态和下一动作；</li>
+<li>IQ-JEPA 直接改造 I-JEPA context&#x2F;EMA target&#x2F;predictor 结构，并把 encoder 换成面向复数 IQ 的 Hermitian ViT。</li>
+</ul>
+<p><strong>未纳入主解读但值得追踪的方向：</strong></p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://arxiv.org/abs/2607.22430"><em>On the Identifiability of Controlled World Models</em></a> 给出受控 JEPA 在高斯 latent 与受限行为策略下的表示&#x2F;转移可辨识性条件，并分析动作覆盖不足对 counterfactual prediction 的放大效应。它属于 JEPA 核心理论进展，但实验主要用于验证理论，不是一个新的具体下游应用，因此只放入方向进展。</li>
+<li><code>seq-JEPA</code> 与 <code>JHU-VPT(JEPA)</code> 已完成原文候选核验，分别对应可逆变换下的 invariant&#x2F;equivariant world model 和白内障手术视频理解；二者是历史漏项，不与今天三个严格新增争夺主解读名额，保留为下一轮高优先级回补。</li>
+<li><code>HAR-JEPA</code>、<code>JEPA-MSAC</code>、<code>FF-JEPA</code> 延续既有排除或降级判断：前两者仍需厘清 subject&#x2F;time-disjoint split，后者主要证据仍集中在单一 PushT preliminary setting。本轮未发现足以改变排序的新版本。</li>
+</ul>
+<h3 id="3-最新信号：下游接口比“latent-是否好看”更重要"><a href="#3-最新信号：下游接口比“latent-是否好看”更重要" class="headerlink" title="3. 最新信号：下游接口比“latent 是否好看”更重要"></a>3. 最新信号：下游接口比“latent 是否好看”更重要</h3><p>三个系统对 latent 的用法不同，却共同反对一个朴素假设：只要 JEPA 学到可预测表示，下游任务自然就会变好。</p>
+<ul>
+<li>PDE-JEPA 直接展示 latent L2 会扭曲物理误差的尺度和排序，必须通过物理量探针重新定义代价；</li>
+<li>Music-JEPA 只有把 pianoroll 与踏板作为 action 条件，才显著提升对相邻声音状态的辨别能力；</li>
+<li>IQ-JEPA 的收益不只来自复数网络，也来自相位增强、RoPE、复数 patch embedding 与 latent-prediction objective 的组合。</li>
+</ul>
+<p>这意味着未来审计下游 JEPA 时，至少要同时检查四件事：<strong>预测目标是什么、动作或条件是什么、latent 如何接入任务、对照是否能隔离 JEPA objective 与领域架构的贡献。</strong></p>
+<h2 id="新增下游论文解读"><a href="#新增下游论文解读" class="headerlink" title="新增下游论文解读"></a>新增下游论文解读</h2><h3 id="1-Toward-Goal-Agnostic-Joint-Embedding-Predictive-Control-of-Partial-Differential-Equations"><a href="#1-Toward-Goal-Agnostic-Joint-Embedding-Predictive-Control-of-Partial-Differential-Equations" class="headerlink" title="1. Toward Goal-Agnostic Joint-Embedding Predictive Control of Partial Differential Equations"></a>1. Toward Goal-Agnostic Joint-Embedding Predictive Control of Partial Differential Equations</h3><h4 id="基本信息"><a href="#基本信息" class="headerlink" title="基本信息"></a>基本信息</h4><ul>
+<li>完整题目：<em>Toward Goal-Agnostic Joint-Embedding Predictive Control of Partial Differential Equations</em></li>
+<li>作者：Jonathan Gallagher、Roberto Guglielmi</li>
+<li>机构：University of Waterloo</li>
+<li>时间与出处：论文标注 2026-07-27；arXiv:2607.21644 v1 上传于 2026-07-21，当前为 <code>cs.LG</code> 预印本</li>
+<li>使用的 JEPA：端到端 masked JEPA latent dynamics，结合 VICReg、temporal straightening 与 Delta-JEPA 式动作差分解码</li>
+<li>下游任务：PDE Control Gym 二维 Navier–Stokes 闭环控制，包括轨迹跟踪、非周期目标跟踪和固定动能调节</li>
+</ul>
+<p><a target="_blank" rel="noopener" href="https://arxiv.org/abs/2607.21644">arXiv 摘要</a> · <a target="_blank" rel="noopener" href="https://arxiv.org/html/2607.21644v1">HTML 原文</a></p>
+<h4 id="方法如何衔接-JEPA"><a href="#方法如何衔接-JEPA" class="headerlink" title="方法如何衔接 JEPA"></a>方法如何衔接 JEPA</h4><p><strong>可核对事实</strong></p>
+<p>模型用一个小型二维 ViT 编码 <code>21×21×2</code> 速度场：3×3 patch、4 个 Transformer block、4 个 attention head、256 维输出。predictor 是两层、每层 512 单元的 MLP，读取 4 个历史 latent 与动作，以 stride 2 自回归预测 12 个 latent residual。<a target="_blank" rel="noopener" href="https://arxiv.org/html/2607.21644v1#S3.SS1">模型结构</a></p>
+<p>训练时同一个 encoder 分别编码 masked 历史和未遮挡未来序列；与典型 I-JEPA 不同，未来分支不是 stop-gradient EMA teacher，rollout gradient 可以流经 predictor、masked branch 和 unmasked future branch。因此作者额外使用 VICReg variance&#x2F;covariance 防坍塌、temporal straightening 约束轨迹几何，并用相邻真实 latent 差分解码动作以增强 action sensitivity。总损失权重为 <code>1 / 1 / 0.1 / 10</code>，没有任何 decoder 把 latent 重建为速度场。</p>
+<p style="text-align:center">
+  <img src="https://arxiv.org/html/2607.21644v1/figures/training_process.png" alt="PDE-JEPA 的联合嵌入训练流程" loading="lazy" style="max-width:720px;width:100%;height:auto">
+</p>
+
+<blockquote>
+<p>图：masked 与完整观测进入同一 encoder，再在 latent 中滚动预测；官方 PNG 约 163 KB，并限制为 720 px 显示宽度。来源：<a target="_blank" rel="noopener" href="https://arxiv.org/html/2607.21644v1#S3.F2">论文 Figure 2</a>。</p>
+</blockquote>
+<p>部署时冻结 encoder 和 predictor，MPPI 每轮采样 512 条动作序列、迭代 3 次、使用 5 个 latent step 的规划 horizon。论文比较两种代价：</p>
+<ol>
+<li>直接最小化预测 latent 与目标 latent 的 L2；</li>
+<li>在冻结 rollout latent 上训练 ridge 线性探针预测 kinetic energy，再最小化物理量误差。</li>
+</ol>
+<p>第二种接口没有改变 JEPA 权重，只改变部署时 cost。这里最重要的设计不是“用能量替代全部状态”，而是把 JEPA 限定为 <strong>action-conditioned evolution model</strong>，不再要求它的欧氏几何同时承担物理度量。</p>
+<h4 id="数据、指标、基线与关键结果"><a href="#数据、指标、基线与关键结果" class="headerlink" title="数据、指标、基线与关键结果"></a>数据、指标、基线与关键结果</h4><p>离线数据包含 6,930 条轨迹，每条 200 个速度场、199 个动作；6,306 条用于训练，624 条验证。网格为 <code>21×21</code>，每个状态有二维速度，单一标量边界动作范围 <code>[0,4]</code>，动作保持两个 solver step。训练共 100K optimizer step、batch 128。<a target="_blank" rel="noopener" href="https://arxiv.org/html/2607.21644v1#S4">实验设置</a></p>
+<table>
+<thead>
+<tr>
+<th>实验</th>
+<th align="right">latent L2</th>
+<th align="right">KE probe</th>
+<th>结论</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>默认线性目标，50 个配对种子：native reward</td>
+<td align="right"><code>-12.084 ± 0.857</code></td>
+<td align="right"><code>-10.901 ± 0.911</code></td>
+<td>KE 高 1.183 分，49&#x2F;50 episode 更好</td>
+</tr>
+<tr>
+<td>默认线性目标：末段 field RMSE</td>
+<td align="right"><code>0.07650</code></td>
+<td align="right"><code>0.06917</code></td>
+<td>KE 在 50&#x2F;50 episode 更低</td>
+</tr>
+<tr>
+<td>三个 withheld 非周期目标：末段 field RMSE</td>
+<td align="right"><code>0.04687</code></td>
+<td align="right"><code>0.02204</code></td>
+<td>降低 53.0%，30&#x2F;30 episode 更低</td>
+</tr>
+<tr>
+<td>三个非周期目标：pooled native reward</td>
+<td align="right"><code>-15.084</code></td>
+<td align="right"><code>-15.245</code></td>
+<td>KE 没有赢 reward</td>
+</tr>
+<tr>
+<td>三个非周期目标：action TV</td>
+<td align="right"><code>14.345</code></td>
+<td align="right"><code>15.871</code></td>
+<td>KE 控制更激进，增加 10.6%</td>
+</tr>
+</tbody></table>
+<p><a target="_blank" rel="noopener" href="https://arxiv.org/html/2607.21644v1#S5.SS1.SSS1">默认目标 Table 1&#x2F;2</a> · <a target="_blank" rel="noopener" href="https://arxiv.org/html/2607.21644v1#S5.SS1.SSS2">非周期目标 Table 3</a></p>
+<p>KE probe 在 held-out rollout latent 上达到 <code>R²=0.9891</code>。固定 KE 目标下，末 50 个 native step 的平均相对误差为 2.66%，稳态动作 <code>2.491 ± 0.044</code>，接近生成该平衡态的真实动作 2.5。<a target="_blank" rel="noopener" href="https://arxiv.org/html/2607.21644v1#S5.SS2">固定动能调节</a></p>
+<p>论文还把结果与 PDE Control Gym 已发表数字并列：PPO <code>-5.370</code>、model-based optimization <code>-7.931</code>、作者的 KE-JEPA <code>-10.901</code>、latent-L2 <code>-12.084</code>、SAC <code>-17.829</code>。但已发表代理每个 solver step 动作一次，JEPA controller 每两个 step 动作一次，协议不同，因此只能提供上下文，不能宣称 JEPA 超过强基线。</p>
+<h4 id="事实、作者主张与我的判断"><a href="#事实、作者主张与我的判断" class="headerlink" title="事实、作者主张与我的判断"></a>事实、作者主张与我的判断</h4><p><strong>事实：</strong> 同一冻结模型、相同配对种子下，KE cost 对物理场 RMSE 的改善稳定；在非周期目标上，它没有改善 pooled native reward，反而增加 action TV。</p>
+<p><strong>作者主张：</strong> latent dynamics 可以保持 goal-agnostic，部署时用具备唯一性保证的物理 observable 作为任务接口，比假设 latent L2 是校准度量更可靠。</p>
+<p><strong>我的判断：</strong> 论文最可信的贡献不是“JEPA 已解决 PDE 控制”，而是做了一个干净的失败归因：早先瓶颈至少部分来自 cost geometry，而不完全来自 world model。这个结论对 V-JEPA 2 式 latent planning、机器人控制和科学机器学习都有迁移价值。</p>
+<h4 id="局限、复现条件与风险"><a href="#局限、复现条件与风险" class="headerlink" title="局限、复现条件与风险"></a>局限、复现条件与风险</h4><ul>
+<li>只有一个二维 Navier–Stokes 环境、一个正值标量执行器和一族窄响应轨迹。作者明确承认，在此范围内 KE 与场误差近似单射；多执行器或拓扑不同的流动不能沿用该结论。</li>
+<li>KE probe 只在干净 rollout latent 上拟合。加入噪声后相对误差升到 46%–64%，随机缺失像素时升到 60%–85%；masked encoder 能接受不完整输入，不代表下游 readout 已校准。</li>
+<li>更广的 PPO、SAC、model-based optimizer 对照动作频率不同；论文自己的严格 matched baseline 主要是同一 JEPA 的 latent-L2 cost。</li>
+<li>当前 v1 未提供可核验代码，复现还需要 PDE Control Gym 配置、离线轨迹生成、mask collator、MPPI 参数与 probe 数据划分。</li>
+</ul>
+<h4 id="是否值得改写成原创技术博客"><a href="#是否值得改写成原创技术博客" class="headerlink" title="是否值得改写成原创技术博客"></a>是否值得改写成原创技术博客</h4><p><strong>值得，高优先级。</strong> 最合适的主题不是复述 PDE benchmark，而是“为什么可预测 latent 不是控制目标：从 JEPA 的世界模型到可校准任务接口”。它与日报的区别应是跨论文讨论 latent geometry、observable、unique continuation 和 planner cost，而不是再逐表汇报一遍实验。</p>
+<hr>
+<h3 id="2-Music-JEPA-Learning-a-World-Model-of-Sound-from-Action"><a href="#2-Music-JEPA-Learning-a-World-Model-of-Sound-from-Action" class="headerlink" title="2. Music-JEPA: Learning a World Model of Sound from Action"></a>2. Music-JEPA: Learning a World Model of Sound from Action</h3><h4 id="基本信息-1"><a href="#基本信息-1" class="headerlink" title="基本信息"></a>基本信息</h4><ul>
+<li>完整题目：<em>Music-JEPA: Learning a World Model of Sound from Action</em></li>
+<li>作者：Ziyu Wang、Kun Fang、Yann LeCun</li>
+<li>机构：New York University Courant Institute、McGill University Schulich School of Music、MBZUAI、CIRMMT、AMI Labs</li>
+<li>时间与出处：arXiv:2607.22000 v1，2026-07-24；<code>cs.SD</code> 预印本，未在原文声明正式录用</li>
+<li>使用的 JEPA：state&#x2F;action 双 encoder、EMA teacher、latent state predictor 与 action predictor</li>
+<li>下游任务：节拍跟踪、作曲家识别、调性识别，以及通过动作反推进行钢琴转录</li>
+</ul>
+<p><a target="_blank" rel="noopener" href="https://arxiv.org/abs/2607.22000">arXiv 摘要</a> · <a target="_blank" rel="noopener" href="https://arxiv.org/html/2607.22000v1">HTML 原文</a> · <a target="_blank" rel="noopener" href="https://zzwaang.github.io/music-jepa-demo/">作者演示页</a></p>
+<h4 id="方法如何衔接-JEPA-1"><a href="#方法如何衔接-JEPA-1" class="headerlink" title="方法如何衔接 JEPA"></a>方法如何衔接 JEPA</h4><p>Music-JEPA 把 2 秒钢琴音频 log-mel spectrogram 定义为状态，把对齐的 88 键 pianoroll、velocity 和 sustain pedal 定义为动作。state encoder 产生 <code>s_t</code>，action encoder 产生 <code>a_t</code>；state predictor 学习 <code>f(s_t, a_{t+1}) → s_{t+1}</code>，action predictor 学习 <code>g(a_t) → a_{t+1}</code>。<a target="_blank" rel="noopener" href="https://arxiv.org/html/2607.22000v1#S3">方法与算法</a></p>
+<p>state predictor 不只是从当前状态盲猜未来：它读取当前 latent、被部分 mask 的未来状态 token，并在每层通过 cross-attention 接入下一段动作。state&#x2F;action teacher 都由 student 的 EMA 更新，目标分支 stop-gradient，两个 MSE 相加，动作项权重 <code>λ=0.5</code>；encoder 输出先做 layer norm 以避免靠放大表示幅度降低损失。</p>
+<p>模型总计约 19M 参数：state encoder 12 层、action encoder 8 层，两个 predictor 各 6 层；state encoder 本身约 6.5M。与只做随机 spectrogram patch mask、没有动作条件的同规模 <code>AO-JEPA</code> 比较，能隔离“显式 action”是否真的带来信息。</p>
+<p>“通过 planning 转录”的准确边界也要说明：论文先写出对动作 latent 做优化的目标，但高维梯度优化不稳定，实际采用 amortized planning——训练一个 inverse predictor <code>h(s_t,s_{t+1},a_t)</code> 直接预测下一动作 latent，再由单独训练的 action decoder 恢复 pianoroll。JEPA 主干在这一步冻结，但推理已经不是每个样本上迭代搜索。</p>
+<h4 id="数据、指标、基线与关键结果-1"><a href="#数据、指标、基线与关键结果-1" class="headerlink" title="数据、指标、基线与关键结果"></a>数据、指标、基线与关键结果</h4><p>预训练使用 MAESTRO v3.0.0 约 200 小时钢琴音频与时间对齐 MIDI，沿用标准 train&#x2F;validation&#x2F;test split。音频使用 229 mel bins、10 ms 帧率；总模型在单张 A100、batch 128 下训练 15–25 epoch。论文脚注说明 code 与 pretrained model “will be released soon”，当前能核验的是 demo，而非完整复现仓库。<a target="_blank" rel="noopener" href="https://arxiv.org/html/2607.22000v1#S4.SS1">数据与训练</a></p>
+<p><strong>动作条件动态。</strong> 对正确转移做时间或随机扰动，Music-JEPA 的 input temporal&#x2F;random win rate 为 <code>0.929/0.999</code>，AO-JEPA 为 <code>0.787/0.986</code>；target temporal&#x2F;random 为 <code>0.991/0.992</code>，AO-JEPA 为 <code>0.576/0.984</code>。差距主要出现在相邻时间位置，而不是随机负样本，说明动作帮助模型识别细粒度时序关系。<a target="_blank" rel="noopener" href="https://arxiv.org/html/2607.22000v1#S4.SS3">Table 1</a></p>
+<table>
+<thead>
+<tr>
+<th>下游指标</th>
+<th align="right">Music-JEPA</th>
+<th align="right">AO-JEPA</th>
+<th align="right">MERT</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Beat F1，70 ms</td>
+<td align="right"><code>0.6208</code></td>
+<td align="right"><code>0.6013</code></td>
+<td align="right"><code>0.5780</code></td>
+</tr>
+<tr>
+<td>Beat F1，100 ms</td>
+<td align="right"><code>0.6599</code></td>
+<td align="right"><code>0.6325</code></td>
+<td align="right"><code>0.6309</code></td>
+</tr>
+<tr>
+<td>Composer weighted F1</td>
+<td align="right"><code>0.5520</code></td>
+<td align="right"><code>0.4606</code></td>
+<td align="right"><code>0.6690</code></td>
+</tr>
+<tr>
+<td>Composer Top-1 &#x2F; Top-3 &#x2F; Top-5</td>
+<td align="right"><code>.3540 / .7045 / .8734</code></td>
+<td align="right"><code>.3308 / .6635 / .8422</code></td>
+<td align="right"><code>.4059 / .6493 / .7996</code></td>
+</tr>
+<tr>
+<td>Key weighted F1</td>
+<td align="right"><code>0.7617</code></td>
+<td align="right"><code>0.7615</code></td>
+<td align="right"><code>0.6469</code></td>
+</tr>
+</tbody></table>
+<p><a target="_blank" rel="noopener" href="https://arxiv.org/html/2607.22000v1#S4.SS4">MIR Table 2</a></p>
+<p>这里不能只写“全面超过”：Music-JEPA 相对 AO-JEPA 的节拍和作曲家任务提升明确；但 key weighted F1 只高 <code>0.0002</code>，weighted precision 还略低。它相对 95M 参数 MERT 的优势也具有任务特化背景：Music-JEPA 只在古典钢琴上训练，MERT 是通用音乐模型。</p>
+<p>钢琴转录的边界更明显：</p>
+<table>
+<thead>
+<tr>
+<th>MAESTRO test</th>
+<th align="right">Music-JEPA</th>
+<th align="right">Kong et al.</th>
+<th align="right">Yan et al.</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Frame F1</td>
+<td align="right"><code>0.8381</code></td>
+<td align="right"><code>0.9113</code></td>
+<td align="right"><code>0.9375</code></td>
+</tr>
+<tr>
+<td>Onset F1</td>
+<td align="right"><code>0.7325</code></td>
+<td align="right"><code>0.9681</code></td>
+<td align="right"><code>0.9833</code></td>
+</tr>
+<tr>
+<td>Onset+offset F1</td>
+<td align="right"><code>0.5372</code></td>
+<td align="right"><code>0.8524</code></td>
+<td align="right"><code>0.9166</code></td>
+</tr>
+<tr>
+<td>Onset+offset+velocity F1</td>
+<td align="right"><code>0.4000</code></td>
+<td align="right"><code>0.8377</code></td>
+<td align="right"><code>0.9122</code></td>
+</tr>
+<tr>
+<td>Continuous pedal MAE（低更好）</td>
+<td align="right"><code>0.1222</code></td>
+<td align="right"><code>0.1471</code></td>
+<td align="right"><code>0.1414</code></td>
+</tr>
+</tbody></table>
+<p>另一个监督踏板模型 Zhang et al. 的 pedal MAE 为 <code>0.1339</code>。因此 Music-JEPA 的“规划”在连续踏板上最好，但音符内容转录仍远弱于监督方法。<a target="_blank" rel="noopener" href="https://arxiv.org/html/2607.22000v1#S4.SS5">Table 3</a></p>
+<h4 id="事实、作者主张与我的判断-1"><a href="#事实、作者主张与我的判断-1" class="headerlink" title="事实、作者主张与我的判断"></a>事实、作者主张与我的判断</h4><p><strong>事实：</strong> action-conditioned JEPA 比同规模 audio-only JEPA 更敏感于真实相邻转移，并在节拍和作曲家 probes 上更强；key 增益几乎为零，音符级转录落后监督基线。</p>
+<p><strong>作者主张：</strong> 通过把演奏动作加入 latent dynamics，可以从被动音频表征迈向能理解、预测和规划的 music world model。</p>
+<p><strong>我的判断：</strong> “动作让状态转移更可辨”得到较好支持；“形成了通用音乐世界模型”还没有。当前动作来自时间对齐 MIDI，等于拥有非常强的结构化监督信号；所有任务又集中在同一古典钢琴数据域。最可信的创新是 <strong>把音乐的因果接口具体化</strong>，不是广泛音乐泛化。</p>
+<h4 id="局限、复现条件与风险-1"><a href="#局限、复现条件与风险-1" class="headerlink" title="局限、复现条件与风险"></a>局限、复现条件与风险</h4><ul>
+<li>只覆盖钢琴和 MAESTRO&#x2F;ASAP 相关数据，不能推出跨乐器、流行音乐、真实演奏噪声或无 MIDI 场景的效果。</li>
+<li>下游表格未报告多随机种子、标准差或置信区间；composer&#x2F;key probe 与 pseudo key label 的选择可能影响排名。</li>
+<li>AO-JEPA 是作者重实现，因为 Audio-JEPA&#x2F;A-JEPA 没有可用 checkpoint；实现公平性需要代码才能复核。</li>
+<li>action 是高质量对齐 MIDI，而现实中大多数音乐只有音频。作者也承认缺少动作标注时如何扩展仍是开放问题。</li>
+<li>“planning”最终使用训练出的 inverse predictor 与 decoder，容易被读者误解为在线动作搜索；正文应明确其 amortized inference 边界。</li>
+<li>当前项目页提供演示，代码和预训练权重尚未发布。</li>
+</ul>
+<h4 id="是否值得改写成原创技术博客-1"><a href="#是否值得改写成原创技术博客-1" class="headerlink" title="是否值得改写成原创技术博客"></a>是否值得改写成原创技术博客</h4><p><strong>值得，中高优先级。</strong> 适合写“声音作为状态、乐谱作为动作：Music-JEPA 怎样把音乐改写成世界模型问题”，但应把动作监督、单乐器域和转录失败放在核心位置，而不是只展示听感 demo。</p>
+<hr>
+<h3 id="3-IQ-JEPA-A-Joint-Embedding-Predictive-Architecture-with-a-Hermitian-Vision-Transformer-for-Sound-Speed-and-Attenuation-Estimation-from-Ultrasound-IQ-Data"><a href="#3-IQ-JEPA-A-Joint-Embedding-Predictive-Architecture-with-a-Hermitian-Vision-Transformer-for-Sound-Speed-and-Attenuation-Estimation-from-Ultrasound-IQ-Data" class="headerlink" title="3. IQ-JEPA: A Joint-Embedding Predictive Architecture with a Hermitian Vision Transformer for Sound Speed and Attenuation Estimation from Ultrasound IQ Data"></a>3. IQ-JEPA: A Joint-Embedding Predictive Architecture with a Hermitian Vision Transformer for Sound Speed and Attenuation Estimation from Ultrasound IQ Data</h3><h4 id="基本信息-2"><a href="#基本信息-2" class="headerlink" title="基本信息"></a>基本信息</h4><ul>
+<li>完整题目：<em>IQ-JEPA: A Joint-Embedding Predictive Architecture with a Hermitian Vision Transformer for Sound Speed and Attenuation Estimation from Ultrasound IQ Data</em></li>
+<li>作者：Masashi Sode、Gianmarco Pinton</li>
+<li>机构：University of North Carolina at Chapel Hill 与 North Carolina State University 的 Joint Department of Biomedical Engineering</li>
+<li>时间与出处：arXiv:2607.22351 v1，2026-07-24；<code>cs.LG / physics.med-ph</code> 预印本</li>
+<li>使用的 JEPA：I-JEPA 式 context encoder、EMA target encoder 和 predictor，作用于 beamforming 之前的复数 IQ 通道数据</li>
+<li>下游任务：二维声速图回归、衰减系数图回归，以及跨仿真 phantom family 迁移</li>
+</ul>
+<p><a target="_blank" rel="noopener" href="https://arxiv.org/abs/2607.22351">arXiv 摘要与 PDF</a></p>
+<h4 id="方法如何衔接-JEPA-2"><a href="#方法如何衔接-JEPA-2" class="headerlink" title="方法如何衔接 JEPA"></a>方法如何衔接 JEPA</h4><p>每个样本是 5 个角度的 plane-wave acquisition。RF 信号在 2.5 MHz 解调成复数 IQ，并排成 <code>1120×630</code> 的复数“图像”；14×14 complex patch embedding 得到 3,600 个 token。encoder 共 12 层：第一层为复数 block，后 11 层为实数 Transformer；总计 21.9M 参数。<a target="_blank" rel="noopener" href="https://arxiv.org/pdf/2607.22351">IQ 表示与 encoder</a></p>
+<p>复数 block 的三个关键设计分别对应超声物理：</p>
+<ol>
+<li>complex patch embedding 对全局相位旋转等变；</li>
+<li>Hermitian attention 用复内积实部构造注意力，保持等变；</li>
+<li>conjugate-product feed-forward 读取相位差，对全局解调相位不变。</li>
+</ol>
+<p>训练还随机对整幅 IQ 乘以全局相位 <code>e^{iφ}</code>。这是必要的，因为仿真数据本身固定解调参考相位，不做增强就无法让模型真正经历目标对称性。</p>
+<p>IQ-JEPA pretraining 改自 I-JEPA：context encoder 只看 target union 的补集，EMA target encoder 编码完整输入，6 层 predictor 预测四组 masked block 的 latent，使用 smooth-L1。四种 mask 分别覆盖 angle stripe、depth band、lateral stripe 和 rectangle，context 平均只剩约 28%。论文还披露 collator 的一个实现细节：batch 共享某个样本的 context mask，因此其他样本约有 20% 自己的 target patch 仍对 context encoder 可见；这不是 train&#x2F;test 泄漏，但复现时不能忽略。<a target="_blank" rel="noopener" href="https://arxiv.org/pdf/2607.22351">预训练与 masking</a></p>
+<p>下游阶段丢弃 predictor 和 target encoder，给 context encoder 接一个轻量卷积 regression head，并共同 fine-tune。主指标是 held-out <code>512×256</code> 声速图逐像素 MAE（m&#x2F;s）。</p>
+<h4 id="数据、指标、基线与关键结果-2"><a href="#数据、指标、基线与关键结果-2" class="headerlink" title="数据、指标、基线与关键结果"></a>数据、指标、基线与关键结果</h4><p>Fullwave 2.5 在二维域中生成 79,293 个 acquisition，包括随机 2–6 层 phantom 和 Visible Human Project 衍生的 abdominal phantom。固定 test 为 7,929，剩余按实验种子分成 63,435 train 与 7,929 validation；test&#x2F;validation 从未进入无标签预训练。预训练时再从 63,435 中分出 57,091 做梯度更新、6,344 做 SSL checkpoint selection。<a target="_blank" rel="noopener" href="https://arxiv.org/pdf/2607.22351">数据划分</a></p>
+<p>数据生成本身约耗费 16 张 L40S、三天、约 1,150 GPU 小时，并占 1.3 TB；100 epoch 预训练用 8 张 H100、effective batch 128、约 6 小时。它的“节省标签”成立，但不等于低成本复现。</p>
+<table>
+<thead>
+<tr>
+<th>Encoder &#x2F; input &#x2F; training</th>
+<th align="right">1K labels</th>
+<th align="right">5K</th>
+<th align="right">10K</th>
+<th align="right">63K</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>InversionNet &#x2F; RF &#x2F; supervised</td>
+<td align="right"><code>51.38±0.11</code></td>
+<td align="right"><code>39.49±0.74</code></td>
+<td align="right"><code>34.73±0.07</code></td>
+<td align="right"><code>18.32±0.76</code></td>
+</tr>
+<tr>
+<td>Real ViT &#x2F; IQ &#x2F; supervised</td>
+<td align="right"><code>47.26±0.43</code></td>
+<td align="right"><code>36.32±1.21</code></td>
+<td align="right"><code>30.04±0.34</code></td>
+<td align="right"><code>15.01±0.13</code></td>
+</tr>
+<tr>
+<td>Hermitian ViT &#x2F; IQ &#x2F; supervised</td>
+<td align="right"><code>45.44±0.72</code></td>
+<td align="right"><code>29.87±1.24</code></td>
+<td align="right"><code>23.46±0.18</code></td>
+<td align="right"><code>11.51±0.15</code></td>
+</tr>
+<tr>
+<td>Real ViT &#x2F; IQ-JEPA SSL+ft</td>
+<td align="right"><code>33.93±0.93</code></td>
+<td align="right"><code>22.76±0.27</code></td>
+<td align="right"><code>18.21±0.08</code></td>
+<td align="right"><code>9.99±0.09</code></td>
+</tr>
+<tr>
+<td><strong>Hermitian ViT &#x2F; IQ-JEPA SSL+ft</strong></td>
+<td align="right"><strong><code>30.47±0.91</code></strong></td>
+<td align="right"><strong><code>19.72±0.35</code></strong></td>
+<td align="right"><strong><code>15.60±0.26</code></strong></td>
+<td align="right"><strong><code>8.71±0.17</code></strong></td>
+</tr>
+</tbody></table>
+<p>单位均为声速 MAE（m&#x2F;s），低更好；每格是固定 test 上三个种子的均值与标准差。<a target="_blank" rel="noopener" href="https://arxiv.org/pdf/2607.22351">Table I</a></p>
+<p>因此“约 2.2× below InversionNet”指的是 10K 标签时 MAE <code>34.73 / 15.60 ≈ 2.2</code>，不是准确率提高 2.2 倍。相同 Hermitian ViT 下，SSL 把 10K MAE 从 23.46 降到 15.60，下降 7.86 m&#x2F;s；作者按达到相同误差所需标签量估算约三倍 label efficiency，1K 区域超过四倍。</p>
+<p>预训练规模实验把标签固定为 10K，无标签数据从 0 增至 2K&#x2F;5K&#x2F;10K&#x2F;20K&#x2F;40K&#x2F;63,435，Hermitian ViT MAE 依次为 <code>23.46 → 22.20 → 21.47 → 20.81 → 18.82 → 16.31 → 15.60</code>。曲线在无标签量超过 fine-tune 标签量后才明显下降，最大规模仍未饱和。<a target="_blank" rel="noopener" href="https://arxiv.org/pdf/2607.22351">Figure 5</a></p>
+<p>第二个物理属性 attenuation 也有迁移：</p>
+<ul>
+<li>frozen probe：<code>0.093 dB/cm/MHz</code>，随机 encoder 为 <code>0.124</code>，mean predictor 为 <code>0.118</code>；</li>
+<li>10K 标签 fine-tune：IQ-JEPA 为 <code>0.0552</code>，从头监督为 <code>0.0699</code>；</li>
+<li>跨 abdominal&#x2F;layered family 预训练的额外代价只有 <code>+0.36 / +0.24 m/s</code>，但这组实验是 single-seed，且仍在同一 Fullwave 仿真体系内部。</li>
+</ul>
+<p>论文还用同一 Hermitian ViT 比较 masked-autoencoder pixel reconstruction：IQ-JEPA 在 1K&#x2F;5K&#x2F;10K&#x2F;63K 为 <code>30.47/19.72/15.60/8.71</code>，masked AE 为 <code>37.69/26.59/21.29/10.46</code>。这比“复数 ViT 优于卷积网络”的对照更能隔离 latent prediction objective 的贡献。</p>
+<h4 id="事实、作者主张与我的判断-2"><a href="#事实、作者主张与我的判断-2" class="headerlink" title="事实、作者主张与我的判断"></a>事实、作者主张与我的判断</h4><p><strong>事实：</strong> 在严格 held-out 的 Fullwave 仿真数据上，IQ-JEPA 对监督 Hermitian ViT、实数 IQ-JEPA 和 InversionNet 都有稳定优势；三种种子误差小于主要方法差异，且同一 encoder 能迁移到 attenuation。</p>
+<p><strong>作者主张：</strong> 无标签真实 IQ 在临床采集中天然丰富，未来可用真实数据预训练、仿真标签 fine-tune，从而形成 quantitative ultrasound foundation model。</p>
+<p><strong>我的判断：</strong> 论文已经证明“领域对称性 + latent prediction”是比普通实数 encoder 和 pixel reconstruction 更好的仿真学习方案；但“真实无标签数据会复制相同 scaling trend”仍是待验证假设。当前最强结论是 in-silico label efficiency，不是临床 foundation model。</p>
+<h4 id="局限、复现条件与风险-2"><a href="#局限、复现条件与风险-2" class="headerlink" title="局限、复现条件与风险"></a>局限、复现条件与风险</h4><ul>
+<li>全部 79,293 个样本都由同一 Fullwave 2.5 管线生成；没有 in vivo、ex vivo、跨设备或跨医院测试。</li>
+<li>只有 5-angle plane wave、2.5 MHz、128-element linear array。跨发射几何、5 MHz 等频率和真实硬件系统误差都未验证。</li>
+<li>与 B-mode encoder 的对照只在讨论中给出物理理由，没有实验；因此不能断言 raw channel IQ 一定胜过最佳 beamformed-image foundation model。</li>
+<li>complex block 的平均主效应并非总是正：Hermitian attention 和 conjugate-product feed-forward 在 2⁵ supervised factorial 的 cube-average 略为负，只有与 phase augmentation 等完整配置配合时才改善。真正稳定的大收益首先来自 SSL objective、phase augmentation 与 RoPE。</li>
+<li>attenuation 与跨分布实验有 single-seed 部分；临床风险、校准与不确定性未评估。</li>
+<li>当前 arXiv 页面未提供论文专属代码或 1.3 TB 数据发布链接；完整复现需要昂贵的波场仿真与多 GPU 训练。</li>
+</ul>
+<h4 id="是否值得改写成原创技术博客-2"><a href="#是否值得改写成原创技术博客-2" class="headerlink" title="是否值得改写成原创技术博客"></a>是否值得改写成原创技术博客</h4><p><strong>值得，最高优先级。</strong> 可写成“把物理对称性写进 JEPA：IQ-JEPA 如何学习超声复数波场”。原创文章应围绕 U(1) 全局相位、Hermitian attention、latent prediction 对 speckle 的适配和 simulation-to-real 边界组织，而不是把 15.60 m&#x2F;s 单个数字包装成临床突破。</p>
+<h2 id="横向比较"><a href="#横向比较" class="headerlink" title="横向比较"></a>横向比较</h2><table>
+<thead>
+<tr>
+<th>维度</th>
+<th>PDE-JEPA</th>
+<th>Music-JEPA</th>
+<th>IQ-JEPA</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>JEPA 原型</td>
+<td>端到端 action-conditioned masked JEPA</td>
+<td>EMA teacher 的 state&#x2F;action JEPA</td>
+<td>I-JEPA masked latent prediction</td>
+</tr>
+<tr>
+<td>任务接口</td>
+<td>MPPI cost：latent L2 或 KE probe</td>
+<td>pianoroll&#x2F;踏板作为 action</td>
+<td>复数 IQ 的相位对称性</td>
+</tr>
+<tr>
+<td>主干是否冻结</td>
+<td>部署时冻结</td>
+<td>MIR probe&#x2F;逆动作阶段冻结 state encoder</td>
+<td>下游与 regression head 联合 fine-tune；另做 frozen probe</td>
+</tr>
+<tr>
+<td>最强对照</td>
+<td>同一模型、同种子换 cost</td>
+<td>同规模 AO-JEPA</td>
+<td>同架构监督、实数 IQ-JEPA、masked AE</td>
+</tr>
+<tr>
+<td>最可信收益</td>
+<td>物理场跟踪误差</td>
+<td>动作条件时序辨别、beat&#x2F;composer probe</td>
+<td>仿真低标签声速&#x2F;衰减估计</td>
+</tr>
+<tr>
+<td>最容易被夸大的结论</td>
+<td>“已超过 PDE 控制 SOTA”</td>
+<td>“已经会通用音乐规划”</td>
+<td>“已可用于临床”</td>
+</tr>
+<tr>
+<td>复现门槛</td>
+<td>中：需离线轨迹与 MPPI</td>
+<td>中：MAESTRO 可得，但代码未发</td>
+<td>很高：1.3 TB 仿真、约 1,150 GPUh 数据生成</td>
+</tr>
+</tbody></table>
+<p>三篇对“下游 JEPA 是否有效”的证据强度也不同：</p>
+<ol>
+<li><strong>IQ-JEPA 的 attribution 最完整。</strong> 它同时控制 architecture、input modality、SSL objective、label count 和 seed，并有 pixel reconstruction 对照。</li>
+<li><strong>PDE-JEPA 的配对控制实验最清楚。</strong> 同一冻结模型只换 cost，可以明确归因于任务接口；但与外部强基线协议不同。</li>
+<li><strong>Music-JEPA 的概念新颖，但统计报告最弱。</strong> 有同规模 AO-JEPA，却没有多种子误差；部分下游指标增益很小，规划又被 amortized inverse model 替代。</li>
+</ol>
+<h2 id="值得继续追的问题"><a href="#值得继续追的问题" class="headerlink" title="值得继续追的问题"></a>值得继续追的问题</h2><ol>
+<li><strong>可校准 observable 能否推广到多执行器 PDE？</strong> 需要在二维&#x2F;三维、多个边界控制量和非单射能量状态下测试多物理量 probe、uncertainty 与约束规划。</li>
+<li><strong>controlled JEPA 的动作覆盖是否足够？</strong> 新理论论文指出，行为策略缺少条件动作变化时，on-policy prediction 好并不保证 counterfactual transition 可辨识。PDE-JEPA 与 Music-JEPA 都应加入 action-coverage audit。<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2607.22430">controlled world model 可辨识性</a></li>
+<li><strong>Music-JEPA 能否从不可观测动作中学习？</strong> 现实音乐通常没有对齐 MIDI。下一步应比较 latent action discovery、score transcription 后自训练与少量 paired action 的效果。</li>
+<li><strong>Music-JEPA 的“规划”能否回到真正的测试时优化？</strong> 当前 inverse predictor 更像 amortized policy；需要与 CEM、gradient planning 或 diffusion action prior 在相同计算预算下比较。</li>
+<li><strong>IQ-JEPA 能否兑现真实数据预训练？</strong> 最关键实验不是再扩仿真规模，而是用真实无标签 IQ 预训练，再在独立设备&#x2F;机构的仿真或少量实测标签上验证迁移。</li>
+<li><strong>复数归纳偏置与大数据谁最终占优？</strong> IQ-JEPA 中 Hermitian 相对 real ViT 的差距随预训练规模变大而缩小；应继续追踪规模更大时是否交叉，以及对称性是否主要改善小数据效率。</li>
+<li><strong>三篇是否有代码更新？</strong> PDE-JEPA 与 IQ-JEPA 当前无专属代码，Music-JEPA 明确写“soon”。下一轮应检查项目页、arXiv v2 和仓库发布，而不是把“可复现”只建立在超参数表上。</li>
+</ol>
+<h2 id="博客价值判断"><a href="#博客价值判断" class="headerlink" title="博客价值判断"></a>博客价值判断</h2><h3 id="优先主题-1：把物理对称性写进-JEPA"><a href="#优先主题-1：把物理对称性写进-JEPA" class="headerlink" title="优先主题 1：把物理对称性写进 JEPA"></a>优先主题 1：把物理对称性写进 JEPA</h3><p>以 IQ-JEPA 为主，串联医学成像、雷达、MRI 和地震反演。核心问题是：为什么复数相位不是普通双通道输入，为什么 latent prediction 比 speckle pixel reconstruction 更合适，以及何时领域归纳偏置只改善小数据效率。<strong>原创价值高，且能与日报明显区分。</strong></p>
+<h3 id="优先主题-2：可预测-latent-为什么不是控制目标"><a href="#优先主题-2：可预测-latent-为什么不是控制目标" class="headerlink" title="优先主题 2：可预测 latent 为什么不是控制目标"></a>优先主题 2：可预测 latent 为什么不是控制目标</h3><p>以 PDE-JEPA 为主，连接 V-JEPA 2、DINO-WM、TD-MPC 等 latent planning。重点解释 world model、metric、cost 与 observable 的职责分离，并用“RMSE 改善但 pooled reward 未改善”的反例约束叙事。<strong>原创价值高。</strong></p>
+<h3 id="备选主题：音乐世界模型的动作到底是什么"><a href="#备选主题：音乐世界模型的动作到底是什么" class="headerlink" title="备选主题：音乐世界模型的动作到底是什么"></a>备选主题：音乐世界模型的动作到底是什么</h3><p>以 Music-JEPA 为主，比较被动 audio SSL、masked prediction、action-conditioned dynamics 和 amortized inverse planning。必须把“对齐 MIDI 是强动作监督”写进标题级论点。<strong>原创价值中高，但优先级低于前两个。</strong></p>
+<p>本次只生成追踪日报，不自行创建上述主题化原创博客。</p>
+<h2 id="来源链接"><a href="#来源链接" class="headerlink" title="来源链接"></a>来源链接</h2><h3 id="今日三篇主稿"><a href="#今日三篇主稿" class="headerlink" title="今日三篇主稿"></a>今日三篇主稿</h3><ul>
+<li>Gallagher, Guglielmi, <em>Toward Goal-Agnostic Joint-Embedding Predictive Control of Partial Differential Equations</em>：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2607.21644">arXiv</a> · <a target="_blank" rel="noopener" href="https://arxiv.org/html/2607.21644v1">HTML</a></li>
+<li>Wang, Fang, LeCun, <em>Music-JEPA: Learning a World Model of Sound from Action</em>：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2607.22000">arXiv</a> · <a target="_blank" rel="noopener" href="https://arxiv.org/html/2607.22000v1">HTML</a> · <a target="_blank" rel="noopener" href="https://zzwaang.github.io/music-jepa-demo/">Demo</a></li>
+<li>Sode, Pinton, <em>IQ-JEPA: A Joint-Embedding Predictive Architecture with a Hermitian Vision Transformer for Sound Speed and Attenuation Estimation from Ultrasound IQ Data</em>：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2607.22351">arXiv</a></li>
+</ul>
+<h3 id="方向进展与检索入口"><a href="#方向进展与检索入口" class="headerlink" title="方向进展与检索入口"></a>方向进展与检索入口</h3><ul>
+<li>Zhang et al., <em>On the Identifiability of Controlled World Models</em>：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2607.22430">arXiv</a></li>
+<li>arXiv 新论文列表：<a target="_blank" rel="noopener" href="https://arxiv.org/list/cs.LG/new">cs.LG</a> · <a target="_blank" rel="noopener" href="https://arxiv.org/list/cs.SD/new">cs.SD</a> · <a target="_blank" rel="noopener" href="https://arxiv.org/list/cs.CV/new">cs.CV</a> · <a target="_blank" rel="noopener" href="https://arxiv.org/list/cs.RO/new">cs.RO</a> · <a target="_blank" rel="noopener" href="https://arxiv.org/list/eess.SP/new">eess.SP</a> · <a target="_blank" rel="noopener" href="https://arxiv.org/list/eess.IV/new">eess.IV</a></li>
+</ul>
+<h3 id="延后候选"><a href="#延后候选" class="headerlink" title="延后候选"></a>延后候选</h3><ul>
+<li><code>seq-JEPA</code>：<a target="_blank" rel="noopener" href="https://proceedings.neurips.cc/paper_files/paper/2025/hash/2f63d2963526bdd9ff1b8bcc2dc9905a-Abstract-Conference.html">NeurIPS 2025 官方页面</a> · <a target="_blank" rel="noopener" href="https://arxiv.org/abs/2505.03176">arXiv</a></li>
+<li><code>JHU-VPT(JEPA)</code>：<a target="_blank" rel="noopener" href="https://proceedings.mlr.press/v301/shah26b.html">PMLR&#x2F;MIDL 页面</a></li>
+</ul>
+</div><div class="article-tags is-size-7 mb-4"><span class="mr-2">#</span><a class="link-muted mr-2" rel="tag" href="/tags/JEPA/">JEPA</a><a class="link-muted mr-2" rel="tag" href="/tags/JEPA%E8%BF%BD%E8%B8%AA/">JEPA追踪</a></div><!--!--></article></div><!--!--><nav class="post-navigation mt-4 level is-mobile"><div class="level-start"><a class="article-nav-prev level level-item link-muted" href="/2026/07/28/jepa-research-tracking/"><i class="level-item fas fa-chevron-left"></i><span class="level-item">JEPA 下游研究追踪 · 2026-07-28</span></a></div><div class="level-end"><a class="article-nav-next level level-item link-muted" href="/2026/07/26/jepa-research-tracking/"><span class="level-item">JEPA 下游研究追踪 · 2026-07-26</span><i class="level-item fas fa-chevron-right"></i></a></div></nav><!--!--></div><div class="column column-left is-4-tablet is-4-desktop is-4-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar is-rounded" src="/img/conan-avatar.svg" alt="Lu Zhongqiu"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">Lu Zhongqiu</p><p class="is-size-6 is-block">Builder · Thinker · Writer</p><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>分享已知的是无趣的，我只研究我当前不知道的，顺便分享</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">文章</p><a href="/archives/"><p class="title">55</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">分类</p><a href="/categories/"><p class="title">6</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">标签</p><a href="/tags/"><p class="title">77</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/luzhongqiu" target="_blank" rel="me noopener">关注我</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="me noopener" title="Github" href="https://github.com/luzhongqiu"><i class="fab fa-github"></i></a></div></div></div><!--!--><div class="card widget" data-type="categories"><div class="card-content"><div class="menu"><h3 class="menu-label">分类</h3><ul class="menu-list"><li><a class="level is-mobile" href="/categories/AI/"><span class="level-start"><span class="level-item">AI</span></span><span class="level-end"><span class="level-item tag">14</span></span></a></li><li><a class="level is-mobile" href="/categories/JEPA%E7%A0%94%E7%A9%B6%E8%BF%BD%E8%B8%AA/"><span class="level-start"><span class="level-item">JEPA研究追踪</span></span><span class="level-end"><span class="level-item tag">37</span></span></a></li><li><a class="level is-mobile" href="/categories/%E5%8C%BB%E5%AD%A6%E7%A7%91%E7%A0%94/"><span class="level-start"><span class="level-item">医学科研</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/%E5%B7%A5%E4%BD%9C/"><span class="level-start"><span class="level-item">工作</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/%E6%99%BA%E8%83%BD%E4%BD%93%E5%B7%A5%E7%A8%8B/"><span class="level-start"><span class="level-item">智能体工程</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/"><span class="level-start"><span class="level-item">深度学习</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></div></div></div><div class="card widget" data-type="recent-posts"><div class="card-content"><h3 class="menu-label">最新文章</h3><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-08-24T02:00:00.000Z">2026-08-24</time></p><p class="title"><a href="/2026/08/24/jepa-research-tracking/">JEPA 下游研究追踪 · 2026-08-24</a></p><p class="categories"><a href="/categories/JEPA%E7%A0%94%E7%A9%B6%E8%BF%BD%E8%B8%AA/">JEPA研究追踪</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-08-23T02:00:00.000Z">2026-08-23</time></p><p class="title"><a href="/2026/08/23/jepa-research-tracking/">JEPA 下游研究追踪 · 2026-08-23</a></p><p class="categories"><a href="/categories/JEPA%E7%A0%94%E7%A9%B6%E8%BF%BD%E8%B8%AA/">JEPA研究追踪</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-08-22T02:00:00.000Z">2026-08-22</time></p><p class="title"><a href="/2026/08/22/jepa-research-tracking/">JEPA 下游研究追踪 · 2026-08-22</a></p><p class="categories"><a href="/categories/JEPA%E7%A0%94%E7%A9%B6%E8%BF%BD%E8%B8%AA/">JEPA研究追踪</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-08-21T02:00:00.000Z">2026-08-21</time></p><p class="title"><a href="/2026/08/21/jepa-research-tracking/">JEPA 下游研究追踪 · 2026-08-21</a></p><p class="categories"><a href="/categories/JEPA%E7%A0%94%E7%A9%B6%E8%BF%BD%E8%B8%AA/">JEPA研究追踪</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-08-19T02:00:00.000Z">2026-08-19</time></p><p class="title"><a href="/2026/08/19/jepa-research-tracking/">JEPA 下游研究追踪 · 2026-08-19</a></p><p class="categories"><a href="/categories/JEPA%E7%A0%94%E7%A9%B6%E8%BF%BD%E8%B8%AA/">JEPA研究追踪</a></p></div></article></div></div><div class="card widget" data-type="archives"><div class="card-content"><div class="menu"><h3 class="menu-label">归档</h3><ul class="menu-list"><li><a class="level is-mobile" href="/archives/2026/08/"><span class="level-start"><span class="level-item">八月 2026</span></span><span class="level-end"><span class="level-item tag">21</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/07/"><span class="level-start"><span class="level-item">七月 2026</span></span><span class="level-end"><span class="level-item tag">18</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/04/"><span class="level-start"><span class="level-item">四月 2026</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/03/"><span class="level-start"><span class="level-item">三月 2026</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/archives/2026/02/"><span class="level-start"><span class="level-item">二月 2026</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li></ul></div></div></div><div class="card widget" data-type="tags"><div class="card-content"><div class="menu"><h3 class="menu-label">标签</h3><div class="field is-grouped is-grouped-multiline"><div class="control"><a class="tags has-addons" href="/tags/ACP/"><span class="tag">ACP</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI-Agent/"><span class="tag">AI Agent</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI%E5%8A%A8%E6%80%81/"><span class="tag">AI动态</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI%E5%B7%A5%E5%85%B7/"><span class="tag">AI工具</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI%E7%BC%96%E7%A8%8B/"><span class="tag">AI编程</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI%E8%8A%AF%E7%89%87/"><span class="tag">AI芯片</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Agent/"><span class="tag">Agent</span><span class="tag">5</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AgentSkills/"><span class="tag">AgentSkills</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Agentic-Workflow/"><span class="tag">Agentic Workflow</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/CLI/"><span class="tag">CLI</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Claude/"><span class="tag">Claude</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Claude-Code/"><span class="tag">Claude Code</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Codex/"><span class="tag">Codex</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/DeepSeek/"><span class="tag">DeepSeek</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/GPT-5/"><span class="tag">GPT-5</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/GitAgent/"><span class="tag">GitAgent</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/I-JEPA/"><span class="tag">I-JEPA</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/IDE/"><span class="tag">IDE</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/JEPA/"><span class="tag">JEPA</span><span class="tag">39</span></a></div><div class="control"><a class="tags has-addons" href="/tags/JEPA%E8%BF%BD%E8%B8%AA/"><span class="tag">JEPA追踪</span><span class="tag">37</span></a></div><div class="control"><a class="tags has-addons" href="/tags/KnowS/"><span class="tag">KnowS</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/LLM/"><span class="tag">LLM</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/LLM-JEPA/"><span class="tag">LLM-JEPA</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/LeCun/"><span class="tag">LeCun</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/MCP/"><span class="tag">MCP</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/MiniCPM/"><span class="tag">MiniCPM</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/NVIDIA/"><span class="tag">NVIDIA</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Omni-Flow/"><span class="tag">Omni-Flow</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/OpenClaw/"><span class="tag">OpenClaw</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/OpenViking/"><span class="tag">OpenViking</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Protocol/"><span class="tag">Protocol</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Skill/"><span class="tag">Skill</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Taalas/"><span class="tag">Taalas</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/TypeScript/"><span class="tag">TypeScript</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Vibe-Coding/"><span class="tag">Vibe Coding</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/WeCom/"><span class="tag">WeCom</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/YOLO/"><span class="tag">YOLO</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/kimi-cli/"><span class="tag">kimi-cli</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/oh-my-opencode/"><span class="tag">oh-my-opencode</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/openclaw/"><span class="tag">openclaw</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E4%B8%8A%E4%B8%8B%E6%96%87%E7%AE%A1%E7%90%86/"><span class="tag">上下文管理</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E4%B8%96%E7%95%8C%E6%A8%A1%E5%9E%8B/"><span class="tag">世界模型</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E4%BC%81%E4%B8%9A%E5%BE%AE%E4%BF%A1/"><span class="tag">企业微信</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E5%85%A8%E5%8F%8C%E5%B7%A5/"><span class="tag">全双工</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E5%85%B7%E8%BA%AB%E6%99%BA%E8%83%BD/"><span class="tag">具身智能</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E5%9B%BD%E8%87%AA%E7%84%B6/"><span class="tag">国自然</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E5%9F%BA%E9%87%91%E7%94%B3%E8%AF%B7/"><span class="tag">基金申请</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E5%A4%9A%E6%A8%A1%E6%80%81/"><span class="tag">多模态</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E5%A4%9A%E7%A7%9F%E6%88%B7%E6%9E%B6%E6%9E%84/"><span class="tag">多租户架构</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E5%A4%A7%E6%A8%A1%E5%9E%8B/"><span class="tag">大模型</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E5%B7%A5%E4%BD%9C/"><span class="tag">工作</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E5%B7%A5%E4%BD%9C%E6%B5%81/"><span class="tag">工作流</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E5%BC%80%E6%BA%90/"><span class="tag">开源</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/"><span class="tag">强化学习</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E5%BE%AE%E4%BF%A1%E5%85%AC%E4%BC%97%E5%8F%B7/"><span class="tag">微信公众号</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E6%80%9D%E8%80%83/"><span class="tag">思考</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E6%8E%A8%E7%90%86/"><span class="tag">推理</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E6%8F%92%E4%BB%B6/"><span class="tag">插件</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E6%95%99%E7%A8%8B/"><span class="tag">教程</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E6%96%87%E7%8C%AE%E7%BB%BC%E8%BF%B0/"><span class="tag">文献综述</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E6%97%A5%E6%8A%A5/"><span class="tag">日报</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E6%98%A5%E8%8A%82/"><span class="tag">春节</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E6%99%BA%E8%83%BD%E4%BD%93%E8%B0%83%E5%BA%A6/"><span class="tag">智能体调度</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/"><span class="tag">架构设计</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/"><span class="tag">源码解析</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E7%9B%AE%E6%A0%87%E6%A3%80%E6%B5%8B/"><span class="tag">目标检测</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E7%A1%AC%E4%BB%B6/"><span class="tag">硬件</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E7%A7%91%E6%99%AE/"><span class="tag">科普</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E7%A7%91%E7%A0%94%E5%B7%A5%E5%85%B7/"><span class="tag">科研工具</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E7%AB%AF%E4%BE%A7AI/"><span class="tag">端侧AI</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E8%85%BE%E8%AE%AF/"><span class="tag">腾讯</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E8%87%AA%E7%9B%91%E7%9D%A3%E5%AD%A6%E4%B9%A0/"><span class="tag">自监督学习</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E8%A1%A8%E5%BE%81%E5%AD%A6%E4%B9%A0/"><span class="tag">表征学习</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E8%A7%86%E8%A7%89/"><span class="tag">计算机视觉</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E9%80%9A%E7%94%A8%E6%99%BA%E8%83%BD%E4%BD%93/"><span class="tag">通用智能体</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E9%81%BF%E5%9D%91/"><span class="tag">避坑</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E9%98%BF%E9%87%8C/"><span class="tag">阿里</span><span class="tag">1</span></a></div></div></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">订阅更新</h3><form action="https://feedburner.google.com/fb/a/mailverify" method="post" target="popupwindow" onsubmit="window.open(&#039;https://feedburner.google.com/fb/a/mailverify?uri=&#039;,&#039;popupwindow&#039;,&#039;scrollbars=yes,width=550,height=520&#039;);return true"><input type="hidden" value="" name="uri"><input type="hidden" name="loc" value="en_US"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="订阅"></div></div></form></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">follow.it</h3><form action="" method="post" target="_blank"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="订阅"></div></div></form></div></div></div></div><!--!--></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><p class="is-size-7"><span>&copy; 2026 Lu Zhongqiu</span></p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="GitHub" href="https://github.com/luzhongqiu"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("zh-cn");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script data-pjax src="/js/column.js"></script><script src="/js/animation.js"></script><a id="back-to-top" title="回到顶端" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script data-pjax src="/js/back_to_top.js" defer></script><!--!--><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.js" defer></script><script>window.addEventListener("load", () => {
+      window.cookieconsent.initialise({
+        type: "info",
+        theme: "edgeless",
+        static: false,
+        position: "bottom-left",
+        content: {
+          message: "此网站使用Cookie来改善您的体验。",
+          dismiss: "知道了！",
+          allow: "允许使用Cookie",
+          deny: "拒绝",
+          link: "了解更多",
+          policy: "Cookie政策",
+          href: "https://www.cookiesandyou.com/",
+        },
+        palette: {
+          popup: {
+            background: "#edeff5",
+            text: "#838391"
+          },
+          button: {
+            background: "#4b81e8"
+          },
+        },
+      });
+    });</script><script src="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/js/lightgallery.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/js/jquery.justifiedGallery.min.js" defer></script><script>window.addEventListener("load", () => {
+            if (typeof $.fn.lightGallery === 'function') {
+                $('.article').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof $.fn.justifiedGallery === 'function') {
+                if ($('.justified-gallery > p > .gallery-item').length) {
+                    $('.justified-gallery > p > .gallery-item').unwrap();
+                }
+                $('.justified-gallery').justifiedGallery();
+            }
+        });</script><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/pjax@0.2.8/pjax.min.js"></script><script src="/js/pjax.js"></script><!--!--><!--!--><!--!--><script data-pjax src="/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="想要查找什么..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script data-pjax src="/js/insight.js" defer></script><script data-pjax>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/content.json"}, {"hint":"想要查找什么...","untitled":"(无标题)","posts":"文章","pages":"页面","categories":"分类","tags":"标签"});
+        });</script></body></html>
